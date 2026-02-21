@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -5,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 
 import 'infrastructure/navigation/navigation.dart';
 import 'infrastructure/navigation/routes.dart';
+import 'package:chucker_flutter/chucker_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +18,19 @@ void main() async {
 
 Future<void> _initializeApp() async {
   try {
+    /// Chucker Flutter Configuration
+    ChuckerFlutter.configure(
+      showOnRelease: kDebugMode,
+      showNotification: kDebugMode,
+      notificationAlignment: Alignment.topCenter,
+      offsetBegin: const Offset(0, -0.1),
+      offsetEnd: Offset.zero,
+    );
+
+    /// Load Environment Variables
     await dotenv.load(fileName: ".env");
+
+    /// Initialize Get Storage
     await GetStorage.init();
   } catch (e) {
     rethrow;
@@ -27,10 +41,14 @@ Future<void> _initializeApp() async {
 
 class Main extends StatelessWidget {
   final String initialRoute;
-  Main(this.initialRoute);
+  const Main(this.initialRoute, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(initialRoute: initialRoute, getPages: Nav.routes);
+    return GetMaterialApp(
+      initialRoute: initialRoute,
+      getPages: Nav.routes,
+      navigatorObservers: [ChuckerFlutter.navigatorObserver],
+    );
   }
 }

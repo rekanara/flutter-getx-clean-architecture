@@ -1,5 +1,7 @@
+import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:dio/dio.dart';
 import '../platform/storage/get_storage_impl.dart';
+import 'dio_wrapper.dart';
 
 class DioClient {
   static Dio get noAuthClient {
@@ -8,16 +10,11 @@ class DioClient {
     dio.options.connectTimeout = const Duration(seconds: 30);
     dio.options.receiveTimeout = const Duration(seconds: 30);
 
-    dio.interceptors.add(
-      LogInterceptor(
-        request: true,
-        requestHeader: true,
-        requestBody: true,
-        responseHeader: true,
-        responseBody: true,
-        error: true,
-      ),
-    );
+    /// Dio Wrapper Logger
+    dio.interceptors.add(DioWrapper.dioLog);
+
+    /// Chucker Flutter Logger
+    dio.interceptors.add(ChuckerDioInterceptor());
 
     return dio;
   }
@@ -28,17 +25,13 @@ class DioClient {
     dio.options.connectTimeout = const Duration(seconds: 30);
     dio.options.receiveTimeout = const Duration(seconds: 30);
 
-    dio.interceptors.add(
-      LogInterceptor(
-        request: true,
-        requestHeader: true,
-        requestBody: true,
-        responseHeader: true,
-        responseBody: true,
-        error: true,
-      ),
-    );
+    /// Dio Wrapper Logger
+    dio.interceptors.add(DioWrapper.dioLog);
 
+    /// Chucker Flutter Logger
+    dio.interceptors.add(ChuckerDioInterceptor());
+
+    /// Auth Interceptor
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {

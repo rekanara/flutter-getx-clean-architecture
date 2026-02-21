@@ -24,9 +24,9 @@ class LoggerHelper {
       },
       lineLength: 110,
 
-      dateTimeFormat: (time) {
-        return DateTime.now().toIso8601String();
-      },
+      // dateTimeFormat: (time) {
+      //   return DateTime.now().toIso8601String();
+      // },
       levelEmojis: {
         Level.trace: '📝',
         Level.debug: '🐛',

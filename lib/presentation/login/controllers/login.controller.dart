@@ -18,6 +18,13 @@ class LoginController extends GetxController {
   final isLoading = false.obs;
 
   @override
+  void onInit() {
+    super.onInit();
+    emailController.text = 'zidanfath.code@gmail.comm';
+    passwordController.text = 'Masuk123';
+  }
+
+  @override
   void onClose() {
     emailController.dispose();
     passwordController.dispose();

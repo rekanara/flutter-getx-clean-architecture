@@ -45,6 +45,8 @@ dependencies:
   logger: ^2.6.2
   device_info_plus: ^12.3.0
   flutter_local_notifications: ^20.1.0
+  chucker_flutter: ^1.9.1
+  talker_dio_logger: ^5.1.13
 
 dev_dependencies:
   flutter_test:
