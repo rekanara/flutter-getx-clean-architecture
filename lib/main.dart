@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import 'config/notifications/notifications.dart';
 import 'infrastructure/navigation/navigation.dart';
 import 'infrastructure/navigation/routes.dart';
 import 'package:chucker_flutter/chucker_flutter.dart';
@@ -32,6 +33,9 @@ Future<void> _initializeApp() async {
 
     /// Initialize Get Storage
     await GetStorage.init();
+
+    /// Initialize Notifications
+    await NotificationsHelper.init();
   } catch (e) {
     rethrow;
   } finally {

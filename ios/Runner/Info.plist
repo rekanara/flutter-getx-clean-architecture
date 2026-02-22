@@ -66,5 +66,34 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+
+	<!-- App Links -->
+	<key>AssociatedDomains</key>
+	<array>
+		<string>applinks:app.fiberzone.id</string>
+	</array>
+
+	<!-- Permission options for the `location` group -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Kami memerlukan izin lokasi untuk memberikan notifikasi yang sesuai untuk anda.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Kami memerlukan izin lokasi untuk memberikan notifikasi yang sesuai untuk anda.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Aplikasi ini membutuhkan akses lokasi untuk memberikan layanan berbasis lokasi secara akurat.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Kami memerlukan izin lokasi untuk mendapatkan informasi jaringan.</string>
+
+	<!-- Permission options for the `camera` group -->
+	<key>NSCameraUsageDescription</key>
+	<string>Kami butuh akses kamera untuk pengambilan foto KTP dan NPWP Anda secara langsung.</string>
+
+	<!-- Permission options for the `photos` group -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Kami butuh akses galeri agar Anda bisa unggah foto KTP dan NPWP dari penyimpanan perangkat.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Kami butuh akses galeri agar Anda bisa unggah foto KTP dan NPWP dari penyimpanan perangkat.</string>
+	<key>NSUserNotificationUsageDescription</key>
+	<string>Izinkan notifikasi agar kami bisa mengirim info penting seputar promo, status layanan, atau pembaruan akun.</string>
+
 </dict>
 </plist>

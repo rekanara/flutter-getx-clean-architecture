@@ -9,6 +9,34 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../infrastructure/navigation/routes.dart';
 
+/// A notification action which triggers a url launch event
+const String urlLaunchActionId = 'id_1';
+
+/// A notification action which triggers a App navigation event
+const String navigationActionId = 'id_3';
+
+/// Defines a iOS/MacOS notification category for text input actions.
+const String darwinNotificationCategoryText = 'textCategory';
+
+/// Defines a iOS/MacOS notification category for plain actions.
+const String darwinNotificationCategoryPlain = 'plainCategory';
+
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse notificationResponse) {
+  // ignore: avoid_print
+  print(
+    'notification(${notificationResponse.id}) action tapped: '
+    '${notificationResponse.actionId} with'
+    ' payload: ${notificationResponse.payload}',
+  );
+  if (notificationResponse.input?.isNotEmpty ?? false) {
+    // ignore: avoid_print
+    print(
+      'notification action tapped with input: ${notificationResponse.input}',
+    );
+  }
+}
+
 class NotificationsHelper {
   // prevent making instance
   NotificationsHelper._();
@@ -27,16 +55,60 @@ class NotificationsHelper {
     // Android initialization settings
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
+    final List<DarwinNotificationCategory> darwinNotificationCategories =
+        <DarwinNotificationCategory>[
+          DarwinNotificationCategory(
+            darwinNotificationCategoryText,
+            actions: <DarwinNotificationAction>[
+              DarwinNotificationAction.text(
+                'text_1',
+                'Action 1',
+                buttonTitle: 'Send',
+                placeholder: 'Placeholder',
+              ),
+            ],
+          ),
+          DarwinNotificationCategory(
+            darwinNotificationCategoryPlain,
+            actions: <DarwinNotificationAction>[
+              DarwinNotificationAction.plain('id_1', 'Action 1'),
+              DarwinNotificationAction.plain(
+                'id_2',
+                'Action 2 (destructive)',
+                options: <DarwinNotificationActionOption>{
+                  DarwinNotificationActionOption.destructive,
+                },
+              ),
+              DarwinNotificationAction.plain(
+                navigationActionId,
+                'Action 3 (foreground)',
+                options: <DarwinNotificationActionOption>{
+                  DarwinNotificationActionOption.foreground,
+                },
+              ),
+              DarwinNotificationAction.plain(
+                'id_4',
+                'Action 4 (auth required)',
+                options: <DarwinNotificationActionOption>{
+                  DarwinNotificationActionOption.authenticationRequired,
+                },
+              ),
+            ],
+            options: <DarwinNotificationCategoryOption>{
+              DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+            },
+          ),
+        ];
 
     // iOS initialization settings
-    const DarwinInitializationSettings iosSettings =
-        DarwinInitializationSettings(
-          requestAlertPermission: true,
-          requestBadgePermission: true,
-          requestSoundPermission: true,
-        );
+    IOSInitializationSettings iosSettings = IOSInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      notificationCategories: darwinNotificationCategories,
+    );
 
-    const InitializationSettings initSettings = InitializationSettings(
+    InitializationSettings initSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
     );
