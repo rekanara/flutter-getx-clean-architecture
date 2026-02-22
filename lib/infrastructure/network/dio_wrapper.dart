@@ -9,6 +9,7 @@ class DioWrapper {
       printResponseMessage: true,
       printResponseData: kDebugMode,
       printRequestData: kDebugMode,
+      enabled: kDebugMode,
     ),
   );
 }

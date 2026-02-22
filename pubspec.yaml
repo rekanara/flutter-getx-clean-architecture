@@ -47,6 +47,7 @@ dependencies:
   flutter_local_notifications: ^20.1.0
   chucker_flutter: ^1.9.1
   talker_dio_logger: ^5.1.13
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -72,6 +73,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/icons/
+    - assets/fonts/
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -99,3 +102,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_launcher_icons:
+  ios: true
+  android: true
+  image_path: "assets/icons/app_icon.png"
+  remove_alpha_ios: true
+
+# dart run flutter_launcher_icons
