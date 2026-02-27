@@ -5,6 +5,7 @@ import 'package:zidanfath_codebase/components/atoms/custom_button.dart';
 import 'package:zidanfath_codebase/components/atoms/custom_text.dart';
 import 'package:zidanfath_codebase/infrastructure/navigation/routes.dart';
 import 'package:zidanfath_codebase/utils/config.dart';
+import 'package:zidanfath_codebase/components/molecules/custom_cached_image.dart';
 
 import 'package:chucker_flutter/chucker_flutter.dart';
 
@@ -187,6 +188,47 @@ class HomeScreen extends GetView<HomeController> {
                           duration: 3,
                         );
                       },
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              /// Cached Network Image
+              ExpansionTile(
+                title: CustomText(
+                  text: 'Cached Image',
+                  fontType: FontType.bodyLarge,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                collapsedBackgroundColor: Colors.grey[200],
+                collapsedShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                backgroundColor: Colors.grey[200],
+                leading: Icon(Icons.image, color: theme.colorScheme.primary),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        const CustomCachedImage(
+                          imageUrl: 'https://picsum.photos/400/200',
+                          width: double.infinity,
+                          height: 200,
+                          borderRadius: 16,
+                        ),
+                        const SizedBox(height: 16),
+                        CustomText(
+                          text:
+                              'Gambar di atas di-load dari internet secara asinkron dan otomatis di-cache ke dalam penyimpanan lokal menggunakan cached_network_image.',
+                          fontType: FontType.bodyMedium,
+                          color: Colors.grey.shade600,
+                        ),
+                      ],
                     ),
                   ),
                 ],
