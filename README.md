@@ -300,6 +300,46 @@ class LoginController extends BaseController {
 
 `callUseCase()` otomatis handle: `isLoading`, `errorMessage`, dan `Either fold`.
 
+### `BasePaginationController`
+
+Digunakan untuk list API yang memiliki pagination (contoh: infinite scroll, load more). Otomatis menangani state halaman dan scroll listener.
+
+```dart
+class UsersController extends BasePaginationController<UserEntity> {
+  final GetUsersUseCase useCase;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchPage(1); // Auto-fetch saat init
+  }
+
+  @override
+  Future<void> fetchPage(int page) async {
+    final filter = PaginationFilter(page: page, limit: limit);
+
+    await callUseCase(
+      useCase.execute(filter),
+      onSuccess: (response) { 
+        appendData(
+          newItems: response.data ?? [], 
+          lastPage: response.meta?.lastPage ?? 1,
+        );
+      },
+    );
+  }
+}
+```
+
+Di UI, hubungkan ke `ListView` atau Widget sejenis:
+```dart
+ListView.builder(
+  controller: controller.scrollController, // Otomatis trigger fetchPage
+  itemCount: controller.items.length + (controller.isLoadMore.value ? 1 : 0),
+  itemBuilder: (context, index) { ... },
+)
+```
+
 ### `ApiResponse<T>`
 
 Generic wrapper untuk standarisasi parsing API response:
