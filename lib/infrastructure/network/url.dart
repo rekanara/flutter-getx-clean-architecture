@@ -1,143 +1,102 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/state_manager.dart';
 
 import 'environments.dart';
 
-class UrlDomain extends GetxController {
-  final appCastUrlAndroid = dotenv.env['URL_APPCAST_ANDROID']!.obs;
-  final appCastUrlIos = dotenv.env['URL_APPCAST_IOS']!.obs;
+// ─── Path Segments ──────────────────────────────────────────
 
-  final appName = ConfigEnvironments().getEnvironments()['appName']!.obs;
-  final jwt = ConfigEnvironments().getEnvironments()['jwt']!.obs;
-  final sso = ConfigEnvironments().getEnvironments()['sso']!.obs;
-  final billing = ConfigEnvironments().getEnvironments()['billing']!.obs;
-  final odp = ConfigEnvironments().getEnvironments()['odp']!.obs;
-  final homepass = ConfigEnvironments().getEnvironments()['homepass']!.obs;
-  final transaction = ConfigEnvironments()
-      .getEnvironments()['transaction']!
-      .obs;
-  final nextune = ConfigEnvironments().getEnvironments()['nextune']!.obs;
-  final nexadmin = ConfigEnvironments().getEnvironments()['nexadmin']!.obs;
-  final nexads = ConfigEnvironments().getEnvironments()['nexads']!.obs;
-  final nexpayment = ConfigEnvironments().getEnvironments()['nexpayment']!.obs;
-  final nexreward = ConfigEnvironments().getEnvironments()['nexreward']!.obs;
-  final cdn = ConfigEnvironments().getEnvironments()['cdn']!.obs;
-  final fe = ConfigEnvironments().getEnvironments()['fe']!.obs;
-  final app = ConfigEnvironments().getEnvironments()['app']!.obs;
-  final fzAdmin = ConfigEnvironments().getEnvironments()['fzAdmin']!.obs;
-  final fzContent = ConfigEnvironments().getEnvironments()['fzContent']!.obs;
-  final fzCdn = ConfigEnvironments().getEnvironments()['fzCdn']!.obs;
-  final fzTncPp = ConfigEnvironments().getEnvironments()['fzTncPp']!.obs;
-
-  /// ---------------------------------------- MQTT ---------------------------------------- ///
-  final mtqqBrokerUrl = ConfigEnvironments()
-      .getEnvironments()['mtqqBrokerUrl']!
-      .obs;
-  final mtqqBrokerPort = int.parse(
-    ConfigEnvironments().getEnvironments()['mtqqBrokerPort']!,
-  ).obs;
-  final mtqqClientId = ConfigEnvironments()
-      .getEnvironments()['mtqqClientId']!
-      .obs;
-  final mtqqUsername = ConfigEnvironments()
-      .getEnvironments()['mtqqUsername']!
-      .obs;
-  final mtqqPassword = ConfigEnvironments()
-      .getEnvironments()['mtqqPassword']!
-      .obs;
-
-  final firebaseProjectId = ConfigEnvironments()
-      .getEnvironments()['firebaseProjectId']!
-      .obs;
-  final firebaseStorageBucket = ConfigEnvironments()
-      .getEnvironments()['firebaseStorageBucket']!
-      .obs;
-
-  final firebaseMessagingSenderId = ConfigEnvironments()
-      .getEnvironments()['firebaseMessagingSenderId']!
-      .obs;
-  final firebaseBundleId = ConfigEnvironments()
-      .getEnvironments()['firebaseBundleId']!
-      .obs;
-
-  final firebaseAndroidApiKey = ConfigEnvironments()
-      .getEnvironments()['firebaseAndroidApiKey']!
-      .obs;
-  final firebaseAndroidAppId = ConfigEnvironments()
-      .getEnvironments()['firebaseAndroidAppId']!
-      .obs;
-  final firebaseIosApiKey = ConfigEnvironments()
-      .getEnvironments()['firebaseIosApiKey']!
-      .obs;
-  final firebaseIosAppId = ConfigEnvironments()
-      .getEnvironments()['firebaseIosAppId']!
-      .obs;
+/// Konstanta path segment, menghindari typo pada string path.
+class PathSegment {
+  static const String banner = '/assets/banner/';
+  static const String v1 = '/v1';
+  static const String v2 = '/v2';
+  static const String api = '/api';
+  static const String nexbill = '/nexbill';
+  static const String nexads = '/nexads';
+  static const String public = '/public';
 }
 
-class PathDomain extends GetxController {
-  final banner = '/assets/banner/'.obs;
-  final v1 = '/v1'.obs;
-  final v2 = '/v2'.obs;
-  final api = '/api'.obs;
-  final nexbill = '/nexbill'.obs;
-  final nexads = '/nexads'.obs;
-  final public = '/public'.obs;
+// ─── App Cast URLs ──────────────────────────────────────────
+
+/// AppCast URLs (tidak tergantung environment).
+class AppCastUrl {
+  static String get android => dotenv.env['URL_APPCAST_ANDROID']!;
+  static String get ios => dotenv.env['URL_APPCAST_IOS']!;
 }
 
-class Domain extends GetxController {
-  final backendSSO =
-      (UrlDomain().sso + PathDomain().api.value + PathDomain().v1.value).obs;
-  final backendBilling =
-      (UrlDomain().billing + PathDomain().api.value + PathDomain().v1.value)
-          .obs;
-  final backendOdp =
-      (UrlDomain().odp + PathDomain().api.value + PathDomain().v1.value).obs;
-  final backendHomepass =
-      (UrlDomain().homepass + PathDomain().api.value + PathDomain().v1.value)
-          .obs;
-  final backendTransaction =
-      (UrlDomain().transaction + PathDomain().api.value + PathDomain().v1.value)
-          .obs;
-  final nextune =
-      (UrlDomain().nextune + PathDomain().api.value + PathDomain().v1.value)
-          .obs;
-  final nexadmin =
-      (UrlDomain().nexadmin + PathDomain().api.value + PathDomain().v1.value)
-          .obs;
-  final nexads =
-      (UrlDomain().nexads + PathDomain().api.value + PathDomain().v1.value).obs;
-  final nexpayment =
-      (UrlDomain().nexpayment + PathDomain().api.value + PathDomain().v1.value)
-          .obs;
-  final nexreward =
-      (UrlDomain().nexreward + PathDomain().api.value + PathDomain().v1.value)
-          .obs;
+// ─── Domain Builder ─────────────────────────────────────────
 
-  /// ---------------------------------------- CDN ---------------------------------------- ///
+/// Membangun base URL dari [EnvironmentConfig] + path segments.
+///
+/// Akses langsung via typed property, tidak ada string key.
+/// Contoh: `Domain.sso` → `https://sso.dev.example.com/api/v1`
+class Domain {
+  static EnvironmentConfig get _cfg => ConfigEnvironments.config;
 
-  final cdnNexBillPackages =
-      ('${UrlDomain().cdn + PathDomain().nexbill.value}/packages').obs;
-  final cdnNexAds = (UrlDomain().cdn + PathDomain().nexads.value).obs;
+  // ── Backend Services (API v1) ──
+  static String get sso => '${_cfg.sso}${PathSegment.api}${PathSegment.v1}';
+  static String get billing =>
+      '${_cfg.billing}${PathSegment.api}${PathSegment.v1}';
+  static String get odp => '${_cfg.odp}${PathSegment.api}${PathSegment.v1}';
+  static String get homepass =>
+      '${_cfg.homepass}${PathSegment.api}${PathSegment.v1}';
+  static String get transaction =>
+      '${_cfg.transaction}${PathSegment.api}${PathSegment.v1}';
+  static String get nextune =>
+      '${_cfg.nextune}${PathSegment.api}${PathSegment.v1}';
+  static String get nexadmin =>
+      '${_cfg.nexadmin}${PathSegment.api}${PathSegment.v1}';
+  static String get nexads =>
+      '${_cfg.nexads}${PathSegment.api}${PathSegment.v1}';
+  static String get nexpayment =>
+      '${_cfg.nexpayment}${PathSegment.api}${PathSegment.v1}';
+  static String get nexreward =>
+      '${_cfg.nexreward}${PathSegment.api}${PathSegment.v1}';
 
-  /// ---------------------------------------- FZ ---------------------------------------- ///
-  final backendFzAdmin =
-      (UrlDomain().fzAdmin + PathDomain().api.value + PathDomain().v2.value)
-          .obs;
-  final backendFzContent =
-      (UrlDomain().fzContent +
-              PathDomain().v1.value +
-              PathDomain().public.value +
-              PathDomain().api.value)
-          .obs;
-  final backendFzCdn = (UrlDomain().fzCdn).obs;
+  // ── CDN ──
+  static String get cdnNexBillPackages =>
+      '${_cfg.cdn}${PathSegment.nexbill}/packages';
+  static String get cdnNexAds => '${_cfg.cdn}${PathSegment.nexads}';
+
+  // ── FZ ──
+  static String get fzAdmin =>
+      '${_cfg.fzAdmin}${PathSegment.api}${PathSegment.v2}';
+  static String get fzContent =>
+      '${_cfg.fzContent}${PathSegment.v1}${PathSegment.public}${PathSegment.api}';
+  static String get fzCdn => _cfg.fzCdn;
 }
 
-class URL extends GetxController {
-  /// ---------------------------------------- SSO ---------------------------------------- ///
-  final login = "${Domain().backendSSO}/auth/login".obs;
+// ─── URL Endpoints ──────────────────────────────────────────
 
-  /// ---------------------------------------- Nexadmin ---------------------------------------- ///
-  final banners = "${Domain().nexadmin}/banners".obs;
-  //customer-detail
-  final customerDetail = "${Domain().backendBilling}/customer-details/me".obs;
+/// Semua endpoint API yang digunakan di seluruh aplikasi.
+///
+/// Tambahkan endpoint baru di sini untuk menghindari
+/// string endpoint tersebar di banyak file.
+///
+/// ```dart
+/// final url = Endpoint.sso.login; // "https://sso.../auth/login"
+/// ```
+class Endpoint {
+  Endpoint._();
+
+  // ── SSO ──
+  static final sso = _SsoEndpoints();
+
+  // ── Nexadmin ──
+  static final nexadmin = _NexadminEndpoints();
+
+  // ── Billing ──
+  static final billing = _BillingEndpoints();
+}
+
+class _SsoEndpoints {
+  String get login => '${Domain.sso}/auth/login';
+  String get refresh => '${Domain.sso}/auth/refresh';
+}
+
+class _NexadminEndpoints {
+  String get banners => '${Domain.nexadmin}/banners';
+}
+
+class _BillingEndpoints {
+  String get customerDetail => '${Domain.billing}/customer-details/me';
 }

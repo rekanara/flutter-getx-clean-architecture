@@ -37,7 +37,7 @@ class HomeScreen extends GetView<HomeController> {
                 trailing: CustomButton(
                   title: 'Login',
                   onPressed: () {
-                    Get.toNamed(Routes.LOGIN);
+                    Get.toNamed(Routes.login);
                   },
                 ),
               ),
@@ -180,7 +180,7 @@ class HomeScreen extends GetView<HomeController> {
                       color: ColorData.info,
                       onPressed: () {
                         SnackbarHelper.show(
-                          status: SnackStatus.SUCCESS,
+                          status: SnackStatus.success,
                           title: 'Snackbar Custom',
                           message: 'Snackbar Custom',
                           position: SnackPosition.TOP,

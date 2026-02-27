@@ -1,15 +1,17 @@
 import 'package:dio/dio.dart';
 import '../../network/dio_client.dart';
 import '../../network/url.dart';
+import '../../platform/secure_storage/secure_storage.dart';
 
 class HomeApiService {
-  final Dio _authClient = DioClient.authClient;
+  final SecureStorage secureStorage;
 
-  // URL configurations
-  final URL _url = URL();
+  HomeApiService({required this.secureStorage});
+
+  /// Auth client dibuat lazy agar SecureStorage sudah ter-inject
+  Dio get _authClient => DioClient.authClient(secureStorage);
 
   Future<Response> getBanners() async {
-    // Requires auth token
-    return await _authClient.get(_url.banners.value);
+    return await _authClient.get(Endpoint.nexadmin.banners);
   }
 }

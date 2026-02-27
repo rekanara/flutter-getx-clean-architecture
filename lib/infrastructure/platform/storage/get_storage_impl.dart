@@ -14,12 +14,25 @@ class GetStorageImpl implements Storage {
   T? read<T>(String key) {
     return box.read<T>(key);
   }
+
+  @override
+  Future<void> delete(String key) async {
+    await box.remove(key);
+  }
+
+  @override
+  Future<void> clear() async {
+    await box.erase();
+  }
 }
 
 class StorageValue {
   // APP
   static const String appVersion = 'app_version';
   static const String appBuildNumber = 'app_build_number';
+
+  // ENV
+  static const String env = 'env';
 
   // THEME
   static const String themeIsLight = 'theme_is_light';

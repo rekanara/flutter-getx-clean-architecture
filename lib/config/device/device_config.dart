@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
-enum DeviceType { Mobile, Tablet, Desktop }
+enum DeviceType { mobile, tablet, desktop }
 
 class DeviceConfig {
   // Private constructor
@@ -37,9 +37,9 @@ class DeviceConfig {
         lineLength: 120,
         colors: true,
         printEmojis: true,
-        printTime: true,
+        // printTime: true,
       ),
-      level: Level.verbose,
+      level: Level.info,
     ).i(
       'Device Info: \nDevice:$deviceMake $deviceModel \nOS:$deviceOs \nID:$deviceId',
     );
@@ -49,11 +49,11 @@ class DeviceConfig {
     final double deviceWidth = MediaQuery.of(context).size.width;
 
     if (deviceWidth < 600) {
-      return DeviceType.Mobile;
+      return DeviceType.mobile;
     } else if (deviceWidth < 1200) {
-      return DeviceType.Tablet;
+      return DeviceType.tablet;
     } else {
-      return DeviceType.Desktop;
+      return DeviceType.desktop;
     }
   }
 
@@ -75,61 +75,54 @@ class DeviceConfig {
   String deviceSize = 'Unknown';
 
   /// Device id
-  String? get deviceId =>
-      kIsWeb
-          ? _webDeviceInfo?.appVersion!.substring(0, 3)
-          : GetPlatform.isAndroid
-          ? _androidDeviceInfo?.id
-          : _iosDeviceInfo?.identifierForVendor;
+  String? get deviceId => kIsWeb
+      ? _webDeviceInfo?.appVersion!.substring(0, 3)
+      : GetPlatform.isAndroid
+      ? _androidDeviceInfo?.id
+      : _iosDeviceInfo?.identifierForVendor;
 
-  String get deviceOS =>
-      kIsWeb
-          ? 'Web'
-          : GetPlatform.isAndroid
-          ? 'Android'
-          : 'iOS';
+  String get deviceOS => kIsWeb
+      ? 'Web'
+      : GetPlatform.isAndroid
+      ? 'Android'
+      : 'iOS';
 
   /// Device make brand
-  String? get deviceMake =>
-      kIsWeb
-          ? _webDeviceInfo?.browserName.name
-          : GetPlatform.isAndroid
-          ? _androidDeviceInfo?.brand
-          : 'Apple';
+  String? get deviceMake => kIsWeb
+      ? _webDeviceInfo?.browserName.name
+      : GetPlatform.isAndroid
+      ? _androidDeviceInfo?.brand
+      : 'Apple';
 
   /// Device Model
-  String? get deviceModel =>
-      kIsWeb
-          ? _webDeviceInfo?.platform
-          : GetPlatform.isAndroid
-          ? _androidDeviceInfo?.model
-          : _iosDeviceInfo?.utsname.machine;
+  String? get deviceModel => kIsWeb
+      ? _webDeviceInfo?.platform
+      : GetPlatform.isAndroid
+      ? _androidDeviceInfo?.model
+      : _iosDeviceInfo?.utsname.machine;
 
   /// Device is a type of 1 for Android and 2 for iOS
-  String get deviceTypeCode =>
-      kIsWeb
-          ? '3'
-          : GetPlatform.isAndroid
-          ? '1'
-          : '2';
+  String get deviceTypeCode => kIsWeb
+      ? '3'
+      : GetPlatform.isAndroid
+      ? '1'
+      : '2';
 
   /// Device OS
-  String get deviceOs =>
-      kIsWeb
-          ? '${_webDeviceInfo?.appVersion}'
-          : GetPlatform.isAndroid
-          ? '${_androidDeviceInfo?.version.codename}'
-          : '${_iosDeviceInfo?.systemVersion}';
+  String get deviceOs => kIsWeb
+      ? '${_webDeviceInfo?.appVersion}'
+      : GetPlatform.isAndroid
+      ? '${_androidDeviceInfo?.version.codename}'
+      : '${_iosDeviceInfo?.systemVersion}';
 
   /// Device mac address
-  String? get deviceMacAddress =>
-      kIsWeb
-          ? 'Web'
-          : GetPlatform.isAndroid
-          ? _androidDeviceInfo?.hardware
-          : GetPlatform.isIOS
-          ? _iosDeviceInfo?.model
-          : 'Unknown';
+  String? get deviceMacAddress => kIsWeb
+      ? 'Web'
+      : GetPlatform.isAndroid
+      ? _androidDeviceInfo?.hardware
+      : GetPlatform.isIOS
+      ? _iosDeviceInfo?.model
+      : 'Unknown';
 
   // detect platform for analytics
   void detectPlatform() {

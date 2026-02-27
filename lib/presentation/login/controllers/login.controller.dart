@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zidanfath_codebase/utils/helper/snackbar.dart';
 
-import '../../../../domain/auth/usecases/login_usecase.dart';
-import '../../../../infrastructure/navigation/routes.dart';
+import '../../../domain/auth/usecases/login_usecase.dart';
+import '../../../infrastructure/navigation/routes.dart';
+import '../../../presentation/core/base_controller.dart';
+import '../../../utils/helper/snackbar.dart';
 
-class LoginController extends GetxController {
+class LoginController extends BaseController {
   final LoginUseCase loginUseCase;
 
   LoginController({required this.loginUseCase});
@@ -15,14 +16,6 @@ class LoginController extends GetxController {
   final passwordController = TextEditingController();
 
   final isObscure = true.obs;
-  final isLoading = false.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    emailController.text = 'zidanfath.code@gmail.comm';
-    passwordController.text = 'Masuk123';
-  }
 
   @override
   void onClose() {
@@ -36,22 +29,16 @@ class LoginController extends GetxController {
   Future<void> doLogin() async {
     if (!formKey.currentState!.validate()) return;
 
-    isLoading.value = true;
+    final params = LoginParams(
+      email: emailController.text.trim(),
+      password: passwordController.text,
+    );
 
-    final email = emailController.text.trim();
-    final password = passwordController.text;
-
-    final result = await loginUseCase.execute(email, password);
-
-    result.fold(
-      (failure) {
-        isLoading.value = false;
-        SnackbarHelper.showError(failure.message);
-      },
-      (user) {
-        isLoading.value = false;
+    await callUseCase(
+      loginUseCase.execute(params),
+      onSuccess: (user) {
         SnackbarHelper.showSuccess('Welcome back, ${user.roleName}');
-        Get.offAllNamed(Routes.HOME);
+        Get.offAllNamed(Routes.home);
       },
     );
   }

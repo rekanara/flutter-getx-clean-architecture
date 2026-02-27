@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'dart:io';
-import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
+import '../../infrastructure/network/dio_client.dart';
 import '../../infrastructure/navigation/routes.dart';
 
 /// A notification action which triggers a url launch event
@@ -335,11 +335,11 @@ class NotificationController {
 
     switch (type) {
       case 'order':
-        route = Routes.HOME;
+        route = Routes.home;
         args = {'ticket_id': data['ticket_id']};
         break;
       default:
-        route = Routes.LOGIN;
+        route = Routes.login;
         args = {'refresh': true};
         break;
     }
@@ -549,10 +549,20 @@ class NotificationImageHelper {
       // Return cached file if already exists
       if (await file.exists()) return file.path;
 
-      final response = await http.get(Uri.parse(imageUrl));
-      if (response.statusCode != 200) return null;
+      // Gunakan DioClient.download (secara default noAuthClient, kecuali ditaruh parameter secureStorage)
+      final response = await DioClient.download(
+        url: imageUrl,
+        savePath: file.path,
+      );
 
-      await file.writeAsBytes(response.bodyBytes);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        // Hapus file jika gagal
+        if (await file.exists()) {
+          await file.delete();
+        }
+        return null;
+      }
+
       return file.path;
     } catch (_) {
       return null;

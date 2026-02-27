@@ -84,8 +84,8 @@ class CustomText extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         decoration: decoration,
         color: color != null
-            ? color!.withOpacity(opacity ?? 1.0)
-            : textStyle.color?.withOpacity(opacity ?? 1.0),
+            ? color!.withValues(alpha: opacity ?? 1.0)
+            : textStyle.color?.withValues(alpha: opacity ?? 1.0),
       ),
       maxLines: maxLines,
     );

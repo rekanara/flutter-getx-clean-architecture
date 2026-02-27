@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import '../../../../domain/auth/entities/user_entity.dart';
 import '../../../../domain/auth/repositories/auth_repository.dart';
 import '../../../../domain/core/errors/failures.dart';
+import '../../../platform/secure_storage/flutter_secure_storage_impl.dart';
+import '../../../platform/secure_storage/secure_storage.dart';
 import '../../../platform/storage/get_storage_impl.dart';
 import '../../services/auth_api_service.dart';
 import '../models/user_model.dart';
@@ -10,8 +12,13 @@ import '../models/user_model.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final AuthApiService apiService;
   final GetStorageImpl storage;
+  final SecureStorage secureStorage;
 
-  AuthRepositoryImpl({required this.apiService, required this.storage});
+  AuthRepositoryImpl({
+    required this.apiService,
+    required this.storage,
+    required this.secureStorage,
+  });
 
   @override
   Future<Either<Failure, UserEntity>> login(
@@ -36,8 +43,15 @@ class AuthRepositoryImpl implements AuthRepository {
 
         final userModel = UserModel.fromJson(data);
 
-        // Save token to storage
-        await storage.write(StorageValue.accessToken, userModel.accessToken);
+        // Simpan token ke SecureStorage (encrypted)
+        await secureStorage.write(
+          SecureStorageKey.accessToken,
+          userModel.accessToken,
+        );
+        await secureStorage.write(
+          SecureStorageKey.refreshToken,
+          userModel.refreshToken,
+        );
 
         return Right(userModel);
       } else {
@@ -58,10 +72,12 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> logout() async {
     try {
-      await storage.write(StorageValue.accessToken, '');
+      // Hapus token dari SecureStorage
+      await secureStorage.delete(SecureStorageKey.accessToken);
+      await secureStorage.delete(SecureStorageKey.refreshToken);
       return const Right(null);
     } catch (e) {
-      return Left(CacheFailure('Failed to clear local storage'));
+      return Left(CacheFailure('Failed to clear secure storage'));
     }
   }
 }

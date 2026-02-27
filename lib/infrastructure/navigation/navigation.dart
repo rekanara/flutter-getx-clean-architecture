@@ -12,29 +12,30 @@ class EnvironmentsBadge extends StatelessWidget {
   const EnvironmentsBadge({super.key, required this.child});
   @override
   Widget build(BuildContext context) {
-    DomainController domainController = Get.put(DomainController());
-    return domainController.env.value != Environments.PRODUCTION
-        ? Banner(
-            location: BannerLocation.topStart,
-            message: domainController.env.value,
-            color: domainController.env.value == Environments.DEV
-                ? Colors.purple
-                : Colors.orange,
-            child: child,
-          )
-        : SizedBox(child: child);
+    final env = ConfigEnvironments.current;
+
+    if (env.isProduction) {
+      return SizedBox(child: child);
+    }
+
+    return Banner(
+      location: BannerLocation.topStart,
+      message: env.label,
+      color: env.badgeColor,
+      child: child,
+    );
   }
 }
 
 class Nav {
   static List<GetPage> routes = [
     GetPage(
-      name: Routes.HOME,
+      name: Routes.home,
       page: () => const HomeScreen(),
       binding: HomeControllerBinding(),
     ),
     GetPage(
-      name: Routes.LOGIN,
+      name: Routes.login,
       page: () => const LoginScreen(),
       binding: LoginControllerBinding(),
     ),

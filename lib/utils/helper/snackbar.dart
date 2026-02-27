@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../config.dart';
 
 // enum SnackPosition { TOP, BOTTOM }
-enum SnackStatus { SUCCESS, ERROR, INFO, WARNING }
+enum SnackStatus { success, error, info, warning }
 
 class SnackbarHelper {
   SnackbarHelper({Key? key}) : super();
@@ -32,22 +32,22 @@ class SnackbarHelper {
     final IconData icon;
     final Color colors;
     final Color textColor;
-    if (status == SnackStatus.SUCCESS) {
+    if (status == SnackStatus.success) {
       colors = success;
       icon = Icons.check_circle;
       titleBase = 'Success';
       textColor = theme.colorScheme.onPrimary;
-    } else if (status == SnackStatus.WARNING) {
+    } else if (status == SnackStatus.warning) {
       colors = successNoFound;
       icon = Icons.warning;
       titleBase = 'Warning';
       textColor = theme.colorScheme.onPrimary;
-    } else if (status == SnackStatus.INFO) {
+    } else if (status == SnackStatus.info) {
       colors = info;
       icon = Icons.info;
       titleBase = 'Info';
       textColor = theme.colorScheme.onPrimary;
-    } else if (status == SnackStatus.ERROR) {
+    } else if (status == SnackStatus.error) {
       colors = error;
       icon = Icons.error;
       titleBase = 'Error';
@@ -104,19 +104,19 @@ class SnackbarHelper {
   }
 
   static void showError(String message) {
-    show(status: SnackStatus.ERROR, message: message);
+    show(status: SnackStatus.error, message: message);
   }
 
   static void showSuccess(String message) {
-    show(status: SnackStatus.SUCCESS, message: message);
+    show(status: SnackStatus.success, message: message);
   }
 
   static void showWarning(String message) {
-    show(status: SnackStatus.WARNING, message: message);
+    show(status: SnackStatus.warning, message: message);
   }
 
   static void showInfo(String message) {
-    show(status: SnackStatus.INFO, message: message);
+    show(status: SnackStatus.info, message: message);
   }
 }
 
