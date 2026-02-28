@@ -11,6 +11,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'config/firebase/firebase_service.dart';
 import 'config/firebase/firebase_messaging_service.dart';
 import 'config/firebase/remote_config_service.dart';
+import 'config/lifecycle/app_lifecycle_service.dart';
 import 'config/mqtt/mqtt_service.dart';
 import 'config/notifications/notifications.dart';
 import 'infrastructure/navigation/navigation.dart';
@@ -76,6 +77,9 @@ Future<void> _initializeApp() async {
 
     /// Initialize MQTT Service (global singleton)
     Get.put(MqttService(), permanent: true);
+
+    /// Initialize App Lifecycle Observer (MQTT reconnect, refresh hooks)
+    Get.put(AppLifecycleService(), permanent: true);
   } catch (e, stack) {
     LoggerHelper.e('Initialization Error', e, stack);
     rethrow;
