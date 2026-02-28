@@ -4,6 +4,7 @@ import '../../../../domain/core/errors/failures.dart';
 import '../../../../domain/home/entities/banner_entity.dart';
 import '../../../../domain/home/repositories/home_repository.dart';
 import '../../services/home_api_service.dart';
+import '../../../../utils/json_parser.dart';
 import '../models/banner_model.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
@@ -19,7 +20,11 @@ class HomeRepositoryImpl implements HomeRepository {
       if (response.statusCode == 200) {
         final data = response.data['data'] as List?;
         if (data != null) {
-          final banners = data.map((e) => BannerModel.fromJson(e)).toList();
+          /// Menggunakan JsonParser — otomatis pakai Isolate jika data besar
+          final banners = await JsonParser.parseList(
+            jsonList: data,
+            fromJson: BannerModel.fromJson,
+          );
           return Right(banners);
         }
         return const Right([]);

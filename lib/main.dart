@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -8,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'config/error/global_error_handler.dart';
 import 'config/firebase/firebase_service.dart';
 import 'config/firebase/firebase_messaging_service.dart';
 import 'config/firebase/remote_config_service.dart';
@@ -19,29 +17,19 @@ import 'infrastructure/navigation/routes.dart';
 import 'utils/helper/logger.dart';
 import 'package:chucker_flutter/chucker_flutter.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  /// GlobalErrorHandler membungkus seluruh app dalam runZonedGuarded
+  /// dan menangani FlutterError, PlatformDispatcher error, dan Zone error.
+  GlobalErrorHandler.init(() async {
+    await _initializeApp();
 
-  /// Global Error Handler — Flutter framework errors
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    LoggerHelper.e('Flutter Error', details.exception, details.stack);
-  };
+    /// Register FCM background handler (HARUS sebelum runApp)
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-  /// Global Error Handler — uncaught async errors
-  PlatformDispatcher.instance.onError = (error, stack) {
-    LoggerHelper.e('Uncaught Error', error, stack);
-    return true;
-  };
+    var initialRoute = await Routes.initialRoute;
 
-  await _initializeApp();
-
-  /// Register FCM background handler (HARUS sebelum runApp)
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
-  var initialRoute = await Routes.initialRoute;
-
-  runApp(Main(initialRoute));
+    runApp(Main(initialRoute));
+  });
 }
 
 Future<void> _initializeApp() async {
