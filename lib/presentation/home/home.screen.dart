@@ -12,6 +12,7 @@ import 'package:chucker_flutter/chucker_flutter.dart';
 import '../../utils/helper/dialog.dart';
 import '../../utils/helper/snackbar.dart';
 import 'controllers/home.controller.dart';
+import 'widgets/banner_carousel.dart';
 
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});
@@ -26,6 +27,15 @@ class HomeScreen extends GetView<HomeController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              /// Banner Carousel
+              Obx(() {
+                if (controller.banners.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return BannerCarousel(banners: controller.banners);
+              }),
+              const SizedBox(height: 16),
+
               /// Login
               ListTile(
                 contentPadding: EdgeInsets.symmetric(horizontal: 8),
@@ -278,6 +288,29 @@ class HomeScreen extends GetView<HomeController> {
                 leading: Icon(Icons.screen_share, color: ColorData.info),
                 title: CustomText(
                   text: 'Responsive',
+                  fontType: FontType.bodyLarge,
+                  color: ColorData.info,
+                ),
+                trailing: CustomButton(
+                  title: 'Open',
+                  onPressed: () {
+                    Get.toNamed(Routes.user);
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              /// GetBuilder
+              ListTile(
+                contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                tileColor: Colors.grey[200],
+                leading: Icon(Icons.screen_share, color: ColorData.info),
+                title: CustomText(
+                  text: 'GetBuilder',
                   fontType: FontType.bodyLarge,
                   color: ColorData.info,
                 ),

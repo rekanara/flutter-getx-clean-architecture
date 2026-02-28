@@ -14,22 +14,28 @@ class HomeController extends BaseController {
 
   final banners = <BannerEntity>[].obs;
 
-  late final AppLifecycleService _lifecycleService;
+  AppLifecycleService? _lifecycleService;
 
   @override
   void onInit() {
     super.onInit();
+
+    // Fetch data terlebih dahulu
     fetchBanners();
 
     // Daftarkan callback refresh saat app kembali dari background
-    _lifecycleService = Get.find<AppLifecycleService>();
-    _lifecycleService.addOnResumeCallback(_onAppResumed);
+    try {
+      _lifecycleService = Get.find<AppLifecycleService>();
+      _lifecycleService?.addOnResumeCallback(_onAppResumed);
+    } catch (_) {
+      // AppLifecycleService belum di-register — skip
+    }
   }
 
   @override
   void onClose() {
     // Hapus callback saat controller di-dispose
-    _lifecycleService.removeOnResumeCallback(_onAppResumed);
+    _lifecycleService?.removeOnResumeCallback(_onAppResumed);
     super.onClose();
   }
 

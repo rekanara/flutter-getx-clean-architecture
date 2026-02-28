@@ -104,7 +104,7 @@ class _SsoEndpoints {
 }
 
 class _NexadminEndpoints {
-  String get banners => '${Domain.nexadmin}/banners';
+  String get banners => '${Domain.nexadmin}/banners/active';
 }
 
 class _BillingEndpoints {

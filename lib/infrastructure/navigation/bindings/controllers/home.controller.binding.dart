@@ -19,8 +19,6 @@ class HomeControllerBinding extends Bindings {
     );
     Get.lazyPut<GetBannersUseCase>(() => GetBannersUseCase(Get.find()));
 
-    Get.lazyPut<HomeController>(
-      () => HomeController(getBannersUseCase: Get.find()),
-    );
+    Get.put<HomeController>(HomeController(getBannersUseCase: Get.find()));
   }
 }

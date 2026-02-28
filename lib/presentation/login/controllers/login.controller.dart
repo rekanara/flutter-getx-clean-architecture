@@ -18,6 +18,14 @@ class LoginController extends BaseController {
   final isObscure = true.obs;
 
   @override
+  void onInit() {
+    emailController.text = 'zidanfath.code@gmail.comm';
+    passwordController.text = 'Masuk123';
+
+    super.onInit();
+  }
+
+  @override
   void onClose() {
     emailController.dispose();
     passwordController.dispose();

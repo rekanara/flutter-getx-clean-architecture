@@ -9,9 +9,11 @@ class HomeApiService {
   HomeApiService({required this.secureStorage});
 
   /// Auth client dibuat lazy agar SecureStorage sudah ter-inject
-  Dio get _authClient => DioClient.authClient(secureStorage);
+  // Dio get _authClient => DioClient.authClient(secureStorage);
+
+  Dio get _noAuthClient => DioClient.noAuthClient;
 
   Future<Response> getBanners() async {
-    return await _authClient.get(Endpoint.nexadmin.banners);
+    return await _noAuthClient.get(Endpoint.nexadmin.banners);
   }
 }

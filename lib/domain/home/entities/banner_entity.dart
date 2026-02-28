@@ -1,7 +1,11 @@
 class BannerEntity {
   final String id;
-  final String imageUrl;
+  final String bannerUrl;
   final String title;
 
-  BannerEntity({required this.id, required this.imageUrl, required this.title});
+  BannerEntity({
+    required this.id,
+    required this.bannerUrl,
+    required this.title,
+  });
 }
