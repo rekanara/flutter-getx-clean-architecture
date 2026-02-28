@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-import '../network/environments.dart';
 import '../../presentation/screens.dart';
+import '../network/environments.dart';
 import 'bindings/controllers/controllers_bindings.dart';
 import 'routes.dart';
 
@@ -38,6 +38,11 @@ class Nav {
       name: Routes.login,
       page: () => const LoginScreen(),
       binding: LoginControllerBinding(),
+    ),
+    GetPage(
+      name: Routes.user,
+      page: () => const UserScreen(),
+      binding: UserControllerBinding(),
     ),
   ];
 }
