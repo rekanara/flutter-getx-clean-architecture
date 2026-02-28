@@ -265,6 +265,29 @@ class HomeScreen extends GetView<HomeController> {
                   },
                 ),
               ),
+
+              const SizedBox(height: 8),
+
+              /// Responsive
+              ListTile(
+                contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                tileColor: Colors.grey[200],
+                leading: Icon(Icons.screen_share, color: ColorData.info),
+                title: CustomText(
+                  text: 'Responsive',
+                  fontType: FontType.bodyLarge,
+                  color: ColorData.info,
+                ),
+                trailing: CustomButton(
+                  title: 'Open',
+                  onPressed: () {
+                    Get.toNamed(Routes.user);
+                  },
+                ),
+              ),
             ],
           ),
         ),
