@@ -6,7 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'config/firebase/firebase_service.dart';
+import 'config/firebase/firebase_messaging_service.dart';
+import 'config/firebase/remote_config_service.dart';
 import 'config/mqtt/mqtt_service.dart';
 import 'config/notifications/notifications.dart';
 import 'infrastructure/navigation/navigation.dart';
@@ -31,6 +35,9 @@ void main() async {
 
   await _initializeApp();
 
+  /// Register FCM background handler (HARUS sebelum runApp)
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
   var initialRoute = await Routes.initialRoute;
 
   runApp(Main(initialRoute));
@@ -53,8 +60,19 @@ Future<void> _initializeApp() async {
     /// Initialize Get Storage
     await GetStorage.init();
 
-    /// Initialize Notifications
+    /// Initialize Firebase Core
+    await FirebaseService.init();
+
+    /// Initialize Notifications (local)
     await NotificationsHelper.init();
+
+    /// Initialize Firebase Messaging (FCM)
+    final fcmService = Get.put(FirebaseMessagingService(), permanent: true);
+    await fcmService.init();
+
+    /// Initialize Firebase Remote Config
+    final rcService = Get.put(RemoteConfigService(), permanent: true);
+    await rcService.init();
 
     /// Initialize MQTT Service (global singleton)
     Get.put(MqttService(), permanent: true);

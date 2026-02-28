@@ -63,6 +63,16 @@ class Domain {
   static String get fzContent =>
       '${_cfg.fzContent}${PathSegment.v1}${PathSegment.public}${PathSegment.api}';
   static String get fzCdn => _cfg.fzCdn;
+
+  // ── Firebase ──
+  static String get firebaseAndroidApiKey => _cfg.firebaseAndroidApiKey;
+  static String get firebaseAndroidAppId => _cfg.firebaseAndroidAppId;
+  static String get firebaseMessagingSenderId => _cfg.firebaseMessagingSenderId;
+  static String get firebaseProjectId => _cfg.firebaseProjectId;
+  static String get firebaseStorageBucket => _cfg.firebaseStorageBucket;
+  static String get firebaseIosApiKey => _cfg.firebaseIosApiKey;
+  static String get firebaseIosAppId => _cfg.firebaseIosAppId;
+  static String get firebaseBundleId => _cfg.firebaseBundleId;
 }
 
 // ─── URL Endpoints ──────────────────────────────────────────
