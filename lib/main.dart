@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import 'config/mqtt/mqtt_service.dart';
 import 'config/notifications/notifications.dart';
 import 'infrastructure/navigation/navigation.dart';
 import 'infrastructure/navigation/routes.dart';
@@ -54,6 +55,9 @@ Future<void> _initializeApp() async {
 
     /// Initialize Notifications
     await NotificationsHelper.init();
+
+    /// Initialize MQTT Service (global singleton)
+    Get.put(MqttService(), permanent: true);
   } catch (e, stack) {
     LoggerHelper.e('Initialization Error', e, stack);
     rethrow;
