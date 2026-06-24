@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../components/atoms/custom_button.dart';
+import '../../components/atoms/custom_text.dart';
+import '../../utils/config.dart';
 import 'controllers/login.controller.dart';
 
 class LoginScreen extends GetView<LoginController> {
@@ -21,23 +24,21 @@ class LoginScreen extends GetView<LoginController> {
                 Icon(
                   Icons.lock_person_rounded,
                   size: 80,
-                  color: Theme.of(context).primaryColor,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Welcome Back!',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+                CustomText(
+                  text: 'Welcome Back!',
+                  fontType: FontType.headlineMedium,
+                  weight: FontWeight.bold,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Sign in to your account',
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                CustomText(
+                  text: 'Sign in to your account',
+                  fontType: FontType.bodyLarge,
                   textAlign: TextAlign.center,
+                  opacity: 0.6,
                 ),
                 const SizedBox(height: 48),
                 TextFormField(
@@ -99,35 +100,21 @@ class LoginScreen extends GetView<LoginController> {
                 ),
                 const SizedBox(height: 32),
                 Obx(
-                  () => ElevatedButton(
+                  () => CustomButton(
+                    title: 'Sign In',
                     onPressed: controller.isLoading.value
                         ? null
                         : controller.doLogin,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      backgroundColor: Theme.of(context).primaryColor,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                    ),
-                    child: controller.isLoading.value
+                    widget: controller.isLoading.value
                         ? const SizedBox(
-                            height: 24,
-                            width: 24,
+                            height: 20,
+                            width: 20,
                             child: CircularProgressIndicator(
                               color: Colors.white,
                               strokeWidth: 2,
                             ),
                           )
-                        : const Text(
-                            'Sign In',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                        : null,
                   ),
                 ),
               ],

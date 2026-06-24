@@ -14,6 +14,7 @@ import 'config/mqtt/mqtt_service.dart';
 import 'config/notifications/notifications.dart';
 import 'infrastructure/navigation/navigation.dart';
 import 'infrastructure/navigation/routes.dart';
+import 'infrastructure/theme/theme.dart';
 import 'utils/helper/logger.dart';
 import 'package:chucker_flutter/chucker_flutter.dart';
 
@@ -83,6 +84,13 @@ class Main extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      title: 'Nexus',
+      debugShowCheckedModeBanner: false,
+      theme: RkTheme.light,
+      darkTheme: RkTheme.dark,
+      themeMode: ThemeMode.system,
+      builder: (context, child) =>
+          EnvironmentsBadge(child: child ?? const SizedBox()),
       initialRoute: initialRoute,
       getPages: Nav.routes,
       navigatorObservers: [ChuckerFlutter.navigatorObserver],

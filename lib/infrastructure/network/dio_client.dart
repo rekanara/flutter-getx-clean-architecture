@@ -1,10 +1,10 @@
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' hide Response, MultipartFile, FormData;
+import 'package:get_storage/get_storage.dart';
 import '../platform/secure_storage/flutter_secure_storage_impl.dart';
 import '../platform/secure_storage/secure_storage.dart';
 import '../navigation/routes.dart';
-import '../platform/storage/storage.dart';
 import 'dio_wrapper.dart';
 import 'url.dart';
 
@@ -60,7 +60,7 @@ class DioClient {
                 // Retry original request dengan token baru
                 e.requestOptions.headers['Authorization'] = 'Bearer $newToken';
 
-                final retryResponse = await Dio().fetch(e.requestOptions);
+                final retryResponse = await noAuthClient.fetch(e.requestOptions);
                 return handler.resolve(retryResponse);
               }
             } catch (_) {
@@ -153,7 +153,7 @@ class DioClient {
   /// Force logout — hapus semua token dan redirect ke login.
   static Future<void> _forceLogout(SecureStorage secureStorage) async {
     await secureStorage.deleteAll();
-    await Get.find<Storage>().clear();
+    GetStorage().erase();
     Get.offAllNamed(Routes.login);
   }
 }

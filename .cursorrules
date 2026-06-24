@@ -1,0 +1,76 @@
+# Cursor Rules — zidanfath_codebase
+
+Flutter project dengan Clean Architecture + GetX.
+
+## Skills — Baca Sebelum Mengerjakan Task
+
+Panduan lengkap ada di `.agents/skills/`. Baca file SKILL.md yang relevan sebelum membuat atau mengubah kode.
+
+### Skill yang Tersedia
+
+```
+.agents/skills/
+├── new-feature/           # Panduan lengkap membuat fitur baru (BACA INI DULU)
+├── project-structure/     # Struktur folder + naming convention
+├── clean-architecture/    # Prinsip arsitektur + dependency rule
+├── entity/                # Domain entity (pure Dart)
+├── repository/            # Abstract interface + implementasi
+├── usecase/               # UseCase<T, Params>
+├── model/                 # Model extends Entity + fromJson
+├── api-service/           # DioClient: noAuth vs auth
+├── binding/               # DI wiring order
+├── controller-reactive/   # BaseController + .obs + Obx
+├── controller-builder/    # BaseBuilderController + GetBuilder
+├── controller-pagination/ # BasePaginationController<T>
+├── screen/                # GetView<T> + Obx/GetBuilder
+├── routing/               # routes.dart + navigation.dart
+├── environment/           # .env → Endpoint
+├── networking/            # DioClient, authClient, refresh token
+├── storage-get/           # GetStorage + StorageValue
+├── storage-secure/        # SecureStorage + SecureStorageKey
+├── state-management/      # Obx vs GetBuilder, Rx types
+├── components-atoms/      # CustomButton, CustomText
+├── components-molecules/  # CustomCachedImage, PaginationListView
+├── theme/                 # RkTheme, colorScheme
+├── responsive/            # Responsive widget + context extension
+├── json-parser/           # JsonParser isolate
+├── firebase/              # FCM + RemoteConfig
+├── mqtt/                  # MqttService
+├── lifecycle/             # AppLifecycleService
+├── notifications/         # ShowNotificationHelper
+├── permissions/           # PermissionHandler
+├── error-handling/        # Failure, Either, GlobalErrorHandler
+├── testing/               # Mockito + @GenerateMocks
+└── helpers/               # Logger, Snackbar, Dialog, Rupiah
+```
+
+## Rules
+
+### Arsitektur
+- Domain layer: TIDAK boleh import Flutter, Dio, GetX, storage package apapun
+- Controller: selalu gunakan `callUseCase()` dari BaseController
+- DI order: Storage → ApiService → Repository(abstract) → UseCase → Controller
+- URL: selalu `Endpoint.{service}.{action}`, tidak hardcode
+
+### State
+- Default: `BaseController` + `.obs` + `Obx`
+- Targeted: `BaseBuilderController` + `update([id])` + `GetBuilder`
+- Pagination: `BasePaginationController<T>` + `PaginationListView<T>`
+
+### Storage
+- Token, credentials → `SecureStorage` → key di `SecureStorageKey`
+- Theme, version, env → `GetStorage` → key di `StorageValue`
+
+### UI Components
+- Text → `CustomText(fontType: FontType.xxx)` bukan `Text()`
+- Button → `CustomButton(title, onPressed)` bukan `ElevatedButton()`
+- Image URL → `CustomCachedImage()` bukan `Image.network()`
+
+### Error
+- Repository catch block → `return Left(ServerFailure(message))`
+- Controller → `callUseCase(onSuccess: ..., onFailure: ...)`
+
+### Naming
+- File: snake_case — `product_entity.dart`, `get_products_usecase.dart`
+- Class: PascalCase — `ProductEntity`, `GetProductsUseCase`
+- Binding file: `{feature}.controller.binding.dart`

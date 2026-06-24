@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,10 +20,11 @@ class LoginController extends BaseController {
 
   @override
   void onInit() {
-    emailController.text = 'zidanfath.code@gmail.comm';
-    passwordController.text = 'Masuk123';
-
     super.onInit();
+    if (kDebugMode) {
+      emailController.text = 'zidanfath.code@gmail.com';
+      passwordController.text = 'Masuk123';
+    }
   }
 
   @override

@@ -71,16 +71,10 @@ abstract class BasePaginationController<T> extends BaseController {
   Future<void> refreshData() async {
     _currentPage = 1;
     _lastPage = 1;
-
-    // Set isLoading menjadi true untuk show skeleton/loading awal
-    isLoading.value = true;
     errorMessage.value = '';
-
-    await fetchPage(_currentPage);
-
-    // BaseController callUseCase biasanya meng-handle isLoading,
-    // tapi kita pastikan ulang di sini jika fetchPage tidak pakai callUseCase
-    isLoading.value = false;
+    items.clear();
+    // callUseCase di dalam fetchPage sudah menangani isLoading secara otomatis
+    await fetchPage(1);
   }
 
   /// Memuat halaman berikutnya. Otomatis dipanggil saat di-scroll ke bawah.
