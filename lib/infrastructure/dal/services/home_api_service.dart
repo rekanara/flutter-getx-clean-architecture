@@ -14,6 +14,6 @@ class HomeApiService {
   Dio get _noAuthClient => DioClient.noAuthClient;
 
   Future<Response> getBanners() async {
-    return await _noAuthClient.get(Endpoint.nexadmin.banners);
+    return await _noAuthClient.get(Endpoint.be.banners);
   }
 }

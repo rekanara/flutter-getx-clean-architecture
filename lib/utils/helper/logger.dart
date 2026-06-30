@@ -3,7 +3,7 @@ import 'package:logger/logger.dart';
 class LoggerHelper {
   static final Logger _logger = Logger(
     output: ConsoleOutput(),
-    filter: ProductionFilter(),
+    filter: DevelopmentFilter(),
     printer: PrettyPrinter(
       errorMethodCount: 8,
       colors: true,

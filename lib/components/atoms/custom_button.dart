@@ -6,7 +6,7 @@ import 'custom_text.dart';
 class CustomButton extends StatelessWidget {
   const CustomButton({
     super.key,
-    required this.title,
+    this.title,
     this.onPressed,
     this.color,
     this.textColor,
@@ -20,9 +20,12 @@ class CustomButton extends StatelessWidget {
     this.borderRadiusValue,
     this.fontWeight,
     this.enable = true,
-  });
+  }) : assert(
+         title != null || widget != null,
+         'Either title or widget must be provided',
+       );
 
-  final String title;
+  final String? title;
   final Function()? onPressed;
   final Color? color;
   final Color? textColor;
@@ -64,12 +67,12 @@ class CustomButton extends StatelessWidget {
             Size(width ?? 100, height ?? 40),
           ),
         ),
-        onPressed: onPressed,
+        onPressed: enable == true ? onPressed : null,
         key: key,
         child:
             widget ??
             CustomText(
-              text: title,
+              text: title ?? '',
               fontType: fontType ?? FontType.bodyMedium,
               weight: fontWeight,
               color: textColor ?? theme.colorScheme.primary,
@@ -100,22 +103,12 @@ class CustomButton extends StatelessWidget {
       child:
           widget ??
           CustomText(
-            text: title,
+            text: title ?? '',
             fontType: fontType ?? FontType.bodyMedium,
             weight: fontWeight,
             color: textColor ?? theme.buttonTheme.colorScheme?.onPrimary,
           ),
     );
-    // : ElevatedButton(
-    //   style: ButtonStyle(
-    //     backgroundColor: WidgetStateProperty.all<Color>(color!),
-    //     shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-    //       RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-    //     ),
-    //   ),
-    //   onPressed: () {},
-    //   child: CustomText(text: title, fontType: fontType, colorText: textColor),
-    // );
   }
 }
 

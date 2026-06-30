@@ -14,10 +14,10 @@ class AuthApiService {
   Dio get _authClient => DioClient.authClient(secureStorage);
 
   Future<Response> login(Map<String, dynamic> data) async {
-    return await _noAuthClient.post(Endpoint.sso.login, data: data);
+    return await _noAuthClient.post(Endpoint.be.login, data: data);
   }
 
   Future<Response> getUserProfile() async {
-    return await _authClient.get(Endpoint.billing.customerDetail);
+    return await _authClient.get(Endpoint.be.customerDetail);
   }
 }

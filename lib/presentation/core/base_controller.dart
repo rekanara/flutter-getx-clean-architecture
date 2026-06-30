@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:get/get.dart';
 
+import '../../config/error/global_error_handler.dart';
 import '../../domain/core/errors/failures.dart';
 import '../../utils/helper/snackbar.dart';
 
@@ -38,7 +39,8 @@ abstract class BaseController extends GetxController {
           SnackbarHelper.showError(failure.message);
         }
       }, (data) => onSuccess(data));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      GlobalErrorHandler.reportError(e, stackTrace, reason: 'BaseController.callUseCase ($T)');
       errorMessage.value = 'Unexpected error occurred';
       SnackbarHelper.showError('Unexpected error occurred');
     } finally {

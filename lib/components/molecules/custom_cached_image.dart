@@ -29,6 +29,11 @@ class CustomCachedImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // CachedNetworkImage melempar / empty frame pada URL kosong.
+    if (imageUrl.isEmpty) {
+      return _buildErrorContent();
+    }
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: CachedNetworkImage(
@@ -39,9 +44,17 @@ class CustomCachedImage extends StatelessWidget {
         fadeInDuration: fadeDuration,
         placeholder: (context, url) =>
             placeholder ?? _buildDefaultPlaceholder(),
-        errorWidget: (context, url, error) =>
-            errorWidget ?? _buildDefaultError(),
+        errorWidget: (context, url, error) => _buildErrorContent(),
       ),
+    );
+  }
+
+  /// ClipRRect + errorWidget fallback. Dipakai baik di early-return URL
+  /// kosong maupun di callback errorWidget CachedNetworkImage.
+  Widget _buildErrorContent() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: errorWidget ?? _buildDefaultError(),
     );
   }
 

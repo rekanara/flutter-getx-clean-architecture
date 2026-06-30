@@ -30,25 +30,9 @@ class EnvironmentConfig {
   final String jwt;
 
   // ── Services ──
-  final String sso;
-  final String billing;
-  final String odp;
-  final String homepass;
-  final String transaction;
-  final String nextune;
-  final String nexadmin;
-  final String nexads;
-  final String nexpayment;
-  final String nexreward;
+  final String be;
   final String cdn;
   final String fe;
-  final String app;
-
-  // ── FZ ──
-  final String fzAdmin;
-  final String fzContent;
-  final String fzCdn;
-  final String fzTncPp;
 
   // ── MQTT ──
   final String mqttBrokerUrl;
@@ -71,23 +55,9 @@ class EnvironmentConfig {
     required this.env,
     required this.appName,
     required this.jwt,
-    required this.sso,
-    required this.billing,
-    required this.odp,
-    required this.homepass,
-    required this.transaction,
-    required this.nextune,
-    required this.nexadmin,
-    required this.nexads,
-    required this.nexpayment,
-    required this.nexreward,
+    required this.be,
     required this.cdn,
     required this.fe,
-    required this.app,
-    required this.fzAdmin,
-    required this.fzContent,
-    required this.fzCdn,
-    required this.fzTncPp,
     required this.mqttBrokerUrl,
     required this.mqttBrokerPort,
     required this.mqttClientId,
@@ -164,23 +134,9 @@ class ConfigEnvironments {
       env: Environment.dev,
       appName: dotenv.env['NEX_APP_NAME'] ?? 'Nexus',
       jwt: dotenv.env['JWT_SECRET']!,
-      sso: dotenv.env['NEX_SSO_DEV']!,
-      billing: dotenv.env['NEX_BILL_MASTER_DEV']!,
-      odp: dotenv.env['NEX_ODP_DEV']!,
-      homepass: dotenv.env['NEX_HOMEPASS_DEV']!,
-      transaction: dotenv.env['NEX_TRANSACTION_DEV']!,
-      nextune: dotenv.env['NEX_NEXTUNE_DEV']!,
-      nexadmin: dotenv.env['NEX_ADMIN_DEV']!,
-      nexads: dotenv.env['NEX_ADS_DEV']!,
-      nexpayment: dotenv.env['NEX_PAYMENT_DEV']!,
-      nexreward: dotenv.env['NEX_REWARD_DEV']!,
+      be: dotenv.env['NEX_BE_DEV']!,
       cdn: dotenv.env['CDN_DEV']!,
       fe: dotenv.env['NEX_FE_DEV']!,
-      app: dotenv.env['NEX_APP_DEV']!,
-      fzAdmin: dotenv.env['FZ_ADMIN_DEV']!,
-      fzContent: dotenv.env['FZ_CONTENT_DEV']!,
-      fzCdn: dotenv.env['FZ_CDN_DEV']!,
-      fzTncPp: dotenv.env['FZ_TNCPP_DEV']!,
       mqttBrokerUrl: dotenv.env['MQTT_BROKER_URL_DEV']!,
       mqttBrokerPort: int.parse(dotenv.env['MQTT_BROKER_PORT_DEV']!),
       mqttClientId: dotenv.env['MQTT_CLIENT_ID_DEV']!,
@@ -202,23 +158,9 @@ class ConfigEnvironments {
       env: Environment.staging,
       appName: dotenv.env['NEX_APP_NAME'] ?? 'Nexus',
       jwt: dotenv.env['JWT_SECRET']!,
-      sso: dotenv.env['NEX_SSO_STAGING']!,
-      billing: dotenv.env['NEX_BILL_MASTER_STAGING']!,
-      odp: dotenv.env['NEX_ODP_STAGING']!,
-      homepass: dotenv.env['NEX_HOMEPASS_STAGING']!,
-      transaction: dotenv.env['NEX_TRANSACTION_STAGING']!,
-      nextune: dotenv.env['NEX_NEXTUNE_STAGING']!,
-      nexadmin: dotenv.env['NEX_ADMIN_STAGING']!,
-      nexads: dotenv.env['NEX_ADS_STAGING']!,
-      nexpayment: dotenv.env['NEX_PAYMENT_STAGING']!,
-      nexreward: dotenv.env['NEX_REWARD_STAGING']!,
+      be: dotenv.env['NEX_BE_STAGING']!,
       cdn: dotenv.env['CDN_STAGING']!,
       fe: dotenv.env['NEX_FE_STAGING']!,
-      app: dotenv.env['NEX_APP_STAGING']!,
-      fzAdmin: dotenv.env['FZ_ADMIN_STAGING']!,
-      fzContent: dotenv.env['FZ_CONTENT_STAGING']!,
-      fzCdn: dotenv.env['FZ_CDN_STAGING']!,
-      fzTncPp: dotenv.env['FZ_TNCPP_STAGING']!,
       mqttBrokerUrl: dotenv.env['MQTT_BROKER_URL_STAGING']!,
       mqttBrokerPort: int.parse(dotenv.env['MQTT_BROKER_PORT_STAGING']!),
       mqttClientId: dotenv.env['MQTT_CLIENT_ID_STAGING']!,
@@ -240,23 +182,9 @@ class ConfigEnvironments {
       env: Environment.prod,
       appName: dotenv.env['NEX_APP_NAME'] ?? 'Nexus',
       jwt: dotenv.env['JWT_SECRET']!,
-      sso: dotenv.env['NEX_SSO_PROD']!,
-      billing: dotenv.env['NEX_BILL_MASTER_PROD']!,
-      odp: dotenv.env['NEX_ODP_PROD']!,
-      homepass: dotenv.env['NEX_HOMEPASS_PROD']!,
-      transaction: dotenv.env['NEX_TRANSACTION_PROD']!,
-      nextune: dotenv.env['NEX_NEXTUNE_PROD']!,
-      nexadmin: dotenv.env['NEX_ADMIN_PROD']!,
-      nexads: dotenv.env['NEX_ADS_PROD']!,
-      nexpayment: dotenv.env['NEX_PAYMENT_PROD']!,
-      nexreward: dotenv.env['NEX_REWARD_PROD']!,
+      be: dotenv.env['NEX_BE_PROD']!,
       cdn: dotenv.env['CDN_PROD']!,
       fe: dotenv.env['NEX_FE_PROD']!,
-      app: dotenv.env['NEX_APP_PROD']!,
-      fzAdmin: dotenv.env['FZ_ADMIN_PROD']!,
-      fzContent: dotenv.env['FZ_CONTENT_PROD']!,
-      fzCdn: dotenv.env['FZ_CDN_PROD']!,
-      fzTncPp: dotenv.env['FZ_TNCPP_PROD']!,
       mqttBrokerUrl: dotenv.env['MQTT_BROKER_URL_PROD']!,
       mqttBrokerPort: int.parse(dotenv.env['MQTT_BROKER_PORT_PROD']!),
       mqttClientId: dotenv.env['MQTT_CLIENT_ID_PROD']!,

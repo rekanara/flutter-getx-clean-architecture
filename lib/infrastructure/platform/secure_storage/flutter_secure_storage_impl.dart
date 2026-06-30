@@ -4,11 +4,16 @@ import 'secure_storage.dart';
 /// Implementasi [SecureStorage] menggunakan FlutterSecureStorage.
 ///
 /// Data disimpan di:
-/// - **iOS**: Keychain
+/// - **iOS**: Keychain (accessibleWhenUnlockedThisDeviceOnly — tidak ikut
+///   iCloud backup, tidak accessible saat device locked, tidak ikut sync
+///   ke device lain. Cocok untuk token autentikasi.)
 /// - **Android**: EncryptedSharedPreferences (AES)
 class FlutterSecureStorageImpl implements SecureStorage {
   final FlutterSecureStorage _storage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.unlocked_this_device,
+    ),
   );
 
   @override

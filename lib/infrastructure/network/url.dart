@@ -33,36 +33,11 @@ class Domain {
   static EnvironmentConfig get _cfg => ConfigEnvironments.config;
 
   // ── Backend Services (API v1) ──
-  static String get sso => '${_cfg.sso}${PathSegment.api}${PathSegment.v1}';
-  static String get billing =>
-      '${_cfg.billing}${PathSegment.api}${PathSegment.v1}';
-  static String get odp => '${_cfg.odp}${PathSegment.api}${PathSegment.v1}';
-  static String get homepass =>
-      '${_cfg.homepass}${PathSegment.api}${PathSegment.v1}';
-  static String get transaction =>
-      '${_cfg.transaction}${PathSegment.api}${PathSegment.v1}';
-  static String get nextune =>
-      '${_cfg.nextune}${PathSegment.api}${PathSegment.v1}';
-  static String get nexadmin =>
-      '${_cfg.nexadmin}${PathSegment.api}${PathSegment.v1}';
-  static String get nexads =>
-      '${_cfg.nexads}${PathSegment.api}${PathSegment.v1}';
-  static String get nexpayment =>
-      '${_cfg.nexpayment}${PathSegment.api}${PathSegment.v1}';
-  static String get nexreward =>
-      '${_cfg.nexreward}${PathSegment.api}${PathSegment.v1}';
-
+  static String get be => '${_cfg.be}${PathSegment.api}${PathSegment.v1}';
   // ── CDN ──
   static String get cdnNexBillPackages =>
       '${_cfg.cdn}${PathSegment.nexbill}/packages';
   static String get cdnNexAds => '${_cfg.cdn}${PathSegment.nexads}';
-
-  // ── FZ ──
-  static String get fzAdmin =>
-      '${_cfg.fzAdmin}${PathSegment.api}${PathSegment.v2}';
-  static String get fzContent =>
-      '${_cfg.fzContent}${PathSegment.v1}${PathSegment.public}${PathSegment.api}';
-  static String get fzCdn => _cfg.fzCdn;
 
   // ── Firebase ──
   static String get firebaseAndroidApiKey => _cfg.firebaseAndroidApiKey;
@@ -88,25 +63,13 @@ class Domain {
 class Endpoint {
   Endpoint._();
 
-  // ── SSO ──
-  static final sso = _SsoEndpoints();
-
-  // ── Nexadmin ──
-  static final nexadmin = _NexadminEndpoints();
-
-  // ── Billing ──
-  static final billing = _BillingEndpoints();
+  // ── BE ──
+  static final be = _BeEndpoints();
 }
 
-class _SsoEndpoints {
-  String get login => '${Domain.sso}/auth/login';
-  String get refresh => '${Domain.sso}/auth/refresh';
-}
-
-class _NexadminEndpoints {
-  String get banners => '${Domain.nexadmin}/banners/active';
-}
-
-class _BillingEndpoints {
-  String get customerDetail => '${Domain.billing}/customer-details/me';
+class _BeEndpoints {
+  String get login => '${Domain.be}/auth/login';
+  String get refresh => '${Domain.be}/auth/refresh';
+  String get banners => '${Domain.be}/banners/active';
+  String get customerDetail => '${Domain.be}/customer-details/me';
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,15 +16,6 @@ class LoginController extends BaseController {
   final passwordController = TextEditingController();
 
   final isObscure = true.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    if (kDebugMode) {
-      emailController.text = 'zidanfath.code@gmail.com';
-      passwordController.text = 'Masuk123';
-    }
-  }
 
   @override
   void onClose() {

@@ -58,12 +58,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return Left(ServerFailure(response.statusMessage ?? 'Server Error'));
       }
     } on DioException catch (e) {
-      if (e.response != null && e.response?.data != null) {
-        return Left(
-          ServerFailure(e.response?.data['message'] ?? 'Invalid credentials'),
-        );
-      }
-      return Left(ServerFailure(e.message ?? 'Network Error'));
+      return Left(_mapDioExceptionToFailure(e));
     } catch (e) {
       return Left(ServerFailure('Unexpected Error Occurred'));
     }
@@ -78,6 +73,26 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Right(null);
     } catch (e) {
       return Left(CacheFailure('Failed to clear secure storage'));
+    }
+  }
+
+  Failure _mapDioExceptionToFailure(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return TimeoutFailure();
+      case DioExceptionType.connectionError:
+        return NoConnectionFailure();
+      case DioExceptionType.badResponse:
+        final statusCode = e.response?.statusCode;
+        if (statusCode == 401) {
+          return UnauthorizedFailure();
+        }
+        final message = e.response?.data?['message'] ?? e.message ?? 'Server error';
+        return ServerFailure(message);
+      default:
+        return ServerFailure(e.message ?? 'Network Error');
     }
   }
 }
