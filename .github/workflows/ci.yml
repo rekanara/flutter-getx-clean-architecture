@@ -2,11 +2,26 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
+  secret-guard:
+    name: Guard against tracked secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if Firebase config, .env, or signing files are tracked
+        run: |
+          FORBIDDEN="$(git ls-files | grep -E '^(\.env$|android/app/src/google-services\.json$|ios/Runner/GoogleService-Info\.plist$|android/key\.properties$|.*\.(jks|keystore)$)' || true)"
+          if [ -n "$FORBIDDEN" ]; then
+            echo "::error::Forbidden file(s) tracked in git: ${FORBIDDEN}"
+            echo "Provision these locally or via CI secrets — see docs/firebase.md"
+            exit 1
+          fi
+
   analyze-and-test:
     runs-on: ubuntu-latest
     steps:
