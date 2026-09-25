@@ -62,31 +62,29 @@ class ProductApiService {
 ## Template No Auth Client (endpoint publik)
 
 ```dart
-// Gunakan noAuthClient untuk endpoint yang TIDAK butuh token
+// Contoh nyata (disederhanakan) — lib/infrastructure/dal/services/auth_api_service.dart
 class AuthApiService {
   final SecureStorage secureStorage;
 
   AuthApiService({required this.secureStorage});
 
   // noAuthClient tidak inject token
-  Dio get _noAuthClient => DioClient.noAuthClient;
+  final Dio _noAuthClient = DioClient.noAuthClient;
 
   // authClient untuk endpoint yang perlu token (misal: getUserProfile)
   Dio get _authClient => DioClient.authClient(secureStorage);
 
   Future<Response> login(Map<String, dynamic> data) async {
-    return await _noAuthClient.post(Endpoint.sso.login, data: data);
-  }
-
-  Future<Response> register(Map<String, dynamic> data) async {
-    return await _noAuthClient.post(Endpoint.sso.register, data: data);
+    return await _noAuthClient.post(Endpoint.be.login, data: data);
   }
 
   Future<Response> getUserProfile() async {
-    return await _authClient.get(Endpoint.sso.profile);
+    return await _authClient.get(Endpoint.be.customerDetail);
   }
 }
 ```
+
+Saat ini hanya ada satu namespace endpoint: `Endpoint.be` (lihat `environment/SKILL.md`). `Endpoint.product`/dst di skill lain adalah contoh pola untuk menambah service baru, bukan yang sudah ada.
 
 ---
 

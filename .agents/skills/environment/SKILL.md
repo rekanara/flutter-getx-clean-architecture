@@ -22,36 +22,20 @@ Endpoint.{service}.{action}  (full path)
 
 ---
 
-## File: .env
+## Struktur Saat Ini (Real)
+
+Saat ini hanya ada **satu backend service**: `be` (dibaca dari `NEX_BE_DEV`/`NEX_BE_STAGING`/`NEX_BE_PROD` di `.env`), diakses lewat `Domain.be` dan `Endpoint.be.{login,refresh,banners,customerDetail}`. Contoh di bawah ("SSO", "Nexadmin", "Product") adalah ilustrasi pola untuk **menambah service baru** — bukan yang sudah ada di kode.
+
+## File: .env (contoh menambah service baru "Product")
 
 ```env
-# SSO Service
-SSO_DEV=https://sso-dev.example.com
-SSO_STAGING=https://sso-staging.example.com
-SSO_PROD=https://sso.example.com
-
-# Nexadmin Service
-NEXADMIN_DEV=https://nexadmin-dev.example.com
-NEXADMIN_STAGING=https://nexadmin-staging.example.com
-NEXADMIN_PROD=https://nexadmin.example.com
-
-# === Tambah service baru ===
+# Service baru (ilustrasi — sesuaikan prefix dengan konvensi kamu)
 PRODUCT_DEV=https://product-dev.example.com
 PRODUCT_STAGING=https://product-staging.example.com
 PRODUCT_PROD=https://product.example.com
-
-# MQTT
-MQTT_BROKER_DEV=mqtt-dev.example.com
-MQTT_BROKER_STAGING=mqtt-staging.example.com
-MQTT_BROKER_PROD=mqtt.example.com
-MQTT_PORT=1883
-MQTT_USERNAME=user
-MQTT_PASSWORD=pass
-
-# Firebase (per env jika berbeda)
-FIREBASE_API_KEY_DEV=...
-FIREBASE_PROJECT_ID_DEV=...
 ```
+
+Lihat `.env.example` untuk daftar lengkap key yang benar-benar dipakai saat ini (JWT, NEX_BE/FE, CDN, FIREBASE_*, MQTT_*, URL_APPCAST_*).
 
 ---
 
@@ -62,51 +46,46 @@ FIREBASE_PROJECT_ID_DEV=...
 ```dart
 // lib/infrastructure/network/environments.dart
 class EnvironmentConfig {
-  final String sso;
-  final String nexadmin;
+  final String be; // ← sudah ada (backend utama)
   final String product; // ← TAMBAHKAN
-  // ... field lain (mqtt, firebase, dll)
 
   const EnvironmentConfig({
-    required this.sso,
-    required this.nexadmin,
+    required this.be,
     required this.product, // ← TAMBAHKAN
-    // ...
+    // ... field lain (mqtt, firebase, dll — sudah ada)
   });
 }
 ```
 
 ### Step 2: Isi nilai per environment
 
+`ConfigEnvironments` di kode sebenarnya menyimpan config sebagai `List<EnvironmentConfig> _configs` (bukan getter `_devConfig`/`_stagingConfig`/`_prodConfig` terpisah) — tambahkan field `product` di tiap entry `EnvironmentConfig(...)` yang sudah ada untuk `Environment.dev`, `.staging`, dan `.prod`:
+
 ```dart
-class ConfigEnvironments {
-  static EnvironmentConfig get _devConfig => EnvironmentConfig(
-    sso: dotenv.env['SSO_DEV']!,
-    nexadmin: dotenv.env['NEXADMIN_DEV']!,
+static final List<EnvironmentConfig> _configs = [
+  EnvironmentConfig(
+    env: Environment.dev,
+    be: dotenv.env['NEX_BE_DEV']!,
     product: dotenv.env['PRODUCT_DEV']!, // ← TAMBAHKAN
-  );
-
-  static EnvironmentConfig get _stagingConfig => EnvironmentConfig(
-    sso: dotenv.env['SSO_STAGING']!,
-    nexadmin: dotenv.env['NEXADMIN_STAGING']!,
+    // ... field lain yang sudah ada
+  ),
+  EnvironmentConfig(
+    env: Environment.staging,
+    be: dotenv.env['NEX_BE_STAGING']!,
     product: dotenv.env['PRODUCT_STAGING']!, // ← TAMBAHKAN
-  );
-
-  static EnvironmentConfig get _prodConfig => EnvironmentConfig(
-    sso: dotenv.env['SSO_PROD']!,
-    nexadmin: dotenv.env['NEXADMIN_PROD']!,
+    // ...
+  ),
+  EnvironmentConfig(
+    env: Environment.prod,
+    be: dotenv.env['NEX_BE_PROD']!,
     product: dotenv.env['PRODUCT_PROD']!, // ← TAMBAHKAN
-  );
+    // ...
+  ),
+];
 
-  // getter current + config — sudah ada, tidak perlu diubah
-  static EnvironmentConfig get config {
-    switch (current) {
-      case Environment.dev: return _devConfig;
-      case Environment.staging: return _stagingConfig;
-      case Environment.prod: return _prodConfig;
-    }
-  }
-}
+// getter current + config — sudah ada, tidak perlu diubah
+static EnvironmentConfig get config =>
+    _configs.firstWhere((c) => c.env == current);
 ```
 
 ---
@@ -116,17 +95,12 @@ class ConfigEnvironments {
 ### Step 3: Tambah Domain getter
 
 ```dart
-// lib/infrastructure/network/url.dart
-class PathSegment {
-  static const api = '/api';
-  static const v1 = '/v1';
-}
-
+// lib/infrastructure/network/url.dart — PathSegment/Domain/Endpoint sudah ada,
+// ini contoh MENAMBAH getter baru di class yang sudah ada
 class Domain {
   static EnvironmentConfig get _cfg => ConfigEnvironments.config;
 
-  static String get sso => '${_cfg.sso}${PathSegment.api}${PathSegment.v1}';
-  static String get nexadmin => '${_cfg.nexadmin}${PathSegment.api}${PathSegment.v1}';
+  static String get be => '${_cfg.be}${PathSegment.api}${PathSegment.v1}'; // ← sudah ada
   static String get product => '${_cfg.product}${PathSegment.api}${PathSegment.v1}'; // ← TAMBAHKAN
 }
 ```
@@ -135,8 +109,8 @@ class Domain {
 
 ```dart
 class Endpoint {
-  static final sso = _SsoEndpoints();
-  static final nexadmin = _NexadminEndpoints();
+  Endpoint._();
+  static final be = _BeEndpoints(); // ← sudah ada
   static final product = _ProductEndpoints(); // ← TAMBAHKAN
 }
 
@@ -149,15 +123,12 @@ class _ProductEndpoints {
   String get delete => '${Domain.product}/products'; // + /$id di service
 }
 
-// Contoh existing:
-class _SsoEndpoints {
-  String get login   => '${Domain.sso}/auth/login';
-  String get refresh => '${Domain.sso}/auth/refresh';
-  String get profile => '${Domain.sso}/user/profile';
-}
-
-class _NexadminEndpoints {
-  String get banners => '${Domain.nexadmin}/banners';
+// Yang sudah ada di kode saat ini:
+class _BeEndpoints {
+  String get login          => '${Domain.be}/auth/login';
+  String get refresh        => '${Domain.be}/auth/refresh';
+  String get banners        => '${Domain.be}/banners/active';
+  String get customerDetail => '${Domain.be}/customer-details/me';
 }
 ```
 
@@ -184,8 +155,10 @@ final envController = Get.find<EnvironmentController>();
 envController.switchEnvironment(Environment.staging);
 
 // Switch ke prod
-envController.setEnvironment(Environment.prod);
+envController.switchEnvironment(Environment.prod);
 ```
+
+**Catatan:** hanya ada satu method — `switchEnvironment()`. Tidak ada `setEnvironment()`.
 
 Environment disimpan di `GetStorage` (key `StorageValue.env`), persisten saat restart.
 

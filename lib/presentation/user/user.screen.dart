@@ -79,7 +79,7 @@ class UserScreen extends GetView<UserController> {
                 return ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: c.filteredUsers.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final user = c.filteredUsers[index];
                     final isSelected = c.selectedIndex == index;

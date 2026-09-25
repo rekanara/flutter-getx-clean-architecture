@@ -43,7 +43,7 @@ class OpenSetting {
 
                   onPressed: () {
                     Get.back();
-                    afterCreateUpdate;
+                    afterCreateUpdate?.call();
                   },
                   child: const Text('Setting'),
                 ),
@@ -86,7 +86,7 @@ class OpenSetting {
 
                   onPressed: () {
                     Get.back();
-                    afterCreateUpdate;
+                    afterCreateUpdate?.call();
                   },
                   child: const Text('Setting'),
                 ),

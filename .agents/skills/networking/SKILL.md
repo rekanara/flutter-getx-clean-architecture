@@ -26,18 +26,16 @@ class AuthApiService {
   Dio get _client => DioClient.noAuthClient;
 
   Future<Response> login(Map<String, dynamic> data) async {
-    return await _client.post(Endpoint.sso.login, data: data);
-  }
-
-  Future<Response> register(Map<String, dynamic> data) async {
-    return await _client.post(Endpoint.sso.register, data: data);
+    return await _client.post(Endpoint.be.login, data: data);
   }
 
   Future<Response> getBanners() async {
-    return await _client.get(Endpoint.nexadmin.banners);
+    return await _client.get(Endpoint.be.banners);
   }
 }
 ```
+
+Saat ini semua endpoint ada di satu namespace: `Endpoint.be.*` (`login`, `refresh`, `banners`, `customerDetail`).
 
 **Fitur noAuthClient:**
 - Timeout 30 detik (connect + send + receive)
@@ -66,7 +64,7 @@ class ProductApiService {
 
 **Fitur authClient (tambahan dari noAuthClient):**
 - Auto-inject `Authorization: Bearer <token>` dari SecureStorage
-- Interceptor 401: auto-refresh token via `Endpoint.sso.refresh`
+- Interceptor 401: auto-refresh token via `Endpoint.be.refresh`
   - Jika refresh berhasil: simpan token baru → retry request asli
   - Jika refresh gagal: `secureStorage.deleteAll()` → redirect ke login
 

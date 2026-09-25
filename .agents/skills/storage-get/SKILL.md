@@ -40,11 +40,12 @@ class StorageValue {
 
 ```dart
 // lib/infrastructure/platform/storage/storage.dart
+// write/delete/clear semuanya Future<void> (async) — read tetap sync
 abstract class Storage {
-  void write(String key, dynamic value);
+  Future<void> write(String key, dynamic value);
   T? read<T>(String key);
-  void delete(String key);
-  void clear();
+  Future<void> delete(String key);
+  Future<void> clear();
 }
 ```
 
@@ -59,24 +60,24 @@ class SomeRepositoryImpl implements SomeRepository {
 
   SomeRepositoryImpl({required this.storage});
 
-  void saveThemePreference(bool isLight) {
-    storage.write(StorageValue.themeIsLight, isLight);
+  Future<void> saveThemePreference(bool isLight) async {
+    await storage.write(StorageValue.themeIsLight, isLight);
   }
 
   bool getThemePreference() {
     return storage.read<bool>(StorageValue.themeIsLight) ?? true;
   }
 
-  void saveAppVersion(String version) {
-    storage.write(StorageValue.appVersion, version);
+  Future<void> saveAppVersion(String version) async {
+    await storage.write(StorageValue.appVersion, version);
   }
 
   String? getAppVersion() {
     return storage.read<String>(StorageValue.appVersion);
   }
 
-  void clearAll() {
-    storage.clear();
+  Future<void> clearAll() async {
+    await storage.clear();
   }
 }
 ```

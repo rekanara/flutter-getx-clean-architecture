@@ -8,9 +8,11 @@ Panduan menggunakan Firebase Core, Firebase Cloud Messaging (FCM), dan Remote Co
 
 ```dart
 // lib/main.dart — sudah diinisialisasi, tidak perlu setup ulang
-await FirebaseService.initialize();
-await FirebaseMessagingService().init();
-await RemoteConfigService().init();
+await FirebaseService.init();
+final fcmService = Get.put(FirebaseMessagingService(), permanent: true);
+await fcmService.init();
+final rcService = Get.put(RemoteConfigService(), permanent: true);
+await rcService.init();
 ```
 
 ---
@@ -22,7 +24,7 @@ await RemoteConfigService().init();
 Singleton init guard — aman dipanggil berkali-kali:
 
 ```dart
-await FirebaseService.initialize();
+await FirebaseService.init();
 // Idempotent: jika sudah init, langsung return
 ```
 
@@ -41,9 +43,11 @@ final fcmService = Get.find<FirebaseMessagingService>();
 ### FCM Token
 
 ```dart
-// Token otomatis didapat saat init
-// Untuk mendapatkan token saat ini:
-final token = await fcmService.fcmToken; // String?
+// fcmToken adalah RxString (observable), BUKAN Future — jangan di-await
+final token = fcmService.fcmToken.value; // String
+
+// Reaktif di UI:
+Obx(() => Text(fcmService.fcmToken.value));
 
 // Token auto-refresh — sudah ada listener di service
 ```
@@ -177,7 +181,7 @@ static FirebaseOptions get currentPlatform => FirebaseOptions(
 ## Checklist
 
 ```
-[ ] Firebase sudah init di main.dart (FirebaseService.initialize())
+[ ] Firebase sudah init di main.dart (FirebaseService.init())
 [ ] FCM sudah init di main.dart (FirebaseMessagingService().init())
 [ ] Remote Config sudah init di main.dart (RemoteConfigService().init())
 [ ] Untuk baca FCM token: Get.find<FirebaseMessagingService>()

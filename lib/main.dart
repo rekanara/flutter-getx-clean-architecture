@@ -84,7 +84,7 @@ class Main extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Nexus',
+      title: 'Zidanfath Codebase',
       debugShowCheckedModeBanner: false,
       theme: RkTheme.light,
       darkTheme: RkTheme.dark,

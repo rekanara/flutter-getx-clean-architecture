@@ -19,11 +19,12 @@ Panduan request izin platform (notification, location, camera, storage) mengguna
 ## Menggunakan PermissionHandler
 
 ```dart
-// Tidak perlu inject — method static/singleton
-await PermissionHandler.requestNotificationPermission();
-await PermissionHandler.requestCameraPermission();
-await PermissionHandler.requestLocationPermission();
-await PermissionHandler.requestStoragePermission();
+// Method INSTANCE (bukan static) — buat instance dulu
+final permissions = PermissionHandler();
+await permissions.requestNotificationPermission();
+await permissions.requestCameraPermission();
+await permissions.requestLocationPermission();
+await permissions.requestStoragePermission();
 ```
 
 ---
@@ -40,7 +41,7 @@ class CameraController extends BaseController {
   }
 
   Future<void> _requestCameraPermission() async {
-    await PermissionHandler.requestCameraPermission();
+    await PermissionHandler().requestCameraPermission();
     // Setelah ini user sudah di-prompt atau sudah granted
     openCamera();
   }
@@ -66,7 +67,7 @@ status == granted?
                   │
                   ▼
            status == permanentlyDenied?
-               └─ Yes → OpenSetting.openSettings() dialog
+               └─ Yes → OpenSetting().openSettings() dialog
                          (user harus buka settings manual)
 ```
 
@@ -116,8 +117,8 @@ Jika user permanently denied permission, tampilkan dialog:
 
 ```dart
 // Sudah di-handle otomatis di PermissionHandler
-// Tapi bisa juga dipanggil manual:
-OpenSetting.openSettings(
+// Tapi bisa juga dipanggil manual (openSettings method instance, bukan static):
+OpenSetting().openSettings(
   label: 'Kamera',
   message: 'Izin kamera diperlukan untuk fitur ini. Buka pengaturan?',
   afterCreateUpdate: () {
@@ -147,7 +148,7 @@ class ScanScreen extends GetView<ScanController> {
   }
 
   Future<void> _onScanPressed() async {
-    await PermissionHandler.requestCameraPermission();
+    await PermissionHandler().requestCameraPermission();
     // Setelah return — sudah handle granted/denied/permanentlyDenied
     // Lanjutkan hanya jika granted
     final status = await Permission.camera.status;

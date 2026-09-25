@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -58,14 +60,16 @@ class PermissionHandler {
         }
       } else if (status.isPermanentlyDenied) {
         _logger.w('$permissionName Permission Permanently Denied');
-        OpenSetting().openSettings(
-          label: permissionName,
-          message: '$permissionName Permission required for certain features',
-          afterCreateUpdate: () async {
-            await openAppSettings().then((value) {
-              _logger.i('openAppSettings value: $value');
-            });
-          },
+        unawaited(
+          OpenSetting().openSettings(
+            label: permissionName,
+            message: '$permissionName Permission required for certain features',
+            afterCreateUpdate: () async {
+              await openAppSettings().then((value) {
+                _logger.i('openAppSettings value: $value');
+              });
+            },
+          ),
         );
         return false;
       }

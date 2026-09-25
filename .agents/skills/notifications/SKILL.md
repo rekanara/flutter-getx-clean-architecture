@@ -40,13 +40,13 @@ enum NotificationType {
 ### Via ShowNotificationHelper (Rekomendasi)
 
 ```dart
-// Pilih channel berdasarkan type
+// payload bertipe Map<String, String>?, BUKAN String hasil jsonEncode
 ShowNotificationHelper.showNotification(
   type: NotificationType.order,
   title: 'Pesanan Baru',
   body: 'Order #12345 sedang diproses',
-  payload: jsonEncode({'type': 'order', 'id': '12345'}),
-  imageUrl: 'https://example.com/icon.png', // opsional
+  payload: {'type': 'order', 'id': '12345'},
+  iconUrl: 'https://example.com/icon.png', // opsional — parameter bernama iconUrl, bukan imageUrl
 );
 
 // Chat notification
@@ -54,22 +54,24 @@ ShowNotificationHelper.showNotification(
   type: NotificationType.chat,
   title: 'Pesan dari Support',
   body: 'Halo, ada yang bisa kami bantu?',
-  payload: jsonEncode({'type': 'chat', 'room_id': 'support_1'}),
+  payload: {'type': 'chat', 'room_id': 'support_1'},
 );
 ```
 
 ### Via NotificationsHelper langsung (detail lengkap)
 
 ```dart
+// Parameter sebenarnya: channelKey (bukan channel), isBigText+summary (bukan bigText),
+// payload Map<String,String>? (bukan jsonEncode string), largeIcon/bigPicture untuk gambar
 await NotificationsHelper.showNotification(
   id: 101,
+  channelKey: NotificationChannels.adsChannelKey,
+  groupKey: NotificationChannels.adsGroupKey,
   title: 'Promo Flash Sale!',
   body: 'Diskon 50% untuk semua produk',
-  channel: NotificationChannels.ads,
-  payload: jsonEncode({'type': 'ads', 'promo_id': 'fs_001'}),
-  bigText: 'Dapatkan diskon 50% untuk semua produk pilihan dalam Flash Sale hari ini. Penawaran terbatas!',
-  imageUrl: 'https://example.com/promo.jpg',
-  groupKey: 'promo_group',
+  summary: 'Dapatkan diskon 50% untuk semua produk pilihan dalam Flash Sale hari ini.',
+  isBigText: true,
+  payload: {'type': 'ads', 'promo_id': 'fs_001'},
 );
 ```
 
@@ -79,13 +81,22 @@ await NotificationsHelper.showNotification(
 
 ```dart
 // lib/config/notifications/notifications.dart
+// Getter bernama {name}ChannelKey / {name}GroupKey / {name}ChannelName / {name}ChannelDescription
+// — BUKAN konstanta bare seperti NotificationChannels.chat
 class NotificationChannels {
-  static const chat      = 'chat_channel';
-  static const order     = 'order_channel';
-  static const ticket    = 'ticket_channel';
-  static const ads       = 'ads_channel';
-  static const marketing = 'marketing_channel';
-  static const general   = 'general_channel';
+  static String get chatChannelKey => "chat_channel";
+  static String get chatGroupKey => "chat_group_key";
+  static String get orderChannelKey => "order_channel";
+  static String get orderGroupKey => "order_group_key";
+  static String get ticketChannelKey => "ticket_channel";
+  static String get ticketGroupKey => "ticket_group_key";
+  static String get adsChannelKey => "ads_channel";
+  static String get adsGroupKey => "ads_group_key";
+  static String get marketingChannelKey => "marketing_channel";
+  static String get marketingGroupKey => "marketing_group_key";
+  static String get generalChannelKey => "general_channel";
+  static String get generalGroupKey => "general_group_key";
+  // + *ChannelName / *ChannelDescription untuk tiap channel
 }
 ```
 
@@ -95,28 +106,43 @@ Semua channel importance: `Importance.max` (heads-up notification).
 
 ## Handling Tap (NotificationController)
 
-Sudah di-handle otomatis di `NotificationController`. Routing berdasarkan payload `type`:
+Sudah di-handle otomatis di `NotificationController` untuk **local notification** (bukan FCM). Routing yang benar-benar ada saat ini sangat minimal:
 
 ```dart
-// Default routing di NotificationController:
-void _handlePayload(String payload) {
-  final data = jsonDecode(payload);
-  final type = data['type'] as String?;
+// lib/config/notifications/notifications.dart — implementasi nyata saat ini
+class NotificationController {
+  static void onActionReceived(NotificationResponse response) =>
+      _handlePayload(response.payload);
 
-  switch (type) {
-    case 'order':
-      Get.toNamed(Routes.orderDetail, arguments: {'id': data['id']});
-      break;
-    case 'chat':
-      Get.toNamed(Routes.chat, arguments: {'room_id': data['room_id']});
-      break;
-    default:
-      Get.toNamed(Routes.home);
+  @pragma('vm:entry-point')
+  static void onBackgroundActionReceived(NotificationResponse response) =>
+      _handlePayload(response.payload);
+
+  static void _handlePayload(String? rawPayload) {
+    if (rawPayload == null) return;
+    final payload = jsonDecode(rawPayload) as Map<String, dynamic>;
+    final type = payload['type'] as String?;
+
+    String route;
+    Map<String, dynamic>? args;
+    switch (type) {
+      case 'order':
+        route = Routes.home; // TODO: belum ada Routes.orderDetail
+        args = {'ticket_id': payload['data']};
+        break;
+      default:
+        route = Routes.login;
+        args = {'refresh': true};
+    }
+
+    Get.key.currentState?.pushNamed(route, arguments: args);
   }
 }
 ```
 
-Untuk menambah routing baru, edit `NotificationController`.
+`Routes.orderDetail` dan `Routes.chat` **belum ada** di `routes.dart` (baru `home`/`login`/`user`) — tambahkan dulu sebelum bisa routing ke sana. Untuk tap dari **FCM** (bukan local notification), lihat `FirebaseMessagingService._handleNotificationTap` di `firebase_messaging_service.dart` — saat ini masih TODO/belum ada navigasi sama sekali.
+
+Untuk menambah routing baru, edit `NotificationController._handlePayload`.
 
 ---
 
@@ -147,8 +173,8 @@ void _processMessage(RemoteMessage message) {
 Download icon dari URL untuk notifikasi bergambar:
 
 ```dart
-// Download otomatis dipanggil saat ada imageUrl
-final imagePath = await NotificationImageHelper.downloadImage(imageUrl);
+// Method bernama downloadToTemp, bukan downloadImage
+final imagePath = await NotificationImageHelper.downloadToTemp(imageUrl);
 // Disimpan di temp dir, dibersihkan setelah 7 hari
 ```
 
@@ -159,7 +185,7 @@ final imagePath = await NotificationImageHelper.downloadImage(imageUrl);
 ```dart
 // Sebelum show notifikasi, pastikan permission sudah di-request
 // (Sudah dilakukan di main.dart via PermissionHandler)
-await PermissionHandler.requestNotificationPermission();
+await PermissionHandler().requestNotificationPermission();
 ```
 
 ---

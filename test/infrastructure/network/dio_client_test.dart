@@ -19,12 +19,12 @@ void main() {
       expect(dio.interceptors.length, greaterThanOrEqualTo(2));
     });
 
-    test('should create new Dio instance each time (not cached)', () {
+    test('should reuse the same cached Dio instance across calls', () {
       final dio1 = DioClient.noAuthClient;
       final dio2 = DioClient.noAuthClient;
 
-      // Setiap call harus return instance baru
-      expect(identical(dio1, dio2), isFalse);
+      // Instance di-cache untuk reuse connection pool.
+      expect(identical(dio1, dio2), isTrue);
     });
   });
 

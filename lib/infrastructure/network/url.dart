@@ -58,7 +58,7 @@ class Domain {
 /// string endpoint tersebar di banyak file.
 ///
 /// ```dart
-/// final url = Endpoint.sso.login; // "https://sso.../auth/login"
+/// final url = Endpoint.be.login; // "https://api.../v1/auth/login"
 /// ```
 class Endpoint {
   Endpoint._();

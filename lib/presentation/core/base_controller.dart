@@ -40,7 +40,11 @@ abstract class BaseController extends GetxController {
         }
       }, (data) => onSuccess(data));
     } catch (e, stackTrace) {
-      GlobalErrorHandler.reportError(e, stackTrace, reason: 'BaseController.callUseCase ($T)');
+      GlobalErrorHandler.reportError(
+        e,
+        stackTrace,
+        reason: 'BaseController.callUseCase ($T)',
+      );
       errorMessage.value = 'Unexpected error occurred';
       SnackbarHelper.showError('Unexpected error occurred');
     } finally {

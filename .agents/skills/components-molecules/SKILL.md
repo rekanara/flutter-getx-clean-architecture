@@ -196,7 +196,7 @@ class ProductListScreen extends GetView<ProductListController> {
                 fontType: FontType.titleSmall,
               ),
               subtitle: CustomText(
-                text: RupiahHelper.formatCurrencyToRupiah(product.price),
+                text: RupiahHelper().formatCurrencyToRupiah(product.price),
                 fontType: FontType.bodySmall,
               ),
               onTap: () => Get.toNamed(Routes.productDetail, arguments: product.id),

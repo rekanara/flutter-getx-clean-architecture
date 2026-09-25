@@ -9,15 +9,15 @@ class ServerFailure extends Failure {
 }
 
 class TimeoutFailure extends Failure {
-  TimeoutFailure([String message = 'Connection timeout']) : super(message);
+  TimeoutFailure([super.message = 'Connection timeout']);
 }
 
 class NoConnectionFailure extends Failure {
-  NoConnectionFailure([String message = 'No internet connection']) : super(message);
+  NoConnectionFailure([super.message = 'No internet connection']);
 }
 
 class UnauthorizedFailure extends Failure {
-  UnauthorizedFailure([String message = 'Unauthorized session']) : super(message);
+  UnauthorizedFailure([super.message = 'Unauthorized session']);
 }
 
 class CacheFailure extends Failure {

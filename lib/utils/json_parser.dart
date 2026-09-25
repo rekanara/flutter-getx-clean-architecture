@@ -35,7 +35,7 @@ class JsonParser {
 
   /// Parse JSON List menjadi `List<T>` menggunakan Isolate jika data besar.
   ///
-  /// [jsonList] — raw List<dynamic> dari response API.
+  /// [jsonList] — raw `List<dynamic>` dari response API.
   /// [fromJson] — factory constructor, e.g. `BannerModel.fromJson`.
   static Future<List<T>> parseList<T>({
     required List<dynamic> jsonList,

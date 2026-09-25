@@ -274,7 +274,7 @@ class DioClient {
       _accessTokenFuture = null;
 
       await secureStorage.deleteAll();
-      GetStorage().erase();
+      await GetStorage().erase();
       // Await navigasi supaya gate hanya reset setelah nav selesai —
       // mencegah caller paralel masuk dan fire offAllNamed duplikat.
       await Get.offAllNamed(Routes.login);

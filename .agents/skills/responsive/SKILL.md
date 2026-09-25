@@ -142,8 +142,9 @@ Widget build(BuildContext context) {
 
 ```dart
 // lib/config/device/device_config.dart
-final deviceType = DeviceConfig.instance.getDeviceType(context);
-// DeviceType.mobile / DeviceType.tablet
+// getDeviceType adalah method STATIC — panggil dari class, bukan dari .instance
+final deviceType = DeviceConfig.getDeviceType(context);
+// DeviceType.mobile / DeviceType.tablet / DeviceType.desktop
 ```
 
 ---

@@ -34,7 +34,7 @@ mqtt.connectionStatus.value // MqttConnectionStatus enum
 // MqttConnectionStatus.connecting
 // MqttConnectionStatus.connected
 // MqttConnectionStatus.disconnected
-// MqttConnectionStatus.faulted
+// MqttConnectionStatus.error
 
 // Di UI
 Obx(() => Icon(
@@ -82,9 +82,10 @@ mqtt.unsubscribe('user/123/notifications');
 ## Publish Pesan
 
 ```dart
+// topic dan message adalah POSITIONAL parameter, bukan named
 mqtt.publish(
-  topic: 'order/123/status',
-  message: '{"status": "delivered"}',
+  'order/123/status',
+  '{"status": "delivered"}',
   qos: MqttQos.atLeastOnce, // atau atMostOnce, exactlyOnce
   retain: false,
 );

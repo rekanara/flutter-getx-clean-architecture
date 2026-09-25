@@ -62,6 +62,18 @@ class ServerFailure extends Failure {
   ServerFailure(super.message);
 }
 
+class TimeoutFailure extends Failure {
+  TimeoutFailure([super.message = 'Connection timeout']);
+}
+
+class NoConnectionFailure extends Failure {
+  NoConnectionFailure([super.message = 'No internet connection']);
+}
+
+class UnauthorizedFailure extends Failure {
+  UnauthorizedFailure([super.message = 'Unauthorized session']);
+}
+
 class CacheFailure extends Failure {
   CacheFailure(super.message);
 }
@@ -89,13 +101,11 @@ if (response.data['success'] == false) {
 
 ### Tambah Failure Type Baru
 
+`TimeoutFailure`, `NoConnectionFailure`, dan `UnauthorizedFailure` **sudah ada** (lihat di atas) — tinggal pakai, tidak perlu dibuat ulang. Kalau butuh tipe lain:
+
 ```dart
 class ValidationFailure extends Failure {
   ValidationFailure(super.message);
-}
-
-class TimeoutFailure extends Failure {
-  TimeoutFailure() : super('Koneksi timeout. Coba lagi.');
 }
 ```
 
@@ -210,7 +220,7 @@ SnackbarHelper.showInfo('Pembaruan tersedia');
 
 // Custom snackbar
 SnackbarHelper.show(
-  status: MessageType.error,
+  status: SnackStatus.error,
   message: 'Error detail',
   title: 'Oops!',
   duration: const Duration(seconds: 5),

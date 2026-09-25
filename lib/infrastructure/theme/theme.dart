@@ -19,10 +19,10 @@ class RkTheme {
     GetStorageImpl storage = GetStorageImpl();
 
     // *) store the new theme mode on get storage
-    await storage.write(StorageValue.themeIsLight, !isLightTheme);
+    await storage.write(StorageValue.themeIsLight, isLightTheme);
 
     // *) let GetX change theme
-    Get.changeThemeMode(!isLightTheme ? ThemeMode.light : ThemeMode.dark);
+    Get.changeThemeMode(isLightTheme ? ThemeMode.light : ThemeMode.dark);
   }
 
   // The defined light theme.

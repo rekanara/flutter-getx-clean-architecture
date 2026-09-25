@@ -14,8 +14,8 @@ environments.dart             ← Membaca .env → EnvironmentConfig (typed)
   │
   ▼
 url.dart                      ← Domain builder + Endpoint registry
-  ├── Domain.sso              ← Base URL lengkap
-  └── Endpoint.sso.login      ← Full endpoint URL
+  ├── Domain.be               ← Base URL lengkap (backend utama saat ini)
+  └── Endpoint.be.login       ← Full endpoint URL
         │
         ▼
 api_service.dart              ← Dio call pakai Endpoint
@@ -203,11 +203,11 @@ Entity → Repository (abstract) → UseCase
 
 | Layer | File | Contoh |
 |---|---|---|
-| `.env` | `.env` | `NEX_ADMIN_DEV=https://...` |
-| Config | `environments.dart` | `nexadmin: dotenv.env['NEX_ADMIN_DEV']!` |
-| Domain | `url.dart` | `Domain.nexadmin` → base URL |
-| Endpoint | `url.dart` | `Endpoint.nexadmin.banners` → full URL |
-| API Service | `home_api_service.dart` | `_noAuthClient.get(Endpoint.nexadmin.banners)` |
+| `.env` | `.env` | `NEX_BE_DEV=https://...` |
+| Config | `environments.dart` | `be: dotenv.env['NEX_BE_DEV']!` |
+| Domain | `url.dart` | `Domain.be` → base URL |
+| Endpoint | `url.dart` | `Endpoint.be.banners` → full URL |
+| API Service | `home_api_service.dart` | `_noAuthClient.get(Endpoint.be.banners)` |
 | Repository | `home_repository_impl.dart` | Parse response → `BannerEntity` |
 | UseCase | `get_banners_usecase.dart` | `repository.getBanners()` |
 | Controller | `home.controller.dart` | `callUseCase(useCase.execute(...))` |

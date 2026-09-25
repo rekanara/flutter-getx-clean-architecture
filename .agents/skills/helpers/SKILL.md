@@ -45,13 +45,15 @@ SnackbarHelper.showInfo('Ada pembaruan tersedia');
 
 // Full control
 SnackbarHelper.show(
-  status: MessageType.error,
+  status: SnackStatus.error,              // SnackStatus, BUKAN MessageType
   message: 'Pesan error lengkap di sini',
   title: 'Oops!',                         // opsional
   duration: const Duration(seconds: 5),   // default: 3s
-  position: SnackPosition.top,            // TOP = floating, BOTTOM = grounded
+  position: SnackPosition.TOP,            // TOP = floating, BOTTOM = grounded (huruf besar, enum dari GetX)
 );
 ```
+
+`status` bertipe `SnackStatus` (didefinisikan di `snackbar.dart`: `success, error, info, warning`) — beda dengan `MessageType` yang ada di `utils/config.dart`. Jangan tertukar, keduanya enum yang berbeda.
 
 ---
 
@@ -104,16 +106,13 @@ final localTime = DateTimeHelper.fromUnixToLocal(1719187200);
 // DateTime → Unix timestamp
 final unix = DateTimeHelper.toUnix(DateTime.now()); // int
 
-// Format DateTime ke string
-final formatted = DateTimeHelper.format(DateTime.now(), 'dd MMMM yyyy');
-// "24 Juni 2026"
-
-final formatted2 = DateTimeHelper.format(DateTime.now(), 'HH:mm');
-// "10:30"
-
-final formatted3 = DateTimeHelper.format(DateTime.now(), 'dd/MM/yyyy HH:mm');
-// "24/06/2026 10:30"
+// Format DateTime ke string — TIDAK menerima parameter pattern,
+// selalu format fixed "yyyy-MM-dd HH:mm:ss"
+final formatted = DateTimeHelper.format(DateTime.now());
+// "2026-06-24 10:30:00"
 ```
+
+**Catatan:** `format()` tidak pakai package `intl`/`DateFormat` — kalau butuh pattern custom, format manual atau tambahkan parameter ke `DateTimeHelper.format()`.
 
 ---
 
@@ -124,20 +123,20 @@ final formatted3 = DateTimeHelper.format(DateTime.now(), 'dd/MM/yyyy HH:mm');
 ```dart
 import 'package:zidanfath_codebase/utils/helper/rupiah.dart';
 
+// Method INSTANCE, bukan static — harus instantiate dulu
+final rupiahHelper = RupiahHelper();
+
 // double → IDR string
-final rupiah = RupiahHelper.formatCurrencyToRupiah(150000.0);
+final rupiah = rupiahHelper.formatCurrencyToRupiah(150000.0);
 // "Rp 150.000"
 
-RupiahHelper.formatCurrencyToRupiah(1500000.5);
-// "Rp 1.500.001" (dibulatkan)
-
 // String → IDR string
-final rupiah2 = RupiahHelper.formatCurrencyStringToRupiah('150000');
+final rupiah2 = rupiahHelper.formatCurrencyStringToRupiah('150000');
 // "Rp 150.000"
 
 // Penggunaan di widget
 CustomText(
-  text: RupiahHelper.formatCurrencyToRupiah(product.price),
+  text: RupiahHelper().formatCurrencyToRupiah(product.price),
   fontType: FontType.titleMedium,
 )
 ```
@@ -153,7 +152,8 @@ Dialog platform-aware yang membuka pengaturan app:
 ```dart
 import 'package:zidanfath_codebase/utils/helper/open_setting.dart';
 
-OpenSetting.openSettings(
+// openSettings() adalah method INSTANCE, bukan static
+OpenSetting().openSettings(
   label: 'Kamera',           // nama permission di dialog
   message: 'Izin kamera diperlukan. Buka pengaturan untuk mengaktifkan.',
   afterCreateUpdate: () {
@@ -176,14 +176,17 @@ import 'package:zidanfath_codebase/config/device/device_config.dart';
 
 final device = DeviceConfig.instance;
 
-device.deviceId;         // unique device ID (String)
-device.deviceOS;         // 'android' atau 'ios' (String)
+// PENTING: panggil init() dulu (biasanya di main.dart) sebelum baca properti di bawah
+await DeviceConfig.instance.init();
+
+device.deviceId;         // unique device ID (String?)
+device.deviceOS;         // 'Android' / 'iOS' / 'Web' (String)
 device.deviceMake;       // manufacturer (misal: 'Samsung')
 device.deviceModel;      // model name (misal: 'Galaxy S21')
-device.deviceTypeCode;   // 'mobile' atau 'tablet' (String)
+device.deviceTypeCode;   // '1' Android, '2' iOS, '3' Web (String) — BUKAN 'mobile'/'tablet'
 
-// Device type berdasarkan screen size
-final deviceType = device.getDeviceType(context); // DeviceType.mobile atau tablet
+// Device type berdasarkan screen size — getDeviceType STATIC, panggil dari class bukan instance
+final deviceType = DeviceConfig.getDeviceType(context); // DeviceType.mobile/tablet/desktop
 ```
 
 ---
@@ -219,9 +222,9 @@ ColorData.error, success, warning, info
 [ ] Snackbar: SnackbarHelper.showError/Success/Warning/Info()
 [ ] Dialog konfirmasi: DialogHelper.showDialog()
 [ ] Dialog info: DialogHelper.showInfoDialog(message, isSuccess: bool)
-[ ] Format IDR: RupiahHelper.formatCurrencyToRupiah(double)
+[ ] Format IDR: RupiahHelper().formatCurrencyToRupiah(double) — instance method
 [ ] Format tanggal: DateTimeHelper.format(DateTime, pattern)
 [ ] Unix timestamp: DateTimeHelper.fromUnixToLocal(unix)
-[ ] Permission denied permanent: OpenSetting.openSettings()
+[ ] Permission denied permanent: OpenSetting().openSettings() — instance method
 [ ] Device info: DeviceConfig.instance.deviceId / deviceOS
 ```

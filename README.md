@@ -45,108 +45,120 @@ Project ini mengikuti prinsip **Clean Architecture** yang membagi codebase menja
 
 ```
 lib/
-├── main.dart                          # Entry point + Global Error Handler
+├── main.dart                          # Entry point + Global Error Handler + init semua service
 │
-├── domain/                            # 🧠 DOMAIN LAYER (Business Logic)
+├── domain/                            # 🧠 DOMAIN LAYER (Business Logic) — pure Dart, no Flutter/Dio/GetX
 │   ├── core/
 │   │   ├── errors/
-│   │   │   └── failures.dart          # Base Failure class (ServerFailure, CacheFailure)
+│   │   │   └── failures.dart          # Failure, ServerFailure, TimeoutFailure, NoConnectionFailure, dst.
 │   │   └── usecases/
 │   │       └── usecase.dart           # Generic UseCase<T, Params> + NoParams
 │   ├── auth/
-│   │   ├── entities/
-│   │   │   └── user_entity.dart       # Entity murni tanpa dependency
-│   │   ├── repositories/
-│   │   │   └── auth_repository.dart   # Abstract repository (contract)
-│   │   └── usecases/
-│   │       └── login_usecase.dart     # UseCase<UserEntity, LoginParams>
+│   │   ├── entities/user_entity.dart
+│   │   ├── repositories/auth_repository.dart   # Abstract repository (contract)
+│   │   └── usecases/login_usecase.dart
 │   └── home/
-│       ├── entities/
-│       │   └── banner_entity.dart
-│       ├── repositories/
-│       │   └── home_repository.dart
-│       └── usecases/
-│           └── get_banners_usecase.dart # UseCase<List<BannerEntity>, NoParams>
+│       ├── entities/banner_entity.dart
+│       ├── repositories/home_repository.dart
+│       └── usecases/get_banners_usecase.dart
 │
-├── infrastructure/                    # 🔧 INFRASTRUCTURE LAYER (Implementasi)
+├── infrastructure/                    # 🔧 INFRASTRUCTURE LAYER (Implementasi Domain)
 │   ├── dal/                           # Data Access Layer
 │   │   ├── models/
-│   │   │   └── api_response.dart      # Generic ApiResponse<T> wrapper
+│   │   │   ├── api_response.dart      # Generic ApiResponse<T> + PaginationMeta
+│   │   │   └── pagination_filter.dart # PaginationFilter (page, limit, search)
 │   │   ├── services/
 │   │   │   ├── auth_api_service.dart  # HTTP calls (Dio) untuk auth
 │   │   │   └── home_api_service.dart  # HTTP calls (Dio) untuk home
 │   │   ├── auth/
-│   │   │   ├── models/
-│   │   │   │   └── user_model.dart    # JSON serialization (fromJson/toJson)
-│   │   │   └── repositories/
-│   │   │       └── auth_repository_impl.dart  # Implementasi AuthRepository
+│   │   │   ├── models/user_model.dart          # fromJson/toJson
+│   │   │   └── repositories/auth_repository_impl.dart
 │   │   └── home/
-│   │       ├── models/
-│   │       │   └── banner_model.dart
-│   │       └── repositories/
-│   │           └── home_repository_impl.dart
+│   │       ├── models/banner_model.dart
+│   │       └── repositories/home_repository_impl.dart
 │   │
 │   ├── network/                       # Konfigurasi Network
-│   │   ├── dio_client.dart            # Dio instances + Refresh Token Interceptor
+│   │   ├── dio_client.dart            # noAuthClient / authClient (cached) + refresh-token interceptor
 │   │   ├── dio_wrapper.dart           # Talker logger interceptor
-│   │   ├── environments.dart          # Multi-environment config (dev/staging/prod)
-│   │   └── url.dart                   # URL endpoints builder (reactive via GetX)
+│   │   ├── environments.dart          # EnvironmentConfig, EnvironmentController, ConfigEnvironments
+│   │   └── url.dart                   # PathSegment, Domain, Endpoint (URL builder reaktif)
 │   │
 │   ├── navigation/                    # Routing & DI Bindings
 │   │   ├── routes.dart                # Route constants & initial route
-│   │   ├── navigation.dart            # GetPage routes + EnvironmentsBadge
+│   │   ├── navigation.dart            # Nav.routes (GetPage) + EnvironmentsBadge
 │   │   └── bindings/controllers/
 │   │       ├── controllers_bindings.dart
-│   │       ├── login.controller.binding.dart   # DI wiring untuk Login
-│   │       └── home.controller.binding.dart    # DI wiring untuk Home
+│   │       ├── login.controller.binding.dart
+│   │       ├── home.controller.binding.dart
+│   │       └── user.controller.binding.dart
 │   │
 │   ├── platform/                      # Platform Services
 │   │   ├── storage/
 │   │   │   ├── storage.dart           # Abstract Storage interface
-│   │   │   └── get_storage_impl.dart  # GetStorage (non-sensitive data)
+│   │   │   └── get_storage_impl.dart  # GetStorage (non-sensitif) + StorageValue keys
 │   │   └── secure_storage/
 │   │       ├── secure_storage.dart    # Abstract SecureStorage interface
-│   │       └── flutter_secure_storage_impl.dart  # Encrypted storage (tokens)
+│   │       └── flutter_secure_storage_impl.dart  # Encrypted storage + SecureStorageKey keys
 │   │
 │   └── theme/
-│       └── theme.dart                 # App theme configuration
+│       └── theme.dart                 # RkTheme (light + dark + changeTheme)
 │
 ├── presentation/                      # 🎨 PRESENTATION LAYER (UI)
 │   ├── core/
-│   │   └── base_controller.dart       # BaseController + callUseCase() helper
+│   │   ├── base_controller.dart           # BaseController (.obs) + callUseCase()
+│   │   ├── base_builder_controller.dart   # BaseBuilderController (manual update())
+│   │   └── base_pagination_controller.dart # BasePaginationController<T>
 │   ├── screens.dart                   # Barrel export untuk semua screens
 │   ├── login/
-│   │   ├── login.screen.dart          # Login UI
-│   │   └── controllers/
-│   │       └── login.controller.dart  # extends BaseController
-│   └── home/
-│       ├── home.screen.dart           # Home UI
-│       └── controllers/
-│           └── home.controller.dart   # extends BaseController
+│   │   ├── login.screen.dart
+│   │   └── controllers/login.controller.dart
+│   ├── home/
+│   │   ├── home.screen.dart
+│   │   ├── controllers/home.controller.dart
+│   │   └── widgets/banner_carousel.dart
+│   └── user/                          # Contoh pola BaseBuilderController + GetBuilder
+│       ├── user.screen.dart
+│       └── controllers/user.controller.dart
 │
 ├── components/                        # 🧩 Reusable UI Components
-│   └── atoms/
-│       ├── custom_button.dart
-│       └── custom_text.dart
+│   ├── atoms/
+│   │   ├── custom_button.dart         # CustomButton (filled/outline)
+│   │   └── custom_text.dart           # CustomText (theme-aware)
+│   └── molecules/
+│       ├── custom_cached_image.dart   # CustomCachedImage
+│       └── pagination_list_view.dart  # PaginationListView<T>
 │
-├── config/                            # ⚙️ Device & Platform Config
+├── config/                            # ⚙️ Platform & App Services (global, permanent)
 │   ├── device/
 │   │   ├── config.dart
-│   │   └── device_config.dart
+│   │   └── device_config.dart         # DeviceConfig singleton
+│   ├── error/
+│   │   └── global_error_handler.dart  # runZonedGuarded + Flutter/Platform/Zone error handler
+│   ├── firebase/
+│   │   ├── firebase_service.dart
+│   │   ├── firebase_options.dart
+│   │   ├── firebase_messaging_service.dart   # FCM foreground/background/tap handler
+│   │   └── remote_config_service.dart
+│   ├── lifecycle/
+│   │   └── app_lifecycle_service.dart # MQTT reconnect + refresh hooks saat app resume
+│   ├── mqtt/
+│   │   └── mqtt_service.dart          # MQTT client (pub/sub) global singleton
 │   ├── notifications/
-│   │   └── notifications.dart
+│   │   └── notifications.dart         # Local notifications + FCM notification renderer
 │   └── permissions/
-│       └── permissions.dart
+│       └── permissions.dart           # Camera/location/notification permission handler
 │
 └── utils/                             # 🛠️ Utilities & Helpers
-    ├── config.dart                    # Global config
+    ├── config.dart                    # Enums, ColorData, FontType
+    ├── json_parser.dart               # JsonParser (pakai Isolate untuk list > 50 item)
+    ├── responsive.dart                # Responsive widget + ResponsiveExtension
     └── helper/
         ├── date_time.dart             # Date formatting helper
         ├── dialog.dart                # Dialog helper
-        ├── logger.dart                # Logger wrapper (static methods)
-        ├── open_setting.dart          # Open native settings helper
+        ├── logger.dart                # LoggerHelper (static: d, i, w, e, t, f)
+        ├── open_setting.dart          # Dialog buka native app settings
         ├── rupiah.dart                # Currency formatting (IDR)
-        └── snackbar.dart              # Snackbar helper
+        └── snackbar.dart              # SnackbarHelper
 ```
 
 ## Alur Data (Data Flow)
@@ -390,6 +402,53 @@ flutter run
 dart run flutter_launcher_icons
 ```
 
+## Rebranding — Mengganti Namespace & Identitas App
+
+Boilerplate ini di-publish dengan identitas generik (`com.zidanfath.codebase`, "Zidanfath Codebase"). Sebelum dipakai untuk project baru, ganti dulu bagian-bagian berikut:
+
+### 1. Android — `applicationId` & package
+
+```bash
+# a. Rename folder package (sesuaikan com/namamu/appmu)
+mkdir -p android/app/src/main/kotlin/com/namamu/appmu
+mv android/app/src/main/kotlin/com/zidanfath/codebase/MainActivity.kt \
+   android/app/src/main/kotlin/com/namamu/appmu/MainActivity.kt
+```
+
+- Edit `MainActivity.kt` → ganti baris `package com.zidanfath.codebase` jadi `package com.namamu.appmu`.
+- Edit `android/app/build.gradle.kts` → ganti `namespace` dan `applicationId` ke `"com.namamu.appmu"`.
+- Edit `android/app/src/main/AndroidManifest.xml` → ganti `android:label` ke nama app kamu.
+
+### 2. iOS — Bundle Identifier & Display Name
+
+- Buka `ios/Runner.xcworkspace` di Xcode → tab **Signing & Capabilities** → ganti **Bundle Identifier**.
+  (Atau cari-ganti manual semua `PRODUCT_BUNDLE_IDENTIFIER = com.zidanfath.codebase*` di `ios/Runner.xcodeproj/project.pbxproj`.)
+- Edit `ios/Runner/Info.plist` → ganti `CFBundleDisplayName`.
+- Kalau butuh Universal Links/deep link, isi `AssociatedDomains` di `Info.plist` (sudah di-comment secara default) dengan domain milikmu sendiri, plus setup App Links `intent-filter` di `AndroidManifest.xml` untuk Android.
+
+### 3. Nama App di Flutter
+
+- `lib/main.dart` → `GetMaterialApp(title: 'Zidanfath Codebase')` ganti sesuai nama app.
+- `pubspec.yaml` → `name:` (opsional, lebih invasif karena mempengaruhi semua import path `package:zidanfath_codebase/...` di seluruh `lib/` & `test/`).
+
+### 4. Firebase
+
+- Buat project Firebase baru sesuai `applicationId`/Bundle ID baru kamu.
+- Download `google-services.json` (Android) → taruh di `android/app/src/`.
+- Download `GoogleService-Info.plist` (iOS) → taruh di `ios/Runner/`.
+- Kedua file ini sudah di-`.gitignore` — **jangan commit**, provision manual/lewat CI di tiap environment.
+
+### 5. Environment Variables
+
+```bash
+cp .env.example .env
+# lalu isi semua value sesuai backend/MQTT/Firebase project kamu
+```
+
+### 6. App Icon
+
+- Ganti `assets/icons/app_icon.png` dengan icon app kamu, lalu jalankan `dart run flutter_launcher_icons`.
+
 ### Kompatibel dengan `get_cli`
 
 Project ini mendukung generate module baru menggunakan [get_cli](https://pub.dev/packages/get_cli):
@@ -449,4 +508,4 @@ await callUseCase(
 
 ## License
 
-Private project — Tidak untuk distribusi publik.
+[MIT](LICENSE)

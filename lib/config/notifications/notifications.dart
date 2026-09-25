@@ -405,7 +405,7 @@ class ShowNotificationHelper {
 
     switch (type) {
       case NotificationType.order:
-        NotificationsHelper.showNotification(
+        await NotificationsHelper.showNotification(
           id: id,
           channelKey: NotificationChannels.orderChannelKey,
           groupKey: NotificationChannels.orderGroupKey,
@@ -418,7 +418,7 @@ class ShowNotificationHelper {
         break;
 
       case NotificationType.alert:
-        NotificationsHelper.showNotification(
+        await NotificationsHelper.showNotification(
           id: id,
           title: title ?? 'Information',
           summary: summary,
@@ -429,7 +429,7 @@ class ShowNotificationHelper {
         break;
 
       case NotificationType.system:
-        NotificationsHelper.showNotification(
+        await NotificationsHelper.showNotification(
           id: id,
           title: title ?? 'System',
           summary: summary,
@@ -440,7 +440,7 @@ class ShowNotificationHelper {
         break;
 
       case NotificationType.chat:
-        NotificationsHelper.showNotification(
+        await NotificationsHelper.showNotification(
           id: id,
           title: title ?? 'New Message',
           summary: summary,
@@ -453,7 +453,7 @@ class ShowNotificationHelper {
         break;
 
       case NotificationType.other:
-        NotificationsHelper.showNotification(
+        await NotificationsHelper.showNotification(
           id: id,
           title: title ?? 'Notification',
           summary: summary,
@@ -464,7 +464,7 @@ class ShowNotificationHelper {
         break;
 
       case NotificationType.payment:
-        NotificationsHelper.showNotification(
+        await NotificationsHelper.showNotification(
           id: id,
           channelKey: NotificationChannels.generalChannelKey,
           title: title ?? 'Payment',
@@ -475,7 +475,7 @@ class ShowNotificationHelper {
         break;
 
       case NotificationType.ticket:
-        NotificationsHelper.showNotification(
+        await NotificationsHelper.showNotification(
           id: id,
           channelKey: NotificationChannels.ticketChannelKey,
           groupKey: NotificationChannels.ticketGroupKey,
@@ -488,7 +488,7 @@ class ShowNotificationHelper {
         break;
 
       case NotificationType.ads:
-        NotificationsHelper.showNotification(
+        await NotificationsHelper.showNotification(
           id: id,
           channelKey: NotificationChannels.adsChannelKey,
           groupKey: NotificationChannels.adsGroupKey,
@@ -500,7 +500,7 @@ class ShowNotificationHelper {
         break;
 
       case NotificationType.marketing:
-        NotificationsHelper.showNotification(
+        await NotificationsHelper.showNotification(
           id: id,
           title: title ?? 'Marketing',
           summary: summary,
@@ -515,7 +515,7 @@ class ShowNotificationHelper {
         break;
 
       case NotificationType.general:
-        NotificationsHelper.showNotification(
+        await NotificationsHelper.showNotification(
           id: id,
           title: title ?? 'Notification',
           summary: summary,

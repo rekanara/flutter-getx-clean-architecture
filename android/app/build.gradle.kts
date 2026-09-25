@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.zidanfath_codebase"
+    namespace = "com.zidanfath.codebase"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,8 +21,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.zidanfath_codebase"
+        // Ganti applicationId ini sebelum publish ke Play Store agar unik.
+        applicationId = "com.zidanfath.codebase"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

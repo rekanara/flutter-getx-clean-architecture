@@ -10,41 +10,51 @@ Panduan theming dengan FlexColorScheme, switch tema, dan mengakses warna/style d
 
 ```dart
 class RkTheme {
-  // Light
-  static ThemeData get lightTheme => FlexThemeData.light(
-    primary: const Color(0xFF00296B),
-    secondary: const Color(0xFFD26900),
-    tertiary: const Color(0xFF5C5C95),
-    // defaultRadius: 22.0
+  // Light — properti bernama `light`, BUKAN `lightTheme`
+  static ThemeData light = FlexThemeData.light(
+    colors: const FlexSchemeColor(
+      primary: Color(0xFF00296B),
+      secondary: Color(0xFFD26900),
+      tertiary: Color(0xFF5C5C95),
+      // ...
+    ),
+    // defaultRadius: 22.0 (di subThemesData)
     // font: Quicksand
   );
 
-  // Dark
-  static ThemeData get darkTheme => FlexThemeData.dark(
-    primary: const Color(0xFFB1CFF5),
-    secondary: const Color(0xFFFFD270),
-    tertiary: const Color(0xFFC9CBFC),
-    // defaultRadius: 22.0
+  // Dark — properti bernama `dark`, BUKAN `darkTheme`
+  static ThemeData dark = FlexThemeData.dark(
+    colors: const FlexSchemeColor(
+      primary: Color(0xFFB1CFF5),
+      secondary: Color(0xFFFFD270),
+      tertiary: Color(0xFFC9CBFC),
+      // ...
+    ),
   );
 
   // Switch tema + simpan preference ke GetStorage
-  static void changeTheme(bool isLightTheme) {
-    Get.changeThemeMode(isLightTheme ? ThemeMode.light : ThemeMode.dark);
-    Get.find<GetStorageImpl>().write(StorageValue.themeIsLight, isLightTheme);
+  // PENTING: named parameter {required bool isLightTheme}, bukan positional,
+  // dan Future<void> (async) — bukan void.
+  static Future<void> changeTheme({required bool isLightTheme}) async {
+    GetStorageImpl storage = GetStorageImpl();
+    await storage.write(StorageValue.themeIsLight, !isLightTheme);
+    Get.changeThemeMode(!isLightTheme ? ThemeMode.light : ThemeMode.dark);
   }
 }
 ```
+
+**Bug di source saat ini:** logic `changeTheme()` di atas membalik `isLightTheme` (pakai `!isLightTheme`) baik saat menyimpan ke storage maupun menentukan `ThemeMode` — akibatnya memanggil `changeTheme(isLightTheme: true)` justru mengaktifkan **dark mode**. Kalau mau dipakai, perbaiki dulu logic-nya di `lib/infrastructure/theme/theme.dart`, jangan copy apa adanya. `main.dart` sendiri saat ini tidak memanggil `changeTheme()` — masih pakai `themeMode: ThemeMode.system` statis.
 
 ---
 
 ## Menggunakan Tema di GetMaterialApp
 
 ```dart
-// lib/main.dart
+// lib/main.dart (kondisi nyata saat ini)
 GetMaterialApp(
-  theme: RkTheme.lightTheme,
-  darkTheme: RkTheme.darkTheme,
-  themeMode: isLightTheme ? ThemeMode.light : ThemeMode.dark,
+  theme: RkTheme.light,
+  darkTheme: RkTheme.dark,
+  themeMode: ThemeMode.system, // ikut sistem, bukan preference tersimpan
   // ...
 );
 ```
@@ -109,16 +119,16 @@ Atau gunakan `CustomText(fontType: FontType.titleLarge)` — lebih direkomendasi
 ## Switch Tema
 
 ```dart
-// Di controller / setting screen
-RkTheme.changeTheme(true);   // switch ke light
-RkTheme.changeTheme(false);  // switch ke dark
+// Di controller / setting screen — named parameter, dan async
+await RkTheme.changeTheme(isLightTheme: true);   // switch ke light
+await RkTheme.changeTheme(isLightTheme: false);  // switch ke dark
 
 // Atau dengan toggle
 class ThemeController extends GetxController {
   bool get isLight => Get.find<GetStorageImpl>()
       .read<bool>(StorageValue.themeIsLight) ?? true;
 
-  void toggleTheme() => RkTheme.changeTheme(!isLight);
+  Future<void> toggleTheme() => RkTheme.changeTheme(isLightTheme: !isLight);
 }
 
 // Di UI

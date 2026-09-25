@@ -67,11 +67,14 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 
-	<!-- App Links -->
+	<!-- App Links — uncomment & isi domain kamu sendiri untuk deep linking.
+	     Domain butuh file apple-app-site-association ter-hosting di situ. -->
+	<!--
 	<key>AssociatedDomains</key>
 	<array>
-		<string>applinks:app.fiberzone.id</string>
+		<string>applinks:yourdomain.com</string>
 	</array>
+	-->
 
 	<!-- Permission options for the `location` group -->
 	<key>NSLocationWhenInUseUsageDescription</key>

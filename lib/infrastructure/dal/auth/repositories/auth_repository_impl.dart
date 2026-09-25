@@ -89,7 +89,8 @@ class AuthRepositoryImpl implements AuthRepository {
         if (statusCode == 401) {
           return UnauthorizedFailure();
         }
-        final message = e.response?.data?['message'] ?? e.message ?? 'Server error';
+        final message =
+            e.response?.data?['message'] ?? e.message ?? 'Server error';
         return ServerFailure(message);
       default:
         return ServerFailure(e.message ?? 'Network Error');
