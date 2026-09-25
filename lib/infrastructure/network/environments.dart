@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 
 import '../platform/storage/get_storage_impl.dart';
+import '../platform/storage/storage.dart';
 
 // ─── Environment Enum ────────────────────────────────────────
 
@@ -78,6 +79,10 @@ class EnvironmentConfig {
 
 /// Controller untuk mengelola environment aktif secara reaktif.
 class EnvironmentController extends GetxController {
+  EnvironmentController({Storage? storage})
+    : _storage = storage ?? GetStorageImpl();
+
+  final Storage _storage;
   final Rx<Environment> currentEnv = Environment.dev.obs;
 
   @override
@@ -87,12 +92,11 @@ class EnvironmentController extends GetxController {
   }
 
   void _initEnvFromStorage() {
-    final storage = GetStorageImpl();
-    final storedEnvStr = storage.read<String>(StorageValue.env);
+    final storedEnvStr = _storage.read<String>(StorageValue.env);
 
     if (storedEnvStr == null || storedEnvStr.isEmpty) {
       // Jika kosong, write ke storage berdasarkan currentEnv saat ini.
-      storage.write(StorageValue.env, currentEnv.value.label);
+      _storage.write(StorageValue.env, currentEnv.value.label);
     } else {
       // Jika ada isi, update currentEnv berdasarkan nilai di storage.
       final savedEnv = Environment.values.firstWhere(
@@ -106,7 +110,7 @@ class EnvironmentController extends GetxController {
   /// Switch environment secara runtime dan simpan state barunya ke storage.
   void switchEnvironment(Environment env) {
     currentEnv.value = env;
-    GetStorageImpl().write(StorageValue.env, env.label);
+    _storage.write(StorageValue.env, env.label);
   }
 }
 
