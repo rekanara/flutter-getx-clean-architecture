@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../components/atoms/custom_text.dart';
+import '../../components/atoms/custom_text_field.dart';
 import '../../components/molecules/custom_cached_image.dart';
 import '../../utils/config.dart';
 import 'controllers/user.controller.dart';
@@ -16,7 +17,10 @@ class UserScreen extends GetView<UserController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Users (GetBuilder)'),
+        title: const CustomText(
+          text: 'Users (GetBuilder)',
+          fontType: FontType.titleLarge,
+        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -30,16 +34,9 @@ class UserScreen extends GetView<UserController> {
           // ── Search Bar ──
           Padding(
             padding: const EdgeInsets.all(16),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Cari user...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                filled: true,
-                fillColor: Colors.grey.shade100,
-              ),
+            child: CustomTextField(
+              hintText: 'Cari user...',
+              prefixIcon: const Icon(Icons.search),
               onChanged: controller.onSearch,
             ),
           ),

@@ -20,7 +20,13 @@ class HomeScreen extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('HomeScreen'), centerTitle: true),
+      appBar: AppBar(
+        title: const CustomText(
+          text: 'HomeScreen',
+          fontType: FontType.titleLarge,
+        ),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -295,6 +301,28 @@ class HomeScreen extends GetView<HomeController> {
                   title: 'Open',
                   onPressed: () {
                     Get.toNamed(Routes.user);
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              /// Pagination + Real API Integration Demo
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                tileColor: Colors.grey[200],
+                leading: Icon(Icons.list_alt, color: ColorData.info),
+                title: CustomText(
+                  text: 'Contacts (Pagination + API)',
+                  fontType: FontType.bodyLarge,
+                  color: ColorData.info,
+                ),
+                trailing: CustomButton(
+                  title: 'Open',
+                  onPressed: () {
+                    Get.toNamed(Routes.contacts);
                   },
                 ),
               ),

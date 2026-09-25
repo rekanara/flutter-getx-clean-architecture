@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../components/atoms/custom_button.dart';
 import '../../components/atoms/custom_text.dart';
+import '../../components/atoms/custom_text_field.dart';
 import '../../utils/config.dart';
 import 'controllers/login.controller.dart';
 
@@ -41,8 +42,11 @@ class LoginScreen extends GetView<LoginController> {
                   opacity: 0.6,
                 ),
                 const SizedBox(height: 48),
-                TextFormField(
+                CustomTextField(
                   controller: controller.emailController,
+                  labelText: 'Email',
+                  hintText: 'Enter your email',
+                  prefixIcon: const Icon(Icons.email_outlined),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -53,22 +57,23 @@ class LoginScreen extends GetView<LoginController> {
                     }
                     return null;
                   },
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'Enter your email',
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[50],
-                  ),
                 ),
                 const SizedBox(height: 16),
                 Obx(
-                  () => TextFormField(
+                  () => CustomTextField(
                     controller: controller.passwordController,
+                    labelText: 'Password',
+                    hintText: 'Enter your password',
+                    prefixIcon: const Icon(Icons.lock_outline),
                     obscureText: controller.isObscure.value,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isObscure.value
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                      ),
+                      onPressed: controller.toggleObscure,
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';
@@ -78,24 +83,6 @@ class LoginScreen extends GetView<LoginController> {
                       }
                       return null;
                     },
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      hintText: 'Enter your password',
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          controller.isObscure.value
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                        ),
-                        onPressed: controller.toggleObscure,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[50],
-                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
