@@ -147,3 +147,60 @@ Service otomatis listen ke `onConfigUpdated` — jika ada update di Firebase Con
    ```
 2. Pastikan `google-services.json` (Android) dan `GoogleService-Info.plist` (iOS) sudah ada
 3. Set environment variables di `.env` jika diperlukan
+
+---
+
+## Provisioning per Environment
+
+### Bagaimana Firebase dikonfigurasi di repo ini
+
+Ada DUA sumber konfigurasi Firebase — keduanya per-env:
+
+| Sumber | Peran | Sumber Value |
+|---|---|---|
+| `.env` (`FIREBASE_*`, `ANDROID_FIREBASE_*`, `IOS_FIREBASE_*`) | `DefaultFirebaseOptions` (`lib/config/firebase/firebase_options.dart`) membaca `Domain.firebase*` saat `FirebaseService.init()` | Satu file `.env` dengan suffix `_DEV` / `_STAGING` / `_PROD` — mengikuti runtime env switching |
+| `google-services.json` + `GoogleService-Info.plist` | Config native yang dibaca plugin Firebase di sisi Android/iOS build | File terpisah per project Firebase — **gitignored, jangan commit** |
+
+Karena env switching berjalan di runtime, Dart-side options selalu konsisten dengan env aktif.
+File native hanya berisi SATU set config per build — untuk multi-env native, provision file
+yang sesuai sebelum build, atau pisahkan per flavor/scheme di kemudian hari.
+
+### Provisioning lokal
+
+```bash
+# Dari Firebase Console → Project Settings → Your apps:
+#   Android → download google-services.json  → android/app/src/
+#   iOS     → download GoogleService-Info.plist → ios/Runner/
+```
+
+Kedua file sudah di-`.gitignore`. CI menjalankan `secret-guard` job yang mem-fail build
+bila file ini (atau `.env` / keystore) ikut ter-track.
+
+### Provisioning via CI (GitHub Actions secrets)
+
+Simpan file per environment sebagai secret (base64), lalu decode di workflow sebelum build:
+
+```bash
+# Simpan sekali (locally):
+base64 -i google-services.json | pbcopy          # → secret FIREBASE_ANDROID_JSON_DEV
+base64 -i GoogleService-Info.plist | pbcopy      # → secret FIREBASE_IOS_PLIST_DEV
+```
+
+```yaml
+# .github/workflows/build.yml
+- name: Decode Firebase config (dev)
+  env:
+    FIREBASE_ANDROID_JSON: ${{ secrets.FIREBASE_ANDROID_JSON_DEV }}
+    FIREBASE_IOS_PLIST: ${{ secrets.FIREBASE_IOS_PLIST_DEV }}
+  run: |
+    echo "$FIREBASE_ANDROID_JSON" | base64 --decode > android/app/src/google-services.json
+    echo "$FIREBASE_IOS_PLIST" | base64 --decode > ios/Runner/GoogleService-Info.plist
+```
+
+### Keamanan
+
+- **Key restriction**: batasi Android key ke package name + SHA-1, iOS key ke bundle ID
+  (Google Cloud Console → APIs & Services → Credentials). API key Firebase client-side
+  memang publik by design — restriction yang membuatnya aman.
+- **Jangan commit** project Firebase production ke boilerplate publik — gunakan
+  project dummy untuk file contoh.
