@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  secret-guard:
+    name: Guard against tracked secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if Firebase config, .env, or signing files are tracked
+        run: |
+          FORBIDDEN="$(git ls-files | grep -E '^(\.env$|android/app/src/google-services\.json$|ios/Runner/GoogleService-Info\.plist$|android/key\.properties$|.*\.(jks|keystore)$)' || true)"
+          if [ -n "$FORBIDDEN" ]; then
+            echo "::error::Forbidden file(s) tracked in git: ${FORBIDDEN}"
+            echo "Provision these locally or via CI secrets — see docs/firebase.md"
+            exit 1
+          fi
+
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
