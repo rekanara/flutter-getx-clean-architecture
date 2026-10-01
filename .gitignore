@@ -48,6 +48,7 @@ app.*.map.json
 
 # Firebase client config (contains project/API identifiers, provision via CI or locally)
 android/app/src/google-services.json
+android/app/src/prod/google-services.json
 ios/Runner/GoogleService-Info.plist
 
 # Android release signing (never commit)

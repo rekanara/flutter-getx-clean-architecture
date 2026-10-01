@@ -145,7 +145,8 @@ The service automatically listens to `onConfigUpdated` — if there's an update 
    ```bash
    flutterfire configure
    ```
-2. Ensure `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) are present
+2. Ensure `google-services.json` (Android, **per flavor** — see `docs/flavors.md`) and
+   `GoogleService-Info.plist` (iOS) are present
 3. Set environment variables in `.env` if necessary
 
 ---
@@ -159,42 +160,49 @@ There are TWO sources of Firebase configuration — both are per-env:
 | Source | Role | Value Source |
 |---|---|---|
 | `.env` (`FIREBASE_*`, `ANDROID_FIREBASE_*`, `IOS_FIREBASE_*`) | `DefaultFirebaseOptions` (`lib/config/firebase/firebase_options.dart`) reads `Domain.firebase*` during `FirebaseService.init()` | One `.env` file with suffixes `_DEV` / `_STAGING` / `_PROD` — follows runtime env switching |
-| `google-services.json` + `GoogleService-Info.plist` | Native config read by the Firebase plugin on the Android/iOS build side | Separate file per Firebase project — **gitignored, do not commit** |
+| `google-services.json` + `GoogleService-Info.plist` | Native config read by the Firebase plugin on the Android/iOS build side | Per-flavor files (`docs/flavors.md`) — **prod is gitignored, do not commit**; dev/staging may be committed |
 
 Because env switching runs at runtime, Dart-side options are always consistent with the active env.
-Native files only contain ONE set of configs per build — for multi-env native, provision the appropriate file before building, or separate them by flavor/scheme later.
+Native files only contain ONE set of configs per build — Android solves this with **native flavors**
+(one `google-services.json` per flavor under `android/app/src/<flavor>/`); iOS will use
+schemes + xcconfig (see [Roadmap iOS](flavors.md#roadmap-ios-belum-diimplementasi)).
 
 ### Local Provisioning
 
 ```bash
 # From Firebase Console → Project Settings → Your apps:
-#   Android → download google-services.json  → android/app/src/
-#   iOS     → download GoogleService-Info.plist → ios/Runner/
+#   Android (dev)     → google-services.json → android/app/src/dev/
+#   Android (staging) → google-services.json → android/app/src/staging/
+#   Android (prod)    → google-services.json → android/app/src/prod/
+#   iOS               → GoogleService-Info.plist → ios/Runner/
 ```
 
-Both files are already in `.gitignore`. CI runs the `secret-guard` job which fails the build
-if these files (or `.env` / keystore) are tracked.
+The prod file (and the legacy non-flavor location `android/app/src/google-services.json`)
+are already in `.gitignore` — dev/staging files may be committed since they only contain
+public client identifiers. CI runs the `secret-guard` job which fails the build
+if `.env`, the prod config, or keystore files are tracked.
 
 ### Provisioning via CI (GitHub Actions secrets)
 
-Store the files per environment as secrets (base64), then decode them in the workflow before building:
+Only **prod** needs a CI secret (dev/staging files may be committed). Store the file
+as a base64 secret, then decode it in the workflow before building the prod flavor:
 
 ```bash
-# Store once (locally):
-base64 -i google-services.json | pbcopy          # → secret FIREBASE_ANDROID_JSON_DEV
-base64 -i GoogleService-Info.plist | pbcopy      # → secret FIREBASE_IOS_PLIST_DEV
+# Store once (locally) — paste into GitHub secret GOOGLE_SERVICES_JSON_PROD:
+base64 -i android/app/src/prod/google-services.json | pbcopy
 ```
 
 ```yaml
-# .github/workflows/build.yml
-- name: Decode Firebase config (dev)
+# .github/workflows/release.yml (prod job)
+- name: Decode Firebase config (prod)
   env:
-    FIREBASE_ANDROID_JSON: ${{ secrets.FIREBASE_ANDROID_JSON_DEV }}
-    FIREBASE_IOS_PLIST: ${{ secrets.FIREBASE_IOS_PLIST_DEV }}
+    GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON_PROD }}
   run: |
-    echo "$FIREBASE_ANDROID_JSON" | base64 --decode > android/app/src/google-services.json
-    echo "$FIREBASE_IOS_PLIST" | base64 --decode > ios/Runner/GoogleService-Info.plist
+    echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/src/prod/google-services.json
 ```
+
+For iOS, store `GoogleService-Info.plist` the same way (e.g. `FIREBASE_IOS_PLIST_PROD`)
+and decode to `ios/Runner/` once iOS flavors are implemented.
 
 ### Security
 

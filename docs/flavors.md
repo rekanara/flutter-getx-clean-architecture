@@ -245,6 +245,191 @@ setelah ada flavor — lokasi yang benar adalah per-flavor).
 
 ---
 
+## Contoh File Konfigurasi & Posisinya (Copy-Paste Ready)
+
+Peta lengkap file yang perlu di-provision developer — posisi + contoh isinya.
+**Semua file di bawah ini tinggal dibuat di path yang tertulis, lalu isi value asli
+dari Firebase Console / Play Console.**
+
+### Peta Posisi File
+
+```
+rekanara_getx/
+├── .env                                    ← gitignored, WAJIB ada (copy dari .env.example)
+├── android/
+│   ├── key.properties                      ← gitignored, hanya untuk signing release prod
+│   └── app/src/
+│       ├── dev/google-services.json        ← BOLEH di-commit
+│       ├── staging/google-services.json    ← BOLEH di-commit
+│       └── prod/google-services.json       ← GITIGNORED + secret-guard menolaknya
+└── ios/Runner/
+    └── GoogleService-Info.plist            ← gitignored (iOS, lihat Roadmap)
+```
+
+### 1. `google-services.json` (per flavor)
+
+Download dari **Firebase Console → ⚙️ Project Settings → General → Your apps → Android app
+→ google-services.json**, taruh di folder flavor sesuai peta di atas.
+
+Contoh untuk flavor **dev** (`android/app/src/dev/google-services.json`) —
+value di bawah hanyalah placeholder, ambil nilai asli dari file yang di-download:
+
+```json
+{
+  "project_info": {
+    "project_number": "123456789012",
+    "project_id": "rekanara-dev",
+    "storage_bucket": "rekanara-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123456789012:android:0123456789abcdef",
+        "android_client_info": {
+          "package_name": "com.rekanara.getx.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+```
+
+**Yang berbeda antar flavor** (sisanya boleh identik):
+
+| Field                              | dev                            | staging                            | prod                       |
+| ---------------------------------- | ------------------------------ | ---------------------------------- | -------------------------- |
+| `project_info.project_id`          | `rekanara-dev`                 | `rekanara-staging`                 | `rekanara-prod`            |
+| `project_info.project_number`      | dari app dev                   | dari app staging                   | dari app prod              |
+| `client_info.mobilesdk_app_id`     | app ID `com.rekanara.getx.dev` | app ID `com.rekanara.getx.staging` | app ID `com.rekanara.getx` |
+| `client[].client_info.package_name`| `com.rekanara.getx.dev`        | `com.rekanara.getx.staging`        | `com.rekanara.getx`        |
+| `api_key[].current_key`            | API key project dev            | API key project staging            | API key project prod       |
+
+> ⚠️ `package_name` **harus persis** sama dengan `applicationId` flavor
+> (lihat [Identitas Aplikasi per Flavor](#identitas-aplikasi-per-flavor)) — kalau beda,
+> plugin google-services gagal saat Gradle sync dengan error
+> `File google-services.json is missing` meskipun filenya ada.
+
+### 2. `.env`
+
+Copy template lalu isi:
+
+```bash
+cp .env.example .env
+```
+
+Struktur key yang relevan untuk Firebase/URL (satu file, suffix per environment —
+key prod ditulis tanpa suffix, persis seperti di `.env.example`):
+
+```dotenv
+# --- URL ---
+URL_BASE_DEV=https://api.dev.rekanara.com
+URL_BASE_STAGING=https://api.staging.rekanara.com
+URL_BASE=https://api.rekanara.com
+
+# --- Firebase (Dart-side options, dipakai firebase_options.dart) ---
+FIREBASE_PROJECT_ID_DEV=rekanara-dev
+FIREBASE_PROJECT_ID_STAGING=rekanara-staging
+FIREBASE_PROJECT_ID=rekanara-prod
+
+FIREBASE_MESSAGING_SENDER_ID_DEV=123456789012
+FIREBASE_MESSAGING_SENDER_ID_STAGING=234567890123
+FIREBASE_MESSAGING_SENDER_ID=345678901234
+
+ANDROID_FIREBASE_API_KEY_DEV=AIzaSy...dev
+ANDROID_FIREBASE_API_KEY_STAGING=AIzaSy...stg
+ANDROID_FIREBASE_API_KEY=AIzaSy...prod
+
+ANDROID_FIREBASE_APPID_DEV=1:123456789012:android:0123456789abcdef
+ANDROID_FIREBASE_APPID_STAGING=1:234567890123:android:abcdef0123456789
+ANDROID_FIREBASE_APPID=1:345678901234:android:fedcba9876543210
+```
+
+> Lihat `.env.example` untuk daftar lengkap key. **Jangan hapus key apapun** —
+> `dotenv.env[...]!` akan crash jika value kosong.
+
+### 3. `android/key.properties` (signing release, opsional)
+
+Hanya dibutuhkan untuk build release **prod** yang di-sign untuk Play Store.
+Generate keystore dulu, lalu buat file-nya:
+
+```bash
+keytool -genkey -v -keystore android/app/upload-keystore.jks \
+  -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+```
+
+Isi `android/key.properties` (semua value diganti dengan milik Anda):
+
+```properties
+storePassword=passwordKeystoreAnda
+keyPassword=passwordKeyAnda
+keyAlias=upload
+storeFile=upload-keystore.jks
+```
+
+> `storeFile` relatif terhadap `android/app/`. File `.jks` **tidak pernah di-commit**
+> (sudah dicegah `.gitignore` + secret-guard). Back up keystore secara aman —
+> kehilangan keystore = tidak bisa update app di Play Store.
+
+### 4. `GoogleService-Info.plist` (iOS — menyusul)
+
+Formatnya plist; struktur contoh (untuk saat iOS flavors diimplementasi):
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BUNDLE_ID</key>
+	<string>com.rekanara.getx</string>
+	<key>PROJECT_ID</key>
+	<string>rekanara-prod</string>
+	<key>STORAGE_BUCKET</key>
+	<string>rekanara-prod.appspot.com</string>
+	<key>GCM_SENDER_ID</key>
+	<string>345678901234</string>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:345678901234:ios:fedcba9876543210</string>
+	<key>API_KEY</key>
+	<string>AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</string>
+	<key>GOOGLE_URL_SCHEME</key>
+	<string>com.googleusercontent.apps.345678901234-fedcba9876543210</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.345678901234-fedcba9876543210</string>
+	<key>SERVER_CLIENT_ID</key>
+	<string>345678901234-abcdefabcdefabcdefabcdefabcdef.apps.googleusercontent.com</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+</dict>
+</plist>
+```
+
+> Saat iOS flavors diimplementasi, file ini akan diletakkan per-scheme
+> (mis. `ios/Flavors/<flavor>/GoogleService-Info.plist`) mengikuti pola Android.
+
+---
+
 ## CI/CD
 
 ### `ci.yml` — secret-guard
