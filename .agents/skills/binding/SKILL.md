@@ -1,21 +1,25 @@
+---
+name: Binding (Dependency Injection)
+description: Wiring dependencies (Storage → ApiService → Repository → UseCase → Controller) for GetX
+---
 # Skill: Binding (Dependency Injection)
 
-Binding meng-wire semua dependency (storage → api service → repository → usecase → controller) sebelum sebuah screen ditampilkan.
+Binding wires all dependencies (storage → api service → repository → usecase → controller) before a screen is displayed.
 
 ---
 
-## Aturan Binding
+## Binding Rules
 
-1. Extend `Bindings` dari GetX
+1. Extend `Bindings` from GetX
 2. Implement `dependencies()` method
-3. Urutan inject: **Storage → ApiService → Repository → UseCase → Controller**
-4. Gunakan `Get.lazyPut` untuk semua kecuali Controller akhir (gunakan `Get.put`)
-5. Daftarkan abstract repository dengan tipe abstract: `Get.lazyPut<ProductRepository>(() => ProductRepositoryImpl(...))`
-6. Lokasi: `lib/infrastructure/navigation/bindings/controllers/{feature}.controller.binding.dart`
+3. Inject order: **Storage → ApiService → Repository → UseCase → Controller**
+4. Use `Get.lazyPut` for all except the final Controller (use `Get.put`)
+5. Register abstract repository with abstract type: `Get.lazyPut<ProductRepository>(() => ProductRepositoryImpl(...))`
+6. Location: `lib/infrastructure/navigation/bindings/controllers/{feature}.controller.binding.dart`
 
 ---
 
-## Template Lengkap
+## Complete Template
 
 ```dart
 // lib/infrastructure/navigation/bindings/controllers/product.controller.binding.dart
@@ -33,21 +37,21 @@ import '../../../../presentation/product/controllers/product.controller.dart';
 class ProductControllerBinding extends Bindings {
   @override
   void dependencies() {
-    // 1. Storage (paling bawah — tidak ada dependency)
+    // 1. Storage (bottom — no dependencies)
     Get.lazyPut<FlutterSecureStorageImpl>(() => FlutterSecureStorageImpl());
 
-    // 2. ApiService (butuh SecureStorage)
+    // 2. ApiService (needs SecureStorage)
     Get.lazyPut<ProductApiService>(
       () => ProductApiService(secureStorage: Get.find()),
     );
 
-    // 3. Repository (butuh ApiService)
-    //    PENTING: tipe <ProductRepository> (abstract), bukan impl
+    // 3. Repository (needs ApiService)
+    //    IMPORTANT: type <ProductRepository> (abstract), not impl
     Get.lazyPut<ProductRepository>(
       () => ProductRepositoryImpl(apiService: Get.find()),
     );
 
-    // 4. UseCases (butuh Repository)
+    // 4. UseCases (needs Repository)
     Get.lazyPut<GetProductsUseCase>(
       () => GetProductsUseCase(Get.find()),
     );
@@ -58,8 +62,8 @@ class ProductControllerBinding extends Bindings {
       () => CreateProductUseCase(Get.find()),
     );
 
-    // 5. Controller (paling atas — butuh UseCase)
-    //    Gunakan Get.put bukan lazyPut agar controller langsung aktif
+    // 5. Controller (top — needs UseCase)
+    //    Use Get.put instead of lazyPut so the controller is active immediately
     Get.put<ProductController>(
       ProductController(
         getProductsUseCase: Get.find(),
@@ -73,7 +77,7 @@ class ProductControllerBinding extends Bindings {
 
 ---
 
-## Contoh Nyata di Codebase
+## Real Example in Codebase
 
 ```dart
 // lib/infrastructure/navigation/bindings/controllers/home.controller.binding.dart
@@ -95,16 +99,16 @@ class HomeControllerBinding extends Bindings {
 
 ---
 
-## Binding dengan Storage Non-Secure
+## Binding with Non-Secure Storage
 
-Jika controller juga perlu `GetStorageImpl` (misal untuk theme preference):
+If the controller also needs `GetStorageImpl` (e.g., for theme preference):
 
 ```dart
 class LoginControllerBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<FlutterSecureStorageImpl>(() => FlutterSecureStorageImpl());
-    Get.lazyPut<GetStorageImpl>(() => GetStorageImpl()); // ← tambahkan
+    Get.lazyPut<GetStorageImpl>(() => GetStorageImpl()); // ← add this
     Get.lazyPut<AuthApiService>(
       () => AuthApiService(secureStorage: Get.find()),
     );
@@ -123,14 +127,14 @@ class LoginControllerBinding extends Bindings {
 
 ---
 
-## Register Binding di Navigation
+## Register Binding in Navigation
 
 ```dart
 // lib/infrastructure/navigation/navigation.dart
 GetPage(
   name: Routes.product,
   page: () => const ProductScreen(),
-  binding: ProductControllerBinding(), // ← daftarkan di sini
+  binding: ProductControllerBinding(), // ← register here
 ),
 ```
 
@@ -140,36 +144,36 @@ GetPage(
 
 | | `Get.lazyPut` | `Get.put` |
 |---|---|---|
-| Kapan dibuat | Saat pertama kali di-`find()` | Langsung saat binding dijalankan |
-| Gunakan untuk | Dependencies bawah (storage, api, repo, usecase) | Controller terakhir |
-| Auto-dispose | Ya (saat route di-pop) | Ya |
+| When created | First time `find()` is called | Immediately when binding runs |
+| Use for | Lower dependencies (storage, api, repo, usecase) | Final Controller |
+| Auto-dispose | Yes (when route is popped) | Yes |
 
 ---
 
-## Tips: Get.find() Type Safety
+## Tip: Get.find() Type Safety
 
-Jika ada dua implementasi storage di binding yang sama, gunakan named tag:
+If there are two storage implementations in the same binding, use named tags:
 
 ```dart
 Get.lazyPut<FlutterSecureStorageImpl>(
   () => FlutterSecureStorageImpl(),
   tag: 'product_secure',
 );
-// Lalu ambil dengan:
+// Then retrieve with:
 Get.find<FlutterSecureStorageImpl>(tag: 'product_secure');
 ```
 
-Biasanya tidak diperlukan karena setiap binding scope-nya terpisah per route.
+Usually not needed since each binding is scoped separately per route.
 
 ---
 
 ## Checklist
 
 ```
-[ ] File di lib/infrastructure/navigation/bindings/controllers/{feature}.controller.binding.dart
+[ ] File in lib/infrastructure/navigation/bindings/controllers/{feature}.controller.binding.dart
 [ ] Class extends Bindings
-[ ] Urutan: Storage → ApiService → Repository → UseCase → Controller
-[ ] Repository didaftarkan dengan tipe abstract (domain layer)
-[ ] Controller menggunakan Get.put (bukan lazyPut)
-[ ] Binding didaftarkan di GetPage di navigation.dart
+[ ] Order: Storage → ApiService → Repository → UseCase → Controller
+[ ] Repository is registered with abstract type (domain layer)
+[ ] Controller uses Get.put (not lazyPut)
+[ ] Binding registered in GetPage in navigation.dart
 ```

@@ -1,10 +1,14 @@
+---
+name: New Feature (E2E)
+description: End-to-end 12-step process for creating a new feature
+---
 # Skill: New Feature — Step-by-Step
 
-Panduan lengkap membuat fitur baru dari awal hingga UI. Ikuti urutan ini agar konsisten dengan arsitektur yang ada.
+A complete guide to creating a new feature from scratch through to the UI. Follow this order to remain consistent with the existing architecture.
 
 ---
 
-## Urutan Implementasi
+## Implementation Order
 
 ```
 Step 1: Entity (Domain)
@@ -13,7 +17,7 @@ Step 3: UseCase (Domain)
 Step 4: Model (Infrastructure)
 Step 5: API Service (Infrastructure)
 Step 6: Repository Implementation (Infrastructure)
-Step 7: Endpoint di url.dart + .env
+Step 7: Endpoint in url.dart + .env
 Step 8: Binding (DI)
 Step 9: Controller (Presentation)
 Step 10: Screen (Presentation)
@@ -43,7 +47,7 @@ class ProductEntity {
 }
 ```
 
-**Aturan:** TIDAK boleh import package apapun. Hanya field + constructor.
+**Rule:** MUST NOT import any packages. Only fields + constructors.
 
 ---
 
@@ -63,7 +67,7 @@ abstract class ProductRepository {
 }
 ```
 
-**Aturan:** Hanya `abstract class`. Implementasi ada di infrastructure.
+**Rule:** Only an `abstract class`. Implementation lives in the infrastructure layer.
 
 ---
 
@@ -78,7 +82,7 @@ import '../../core/usecases/usecase.dart';
 import '../entities/product_entity.dart';
 import '../repositories/product_repository.dart';
 
-// Jika tidak ada params — pakai NoParams
+// If no params — use NoParams
 class GetProductsUseCase extends UseCase<List<ProductEntity>, NoParams> {
   final ProductRepository repository;
   GetProductsUseCase(this.repository);
@@ -89,7 +93,7 @@ class GetProductsUseCase extends UseCase<List<ProductEntity>, NoParams> {
   }
 }
 
-// Jika ada params — buat class Params
+// If there are params — create a Params class
 class GetProductByIdParams {
   final String id;
   GetProductByIdParams({required this.id});
@@ -106,7 +110,7 @@ class GetProductByIdUseCase extends UseCase<ProductEntity, GetProductByIdParams>
 }
 ```
 
-**Aturan:** Satu UseCase = satu aksi bisnis.
+**Rule:** One UseCase = one business action.
 
 ---
 
@@ -145,7 +149,7 @@ class ProductModel extends ProductEntity {
 }
 ```
 
-**Aturan:** Model `extends` Entity. Tambahkan `fromJson` dan `toJson`.
+**Rule:** The model `extends` the Entity. Add `fromJson` and `toJson`.
 
 ---
 
@@ -163,10 +167,10 @@ class ProductApiService {
   final SecureStorage secureStorage;
   ProductApiService({required this.secureStorage});
 
-  // Auth client (Bearer token otomatis)
+  // Auth client (automatic Bearer token)
   Dio get _authClient => DioClient.authClient(secureStorage);
 
-  // No auth client (untuk endpoint publik)
+  // No auth client (for public endpoints)
   // Dio get _noAuthClient => DioClient.noAuthClient;
 
   Future<Response> getProducts({Map<String, dynamic>? query}) async {
@@ -251,20 +255,20 @@ NEX_PRODUCT_STAGING=https://product-staging.example.com
 NEX_PRODUCT_PROD=https://product.example.com
 ```
 
-### environments.dart — tambah field
+### environments.dart — add field
 
 ```dart
 class EnvironmentConfig {
-  final String product; // TAMBAH
+  final String product; // ADD THIS
   // ...
 }
-// Isi di setiap env config:
+// Add to each env config:
 product: dotenv.env['NEX_PRODUCT_DEV']!, // DEV
 product: dotenv.env['NEX_PRODUCT_STAGING']!, // STAGING
 product: dotenv.env['NEX_PRODUCT_PROD']!, // PROD
 ```
 
-### url.dart — tambah Domain + Endpoint
+### url.dart — add Domain + Endpoint
 
 ```dart
 class Domain {
@@ -302,7 +306,7 @@ import '../../../../presentation/product/controllers/product.controller.dart';
 class ProductControllerBinding extends Bindings {
   @override
   void dependencies() {
-    // Urutan: dari bawah (storage) ke atas (controller)
+    // Order: from bottom (storage) to top (controller)
     Get.lazyPut<FlutterSecureStorageImpl>(() => FlutterSecureStorageImpl());
     Get.lazyPut<ProductApiService>(
       () => ProductApiService(secureStorage: Get.find()),
@@ -318,7 +322,7 @@ class ProductControllerBinding extends Bindings {
 }
 ```
 
-**Urutan inject:** Storage → ApiService → Repository → UseCase → Controller
+**Injection Order:** Storage → ApiService → Repository → UseCase → Controller
 
 ---
 
@@ -377,7 +381,7 @@ class ProductScreen extends GetView<ProductController> {
           return const Center(child: CircularProgressIndicator());
         }
         if (controller.products.isEmpty) {
-          return const Center(child: Text('Belum ada produk'));
+          return const Center(child: Text('No products available'));
         }
         return ListView.builder(
           itemCount: controller.products.length,
@@ -414,7 +418,7 @@ GetPage(
 ),
 ```
 
-### Export di screens.dart (opsional)
+### Export in screens.dart (optional)
 
 ```dart
 export 'package:rekanara_getx/presentation/product/product.screen.dart';

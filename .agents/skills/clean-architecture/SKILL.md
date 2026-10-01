@@ -1,34 +1,38 @@
+---
+name: Clean Architecture
+description: Understanding the layers, dependency rule, and Either<Failure, T> pattern
+---
 # Skill: Clean Architecture
 
-Panduan prinsip, diagram alur, dan dependency rule Clean Architecture di codebase ini.
+Guide to principles, flow diagrams, and dependency rules of Clean Architecture in this codebase.
 
 ---
 
-## Diagram Layer
+## Layer Diagram
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│  DOMAIN (Pure Dart — tidak import Flutter/Dio/GetX)           │
+│  DOMAIN (Pure Dart — no Flutter/Dio/GetX imports)             │
 │                                                               │
-│  Entity ← Repository (abstract) ← UseCase                    │
+│  Entity ← Repository (abstract) ← UseCase                     │
 └───────────────────────────┬───────────────────────────────────┘
                             │ implements
 ┌───────────────────────────▼───────────────────────────────────┐
 │  INFRASTRUCTURE                                               │
 │                                                               │
-│  Model (extends Entity) → RepositoryImpl → ApiService → Dio  │
+│  Model (extends Entity) → RepositoryImpl → ApiService → Dio   │
 └───────────────────────────┬───────────────────────────────────┘
                             │ injected via Binding
 ┌───────────────────────────▼───────────────────────────────────┐
 │  PRESENTATION                                                 │
 │                                                               │
-│  Binding → Controller (callUseCase) → Screen (Obx/GetBuilder)│
+│  Binding → Controller (callUseCase) → Screen (Obx/GetBuilder) │
 └───────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Alur Data (Login Example)
+## Data Flow (Login Example)
 
 ```
 LoginScreen (UI)
@@ -53,7 +57,7 @@ AuthRepositoryImpl.login()         ← Infrastructure Layer
 AuthApiService.login()             ← HTTP call via Dio (noAuthClient)
     │
     ▼
-Either<Failure, UserEntity>        ← Response di-wrap dengan Dartz
+Either<Failure, UserEntity>        ← Response wrapped with Dartz
     │
     ▼
 BaseController.callUseCase()       ← fold: Left(error) / Right(success)
@@ -63,9 +67,9 @@ BaseController.callUseCase()       ← fold: Left(error) / Right(success)
 
 ## Dependency Rule
 
-| Layer | Boleh import | Tidak boleh import |
+| Layer | Can import | Cannot import |
 |---|---|---|
-| Domain | Dart core, dartz | Flutter, Dio, GetX, storage, dll |
+| Domain | Dart core, dartz | Flutter, Dio, GetX, storage, etc. |
 | Infrastructure | Domain, Dio, GetX, storage | Presentation |
 | Presentation | Domain (usecases/entities), GetX, utils | Infrastructure detail (repository impl) |
 
@@ -73,7 +77,7 @@ BaseController.callUseCase()       ← fold: Left(error) / Right(success)
 
 ## Either<Failure, T> Pattern
 
-Seluruh use case dan repository menggunakan `Either` dari package `dartz`:
+All use cases and repositories use `Either` from the `dartz` package:
 
 ```dart
 // Repository (abstract) — domain layer
@@ -99,7 +103,7 @@ Future<Either<Failure, UserEntity>> login(String email, String password) async {
 await callUseCase(
   loginUseCase.execute(params),
   onSuccess: (user) => Get.offAllNamed(Routes.home),
-  // onFailure opsional — default: SnackbarHelper.showError()
+  // onFailure optional — default: SnackbarHelper.showError()
 );
 ```
 
@@ -135,24 +139,24 @@ class CacheFailure extends Failure {
 }
 ```
 
-Tambahkan failure type baru jika perlu, extend `Failure`.
+Add a new failure type if needed by extending `Failure`.
 
 ---
 
-## Checklist Fitur Baru
+## New Feature Checklist
 
 ```
 [ ] Domain:
     [ ] Entity (lib/domain/{feature}/entities/{feature}_entity.dart)
-    [ ] Repository abstract (lib/domain/{feature}/repositories/{feature}_repository.dart)
+    [ ] Abstract Repository (lib/domain/{feature}/repositories/{feature}_repository.dart)
     [ ] UseCase (lib/domain/{feature}/usecases/{action}_{feature}_usecase.dart)
 
 [ ] Infrastructure:
     [ ] Model extends Entity (lib/infrastructure/dal/{feature}/models/{feature}_model.dart)
     [ ] API Service (lib/infrastructure/dal/services/{feature}_api_service.dart)
     [ ] Repository Impl (lib/infrastructure/dal/{feature}/repositories/{feature}_repository_impl.dart)
-    [ ] Endpoint di url.dart
-    [ ] .env entry jika service baru
+    [ ] Endpoint in url.dart
+    [ ] .env entry if new service
 
 [ ] Presentation:
     [ ] Controller extends BaseController (lib/presentation/{feature}/controllers/{feature}.controller.dart)
@@ -160,10 +164,10 @@ Tambahkan failure type baru jika perlu, extend `Failure`.
     [ ] Binding (lib/infrastructure/navigation/bindings/controllers/{feature}.controller.binding.dart)
 
 [ ] Navigation:
-    [ ] Route constant di routes.dart
-    [ ] GetPage di navigation.dart + binding
+    [ ] Route constant in routes.dart
+    [ ] GetPage in navigation.dart + binding
 
 [ ] Tests:
-    [ ] UseCase test dengan mock repository
-    [ ] (opsional) Controller test
+    [ ] UseCase test with mock repository
+    [ ] (optional) Controller test
 ```

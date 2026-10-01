@@ -43,7 +43,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
         final userModel = UserModel.fromJson(data);
 
-        // Simpan token ke SecureStorage (encrypted)
+        // Save token to SecureStorage (encrypted)
         await secureStorage.write(
           SecureStorageKey.accessToken,
           userModel.accessToken,
@@ -67,7 +67,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> logout() async {
     try {
-      // Hapus token dari SecureStorage
+      // Remove token from SecureStorage
       await secureStorage.delete(SecureStorageKey.accessToken);
       await secureStorage.delete(SecureStorageKey.refreshToken);
       return const Right(null);

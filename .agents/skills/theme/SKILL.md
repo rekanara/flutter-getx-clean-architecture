@@ -1,16 +1,20 @@
+---
+name: Theme
+description: Theming with FlexColorScheme, theme switching, and accessing colors
+---
 # Skill: Theme
 
-Panduan theming dengan FlexColorScheme, switch tema, dan mengakses warna/style dari context.
+Guide to theming with FlexColorScheme, switching themes, and accessing colors/styles from the context.
 
 ---
 
-## RkTheme — Konfigurasi
+## RkTheme — Configuration
 
 `lib/infrastructure/theme/theme.dart`
 
 ```dart
 class RkTheme {
-  // Light — properti bernama `light`, BUKAN `lightTheme`
+  // Light — property named `light`, NOT `lightTheme`
   static ThemeData light = FlexThemeData.light(
     colors: const FlexSchemeColor(
       primary: Color(0xFF00296B),
@@ -18,11 +22,11 @@ class RkTheme {
       tertiary: Color(0xFF5C5C95),
       // ...
     ),
-    // defaultRadius: 22.0 (di subThemesData)
+    // defaultRadius: 22.0 (in subThemesData)
     // font: Quicksand
   );
 
-  // Dark — properti bernama `dark`, BUKAN `darkTheme`
+  // Dark — property named `dark`, NOT `darkTheme`
   static ThemeData dark = FlexThemeData.dark(
     colors: const FlexSchemeColor(
       primary: Color(0xFFB1CFF5),
@@ -32,9 +36,9 @@ class RkTheme {
     ),
   );
 
-  // Switch tema + simpan preference ke GetStorage
-  // PENTING: named parameter {required bool isLightTheme}, bukan positional,
-  // dan Future<void> (async) — bukan void.
+  // Switch theme + save preference to GetStorage
+  // IMPORTANT: named parameter {required bool isLightTheme}, not positional,
+  // and Future<void> (async) — not void.
   static Future<void> changeTheme({required bool isLightTheme}) async {
     GetStorageImpl storage = GetStorageImpl();
     await storage.write(StorageValue.themeIsLight, !isLightTheme);
@@ -43,54 +47,54 @@ class RkTheme {
 }
 ```
 
-**Bug di source saat ini:** logic `changeTheme()` di atas membalik `isLightTheme` (pakai `!isLightTheme`) baik saat menyimpan ke storage maupun menentukan `ThemeMode` — akibatnya memanggil `changeTheme(isLightTheme: true)` justru mengaktifkan **dark mode**. Kalau mau dipakai, perbaiki dulu logic-nya di `lib/infrastructure/theme/theme.dart`, jangan copy apa adanya. `main.dart` sendiri saat ini tidak memanggil `changeTheme()` — masih pakai `themeMode: ThemeMode.system` statis.
+**Known Bug:** The `changeTheme()` logic above negates `isLightTheme` (using `!isLightTheme`) when saving to storage and setting `ThemeMode`. Because of this, calling `changeTheme(isLightTheme: true)` actually activates **dark mode**. Before using this feature, fix the logic in `lib/infrastructure/theme/theme.dart` instead of copying it blindly. `main.dart` doesn't currently call `changeTheme()`—it uses a static `themeMode: ThemeMode.system`.
 
 ---
 
-## Menggunakan Tema di GetMaterialApp
+## Using Theme in GetMaterialApp
 
 ```dart
-// lib/main.dart (kondisi nyata saat ini)
+// lib/main.dart (current actual state)
 GetMaterialApp(
   theme: RkTheme.light,
   darkTheme: RkTheme.dark,
-  themeMode: ThemeMode.system, // ikut sistem, bukan preference tersimpan
+  themeMode: ThemeMode.system, // follows system, not saved preference
   // ...
 );
 ```
 
 ---
 
-## Mengakses Warna dari Context
+## Accessing Colors from Context
 
 ```dart
-// Selalu gunakan Theme.of(context) untuk warna adaptive
+// Always use Theme.of(context) for adaptive colors
 final theme = Theme.of(context);
 final colorScheme = theme.colorScheme;
 
-// Warna utama
+// Main colors
 colorScheme.primary         // #00296B (light) / #B1CFF5 (dark)
 colorScheme.secondary       // #D26900 (light) / #FFD270 (dark)
 colorScheme.tertiary        // #5C5C95 (light) / #C9CBFC (dark)
 
 // Background & surface
-colorScheme.background      // background utama
-colorScheme.surface         // surface card/dialog
-colorScheme.surfaceVariant  // surface alternatif
+colorScheme.background      // main background
+colorScheme.surface         // card/dialog surface
+colorScheme.surfaceVariant  // alternative surface
 
 // Text on background
-colorScheme.onPrimary       // teks di atas primary color
-colorScheme.onSurface       // teks utama
-colorScheme.onSurfaceVariant // teks secondary
+colorScheme.onPrimary       // text on primary color
+colorScheme.onSurface       // main text
+colorScheme.onSurfaceVariant // secondary text
 
 // Error
-colorScheme.error           // merah error
-colorScheme.onError         // teks di atas error
+colorScheme.error           // error red
+colorScheme.onError         // text on error color
 ```
 
 ---
 
-## Mengakses TextTheme
+## Accessing TextTheme
 
 ```dart
 final textTheme = Theme.of(context).textTheme;
@@ -112,18 +116,18 @@ textTheme.labelMedium
 textTheme.labelSmall
 ```
 
-Atau gunakan `CustomText(fontType: FontType.titleLarge)` — lebih direkomendasikan.
+Alternatively, use `CustomText(fontType: FontType.titleLarge)` — this is highly recommended.
 
 ---
 
-## Switch Tema
+## Theme Switching
 
 ```dart
-// Di controller / setting screen — named parameter, dan async
-await RkTheme.changeTheme(isLightTheme: true);   // switch ke light
-await RkTheme.changeTheme(isLightTheme: false);  // switch ke dark
+// In a controller or settings screen — use named parameters, and async
+await RkTheme.changeTheme(isLightTheme: true);   // switch to light
+await RkTheme.changeTheme(isLightTheme: false);  // switch to dark
 
-// Atau dengan toggle
+// Or using a toggle
 class ThemeController extends GetxController {
   bool get isLight => Get.find<GetStorageImpl>()
       .read<bool>(StorageValue.themeIsLight) ?? true;
@@ -131,7 +135,7 @@ class ThemeController extends GetxController {
   Future<void> toggleTheme() => RkTheme.changeTheme(isLightTheme: !isLight);
 }
 
-// Di UI
+// In UI
 Obx(() => Switch(
   value: themeController.isLight,
   onChanged: (_) => themeController.toggleTheme(),
@@ -146,14 +150,14 @@ Obx(() => Switch(
 
 ```dart
 class ColorData {
-  static const error   = Color(0xFFD32F2F); // merah
-  static const success = Color(0xFF388E3C); // hijau
-  static const warning = Color(0xFFF57C00); // kuning/oranye
-  static const info    = Color(0xFF1976D2); // biru
+  static const error   = Color(0xFFD32F2F); // red
+  static const success = Color(0xFF388E3C); // green
+  static const warning = Color(0xFFF57C00); // yellow/orange
+  static const info    = Color(0xFF1976D2); // blue
 }
 ```
 
-Gunakan untuk warna semantik yang tidak berubah antara light/dark:
+Use these for semantic colors that do not change between light and dark modes:
 
 ```dart
 CustomText(
@@ -163,7 +167,7 @@ CustomText(
 
 Container(
   color: ColorData.success.withOpacity(0.1),
-  child: CustomText(text: 'Berhasil!', color: ColorData.success),
+  child: CustomText(text: 'Success!', color: ColorData.success),
 )
 ```
 
@@ -171,11 +175,11 @@ Container(
 
 ## defaultRadius
 
-Semua komponen mengikuti `defaultRadius: 22.0`:
+All components follow `defaultRadius: 22.0`:
 
 ```dart
-// Contoh komponen yang ikut tema
-BorderRadius.circular(22) // untuk Card, Container, dll
+// Example of a component respecting the theme radius
+BorderRadius.circular(22) // for Cards, Containers, etc.
 ```
 
 ---
@@ -183,10 +187,10 @@ BorderRadius.circular(22) // untuk Card, Container, dll
 ## Checklist
 
 ```
-[ ] Warna utama dari Theme.of(context).colorScheme
-[ ] Text style dari CustomText (fontType) atau Theme.of(context).textTheme
-[ ] Warna semantik (error/success) dari ColorData
-[ ] Switch tema via RkTheme.changeTheme(bool)
-[ ] Preference tema tersimpan ke GetStorage (sudah dilakukan RkTheme.changeTheme)
-[ ] Tidak hardcode Color() di widget kecuali sangat diperlukan
+[ ] Main colors from Theme.of(context).colorScheme
+[ ] Text styling via CustomText (fontType) or Theme.of(context).textTheme
+[ ] Semantic colors (error/success) from ColorData
+[ ] Theme switching via RkTheme.changeTheme(bool)
+[ ] Theme preference saved to GetStorage (handled by RkTheme.changeTheme)
+[ ] Avoid hardcoding Color() in widgets unless absolutely necessary
 ```

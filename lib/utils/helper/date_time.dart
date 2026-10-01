@@ -1,10 +1,10 @@
 class DateTimeHelper {
-  /// Convert Unix timestamp (dalam detik) ke DateTime UTC
+  /// Convert Unix timestamp (in seconds) to DateTime UTC
   static DateTime fromUnixToUtc(int timestamp) {
     return DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: true);
   }
 
-  /// Convert Unix timestamp (dalam detik) ke DateTime lokal
+  /// Convert Unix timestamp (in seconds) to local DateTime
   static DateTime fromUnixToLocal(int timestamp) {
     return DateTime.fromMillisecondsSinceEpoch(
       timestamp * 1000,
@@ -12,12 +12,12 @@ class DateTimeHelper {
     ).toLocal();
   }
 
-  /// Convert DateTime ke Unix timestamp (detik)
+  /// Convert DateTime to Unix timestamp (seconds)
   static int toUnix(DateTime dateTime) {
     return dateTime.millisecondsSinceEpoch ~/ 1000;
   }
 
-  /// Format cepat ke string (misalnya `yyyy-MM-dd HH:mm:ss`)
+  /// Quick format to string (e.g. `yyyy-MM-dd HH:mm:ss`)
   static String format(DateTime dateTime) {
     return "${dateTime.year}-${_twoDigits(dateTime.month)}-${_twoDigits(dateTime.day)} "
         "${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}";

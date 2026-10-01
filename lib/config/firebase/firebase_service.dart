@@ -3,16 +3,16 @@ import 'package:firebase_core/firebase_core.dart';
 import '../../utils/helper/logger.dart';
 import 'firebase_options.dart';
 
-/// Service untuk menginisialisasi Firebase.
+/// Service to initialize Firebase.
 ///
-/// Panggil `FirebaseService.init()` di `main.dart` sebelum
-/// menggunakan Firebase Messaging atau Remote Config.
+/// Call `FirebaseService.init()` in `main.dart` before
+/// using Firebase Messaging or Remote Config.
 class FirebaseService {
   FirebaseService._();
 
   static bool _initialized = false;
 
-  /// Inisialisasi Firebase App.
+  /// Initialize Firebase App.
   static Future<void> init() async {
     if (_initialized) return;
 

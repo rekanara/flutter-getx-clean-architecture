@@ -20,32 +20,32 @@ class HomeController extends BaseController {
   void onInit() {
     super.onInit();
 
-    // Fetch data terlebih dahulu
+    // Fetch data first
     fetchBanners();
 
-    // Daftarkan callback refresh saat app kembali dari background
+    // Register refresh callback when app returns from background
     try {
       _lifecycleService = Get.find<AppLifecycleService>();
       _lifecycleService?.addOnResumeCallback(_onAppResumed);
     } catch (_) {
-      // AppLifecycleService belum di-register — skip
+      // AppLifecycleService not registered yet — skip
     }
   }
 
   @override
   void onClose() {
-    // Hapus callback saat controller di-dispose
+    // Remove callback when controller is disposed
     _lifecycleService?.removeOnResumeCallback(_onAppResumed);
     super.onClose();
   }
 
-  /// Dipanggil otomatis saat app kembali ke foreground.
+  /// Called automatically when app returns to foreground.
   void _onAppResumed() {
     LoggerHelper.d('HomeController: App resumed — refreshing banners');
     fetchBanners();
   }
 
-  /// Fetch banners dari API.
+  /// Fetch banners from API.
   Future<void> fetchBanners() async {
     await callUseCase(
       getBannersUseCase.execute(NoParams()),

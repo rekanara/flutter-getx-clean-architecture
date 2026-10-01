@@ -3,17 +3,17 @@ import 'package:get/get.dart';
 
 import '../../utils/helper/logger.dart';
 
-/// Service untuk mengelola Firebase Remote Config.
+/// Service to manage Firebase Remote Config.
 ///
-/// Default keys yang dibaca:
-/// - `maintenance_mode` (bool) — Apakah app sedang dalam mode maintenance
-/// - `maintenance_message` (String) — Pesan maintenance untuk ditampilkan ke user
+/// Default keys read:
+/// - `maintenance_mode` (bool) — Whether the app is in maintenance mode
+/// - `maintenance_message` (String) — Maintenance message to show to the user
 ///
-/// Cara pakai:
+/// Usage:
 /// ```dart
 /// final rc = Get.find<RemoteConfigService>();
 /// if (rc.isMaintenanceMode) {
-///   // Tampilkan halaman maintenance
+///   // Show maintenance page
 /// }
 /// ```
 class RemoteConfigService extends GetxController {
@@ -27,8 +27,8 @@ class RemoteConfigService extends GetxController {
   final RxBool maintenanceMode = false.obs;
   final RxString maintenanceMessage = ''.obs;
 
-  /// Fetch interval — default 1 jam untuk production,
-  /// 0 detik untuk debug agar langsung fetch.
+  /// Fetch interval — default 1 hour for production,
+  /// 0 seconds for debug to fetch immediately.
   Duration fetchInterval = const Duration(hours: 1);
 
   /// Shortcut getter
@@ -40,14 +40,14 @@ class RemoteConfigService extends GetxController {
     _remoteConfig = FirebaseRemoteConfig.instance;
   }
 
-  /// Inisialisasi Remote Config dengan default values dan fetch pertama.
+  /// Initialize Remote Config with default values and initial fetch.
   Future<void> init({Duration? minimumFetchInterval}) async {
     try {
       // Set defaults
       await _remoteConfig.setDefaults({
         _keyMaintenanceMode: false,
         _keyMaintenanceMessage:
-            'Aplikasi sedang dalam maintenance. Silakan coba lagi nanti.',
+            'The application is currently in maintenance. Please try again later.',
       });
 
       // Configure
@@ -61,7 +61,7 @@ class RemoteConfigService extends GetxController {
       // Fetch & activate
       await fetchAndActivate();
 
-      // Listen to real-time updates (jika tersedia)
+      // Listen to real-time updates (if available)
       _remoteConfig.onConfigUpdated.listen((event) async {
         await _remoteConfig.activate();
         _syncValues();
@@ -74,7 +74,7 @@ class RemoteConfigService extends GetxController {
     }
   }
 
-  /// Fetch data terbaru dari server dan activate.
+  /// Fetch the latest data from the server and activate.
   Future<bool> fetchAndActivate() async {
     try {
       final activated = await _remoteConfig.fetchAndActivate();
@@ -87,7 +87,7 @@ class RemoteConfigService extends GetxController {
     }
   }
 
-  /// Sync remote values ke observable fields.
+  /// Sync remote values to observable fields.
   void _syncValues() {
     maintenanceMode.value = _remoteConfig.getBool(_keyMaintenanceMode);
     maintenanceMessage.value = _remoteConfig.getString(_keyMaintenanceMessage);
@@ -99,18 +99,18 @@ class RemoteConfigService extends GetxController {
   }
 
   // ═══════════════════════════════════════════════════════════
-  //  GENERIC GETTERS (untuk key custom tambahan)
+  //  GENERIC GETTERS (for additional custom keys)
   // ═══════════════════════════════════════════════════════════
 
-  /// Membaca value String dari key tertentu.
+  /// Read String value from a specific key.
   String getString(String key) => _remoteConfig.getString(key);
 
-  /// Membaca value bool dari key tertentu.
+  /// Read bool value from a specific key.
   bool getBool(String key) => _remoteConfig.getBool(key);
 
-  /// Membaca value int dari key tertentu.
+  /// Read int value from a specific key.
   int getInt(String key) => _remoteConfig.getInt(key);
 
-  /// Membaca value double dari key tertentu.
+  /// Read double value from a specific key.
   double getDouble(String key) => _remoteConfig.getDouble(key);
 }

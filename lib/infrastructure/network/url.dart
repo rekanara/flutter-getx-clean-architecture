@@ -4,7 +4,7 @@ import 'environments.dart';
 
 // ─── Path Segments ──────────────────────────────────────────
 
-/// Konstanta path segment, menghindari typo pada string path.
+/// Path segment constants, avoids typos in string paths.
 class PathSegment {
   static const String banner = '/assets/banner/';
   static const String v1 = '/v1';
@@ -17,7 +17,7 @@ class PathSegment {
 
 // ─── App Cast URLs ──────────────────────────────────────────
 
-/// AppCast URLs (tidak tergantung environment).
+/// AppCast URLs (independent of environment).
 class AppCastUrl {
   static String get android => dotenv.env['URL_APPCAST_ANDROID']!;
   static String get ios => dotenv.env['URL_APPCAST_IOS']!;
@@ -25,10 +25,10 @@ class AppCastUrl {
 
 // ─── Domain Builder ─────────────────────────────────────────
 
-/// Membangun base URL dari [EnvironmentConfig] + path segments.
+/// Builds base URL from [EnvironmentConfig] + path segments.
 ///
-/// Akses langsung via typed property, tidak ada string key.
-/// Contoh: `Domain.sso` → `https://sso.dev.example.com/api/v1`
+/// Direct access via typed properties, no string keys.
+/// Example: `Domain.sso` → `https://sso.dev.example.com/api/v1`
 class Domain {
   static EnvironmentConfig get _cfg => ConfigEnvironments.config;
 
@@ -52,10 +52,10 @@ class Domain {
 
 // ─── URL Endpoints ──────────────────────────────────────────
 
-/// Semua endpoint API yang digunakan di seluruh aplikasi.
+/// All API endpoints used throughout the application.
 ///
-/// Tambahkan endpoint baru di sini untuk menghindari
-/// string endpoint tersebar di banyak file.
+/// Add new endpoints here to avoid
+/// string endpoints scattered across many files.
 ///
 /// ```dart
 /// final url = Endpoint.be.login; // "https://api.../v1/auth/login"

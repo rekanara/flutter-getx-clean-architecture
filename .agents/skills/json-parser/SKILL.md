@@ -1,17 +1,21 @@
+---
+name: JsonParser
+description: Usage of JsonParser for isolate-based parsing
+---
 # Skill: JsonParser (Isolate Parsing)
 
-`JsonParser` memparse JSON list menggunakan Dart isolate (`compute()`) untuk list besar agar tidak memblokir UI thread.
+`JsonParser` parses JSON lists using Dart isolates (`compute()`) for large lists to prevent blocking the UI thread.
 
 ---
 
-## Kapan Menggunakan
+## When to Use
 
-| Jumlah Item | Gunakan |
+| Item Count | Use |
 |---|---|
-| < 50 | `parseListSync()` atau `parseList()` (sama saja, tidak pakai isolate) |
-| >= 50 | `parseList()` — otomatis pakai `compute()` di isolate |
+| < 50 | `parseListSync()` or `parseList()` (same, no isolate) |
+| >= 50 | `parseList()` — automatically uses `compute()` in an isolate |
 | Single object | `parseObject()` |
-| Di dalam isolate | `parseListSync()` (compute() tidak bisa nested) |
+| Inside isolate | `parseListSync()` (compute() cannot be nested) |
 
 Threshold: `minItemsForIsolate = 50`
 
@@ -21,9 +25,9 @@ Threshold: `minItemsForIsolate = 50`
 
 ```dart
 // lib/utils/json_parser.dart
-// Otomatis pilih isolate atau main thread berdasarkan jumlah item
+// Automatically selects isolate or main thread based on item count
 
-// Di RepositoryImpl:
+// In RepositoryImpl:
 final response = await apiService.getProducts();
 if (response.statusCode == 200) {
   final rawList = response.data['data'] as List?;
@@ -31,7 +35,7 @@ if (response.statusCode == 200) {
 
   final products = await JsonParser.parseList(
     jsonList: rawList,
-    fromJson: ProductModel.fromJson,  // fungsi static
+    fromJson: ProductModel.fromJson,  // static function
   );
   return Right(products);
 }
@@ -42,7 +46,7 @@ if (response.statusCode == 200) {
 ## parseObject — Single Object
 
 ```dart
-// Untuk single object — selalu di main thread
+// For a single object — always on the main thread
 final rawData = response.data['data'] as Map<String, dynamic>;
 final user = JsonParser.parseObject(
   json: rawData,
@@ -53,16 +57,16 @@ return Right(user);
 
 ---
 
-## parseListSync — Synchronous (di dalam isolate)
+## parseListSync — Synchronous (Inside Isolate)
 
 ```dart
-// Gunakan HANYA di dalam isolate (compute callback)
-// karena compute() tidak bisa nested
+// Use ONLY inside an isolate (compute callback)
+// because compute() cannot be nested
 static List<T> _parseInIsolate<T>(
   Map<String, dynamic> args,
 ) {
   final jsonList = args['data'] as List;
-  // Di sini harus sync karena kita sudah di dalam isolate
+  // Must be sync here because we are already in an isolate
   return JsonParser.parseListSync(
     jsonList: jsonList,
     fromJson: ProductModel.fromJson,
@@ -72,7 +76,7 @@ static List<T> _parseInIsolate<T>(
 
 ---
 
-## Contoh Nyata di Codebase
+## Real Example in Codebase
 
 ```dart
 // lib/infrastructure/dal/home/repositories/home_repository_impl.dart
@@ -99,15 +103,15 @@ Future<Either<Failure, List<BannerEntity>>> getBanners() async {
 
 ---
 
-## ApiResponse dengan parseList
+## ApiResponse with parseList
 
 ```dart
-// Jika menggunakan ApiResponse wrapper
+// If using the ApiResponse wrapper
 final apiResponse = ApiResponse.fromJsonList(
   response.data,
   ProductModel.fromJson,
 );
-// ApiResponse.fromJsonList sudah menggunakan JsonParser.parseList di dalamnya
+// ApiResponse.fromJsonList internally uses JsonParser.parseList
 final products = apiResponse.data ?? [];
 ```
 
@@ -116,9 +120,9 @@ final products = apiResponse.data ?? [];
 ## Checklist
 
 ```
-[ ] List dari API → parseList() (otomatis pilih isolate jika >=50 items)
+[ ] List from API → parseList() (auto selects isolate if >=50 items)
 [ ] Single object → parseObject()
-[ ] Di dalam isolate → parseListSync()
-[ ] fromJson harus static method atau top-level function (untuk compute())
-[ ] Tidak perlu cek jumlah item manual — JsonParser sudah auto-threshold
+[ ] Inside isolate → parseListSync()
+[ ] fromJson must be a static method or top-level function (for compute())
+[ ] No need to manually check item counts — JsonParser handles the threshold
 ```

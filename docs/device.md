@@ -1,30 +1,30 @@
 # Device Config
 
-Lokasi: `lib/config/device/device_config.dart`
+Location: `lib/config/device/device_config.dart`
 
 ## Overview
 
-Singleton untuk membaca informasi perangkat (device) menggunakan `device_info_plus`. Berguna untuk analytics, debugging, dan API calls yang membutuhkan device metadata.
+Singleton for reading device information using `device_info_plus`. Useful for analytics, debugging, and API calls that require device metadata.
 
 ---
 
-## Inisialisasi
+## Initialization
 
 ```dart
 await DeviceConfig.instance.init();
 ```
 
-Otomatis mendeteksi platform (Android/iOS/Web) dan membaca detail device.
+Automatically detects the platform (Android/iOS/Web) and reads device details.
 
 ---
 
-## Properties yang Tersedia
+## Available Properties
 
-| Property | Type | Contoh Output |
+| Property | Type | Example Output |
 |---|---|---|
 | `deviceId` | `String?` | `"ABCD1234-5678"` |
 | `deviceOS` | `String` | `"Android"` / `"iOS"` / `"Web"` |
-| `deviceOs` | `String` | `"14.5"` (versi OS) |
+| `deviceOs` | `String` | `"14.5"` (OS version) |
 | `deviceMake` | `String?` | `"Samsung"` / `"Apple"` |
 | `deviceModel` | `String?` | `"SM-G998B"` / `"iPhone14,2"` |
 | `deviceTypeCode` | `String` | `"1"` (Android), `"2"` (iOS), `"3"` (Web) |
@@ -33,19 +33,19 @@ Otomatis mendeteksi platform (Android/iOS/Web) dan membaca detail device.
 
 ---
 
-## Cara Pakai
+## Usage
 
 ```dart
 final device = DeviceConfig.instance;
 
-// Kirim ke API sebagai header/body
+// Send to API as header/body
 final headers = {
   'X-Device-Id': device.deviceId ?? '',
   'X-Device-OS': device.deviceOS,
   'X-Device-Model': '${device.deviceMake} ${device.deviceModel}',
 };
 
-// Untuk analytics
+// For analytics
 analytics.setUserProperty(
   name: 'device_type',
   value: device.deviceTypeCode,
@@ -56,7 +56,7 @@ analytics.setUserProperty(
 
 ## Device Type Detection (UI)
 
-Untuk responsive layout, gunakan `DeviceConfig.getDeviceType(context)`:
+For responsive layout, use `DeviceConfig.getDeviceType(context)`:
 
 ```dart
 final type = DeviceConfig.getDeviceType(context);
@@ -68,13 +68,13 @@ switch (type) {
 }
 ```
 
-> **Catatan:** Untuk responsive UI, disarankan menggunakan `Responsive` widget dan `context.responsive()` extension di `lib/utils/responsive.dart`, karena lebih fleksibel dan deklaratif.
+> **Note:** For responsive UI, it is recommended to use the `Responsive` widget and the `context.responsive()` extension in `lib/utils/responsive.dart`, as they are more flexible and declarative.
 
 ---
 
 ## Output Log
 
-Saat `init()` dipanggil, device info di-log:
+When `init()` is called, the device info is logged:
 
 ```
 Device Info:

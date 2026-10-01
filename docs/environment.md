@@ -1,24 +1,24 @@
 # Environment & URL System
 
-Panduan lengkap alur konfigurasi domain: dari `.env` → `environments.dart` → `url.dart` → penggunaan di CRUD.
+Complete guide for the domain configuration flow: from `.env` → `environments.dart` → `url.dart` → usage in CRUD.
 
 ---
 
-## Arsitektur
+## Architecture
 
 ```
 .env                          ← Source of truth (domain URLs per env)
   │
   ▼
-environments.dart             ← Membaca .env → EnvironmentConfig (typed)
+environments.dart             ← Reads .env → EnvironmentConfig (typed)
   │
   ▼
 url.dart                      ← Domain builder + Endpoint registry
-  ├── Domain.be               ← Base URL lengkap (backend utama saat ini)
+  ├── Domain.be               ← Full base URL (current main backend)
   └── Endpoint.be.login       ← Full endpoint URL
         │
         ▼
-api_service.dart              ← Dio call pakai Endpoint
+api_service.dart              ← Dio call using Endpoint
   │
   ▼
 repository_impl.dart → usecase.dart → controller.dart → UI
@@ -26,12 +26,12 @@ repository_impl.dart → usecase.dart → controller.dart → UI
 
 ---
 
-## Step 1: Tambahkan Domain di `.env`
+## Step 1: Add Domain in `.env`
 
-File `.env` menyimpan semua URL per environment (dev/staging/prod):
+The `.env` file stores all URLs per environment (dev/staging/prod):
 
 ```env
-# ── Service Baru: Inventory ──
+# ── New Service: Inventory ──
 NEX_INVENTORY_DEV=https://inventory-dev.example.com
 NEX_INVENTORY_STAGING=https://inventory-staging.example.com
 NEX_INVENTORY_PROD=https://inventory.example.com
@@ -41,56 +41,56 @@ NEX_INVENTORY_PROD=https://inventory.example.com
 
 ---
 
-## Step 2: Tambahkan Field di `EnvironmentConfig`
+## Step 2: Add Field in `EnvironmentConfig`
 
 `lib/infrastructure/network/environments.dart`
 
-### 2a. Tambah property di class:
+### 2a. Add property to the class:
 
 ```dart
 class EnvironmentConfig {
   // ... existing fields ...
   
-  final String inventory; // ← TAMBAH
+  final String inventory; // ← ADD
 
   const EnvironmentConfig({
     // ... existing params ...
-    required this.inventory, // ← TAMBAH
+    required this.inventory, // ← ADD
   });
 }
 ```
 
-### 2b. Isi value dari `.env` di setiap environment config:
+### 2b. Assign value from `.env` in each environment config:
 
 ```dart
 static final List<EnvironmentConfig> _configs = [
   // ── DEV ──
   EnvironmentConfig(
     // ... existing ...
-    inventory: dotenv.env['NEX_INVENTORY_DEV']!,  // ← TAMBAH
+    inventory: dotenv.env['NEX_INVENTORY_DEV']!,  // ← ADD
   ),
 
   // ── STAGING ──
   EnvironmentConfig(
     // ... existing ...
-    inventory: dotenv.env['NEX_INVENTORY_STAGING']!,  // ← TAMBAH
+    inventory: dotenv.env['NEX_INVENTORY_STAGING']!,  // ← ADD
   ),
 
   // ── PRODUCTION ──
   EnvironmentConfig(
     // ... existing ...
-    inventory: dotenv.env['NEX_INVENTORY_PROD']!,  // ← TAMBAH
+    inventory: dotenv.env['NEX_INVENTORY_PROD']!,  // ← ADD
   ),
 ];
 ```
 
 ---
 
-## Step 3: Buat Domain Builder & Endpoint di `url.dart`
+## Step 3: Create Domain Builder & Endpoint in `url.dart`
 
 `lib/infrastructure/network/url.dart`
 
-### 3a. Tambah Domain getter:
+### 3a. Add Domain getter:
 
 ```dart
 class Domain {
@@ -98,21 +98,21 @@ class Domain {
 
   // ... existing domains ...
 
-  // ── Inventory ── (TAMBAH)
+  // ── Inventory ── (ADD)
   static String get inventory =>
       '${_cfg.inventory}${PathSegment.api}${PathSegment.v1}';
 }
 ```
 
-### 3b. Tambah Endpoint class:
+### 3b. Add Endpoint class:
 
 ```dart
 class Endpoint {
   // ... existing ...
-  static final inventory = _InventoryEndpoints();  // ← TAMBAH
+  static final inventory = _InventoryEndpoints();  // ← ADD
 }
 
-// ── TAMBAH class endpoint ──
+// ── ADD endpoint class ──
 class _InventoryEndpoints {
   String get list       => '${Domain.inventory}/items';
   String get detail     => '${Domain.inventory}/items';     // + /{id}
@@ -125,7 +125,7 @@ class _InventoryEndpoints {
 
 ---
 
-## Step 4: Buat API Service
+## Step 4: Create API Service
 
 `lib/infrastructure/dal/services/inventory_api_service.dart`
 
@@ -174,34 +174,34 @@ class InventoryApiService {
 
 ### Auth vs No-Auth
 
-| Client | Cara Pakai | Kapan |
+| Client | Usage | When |
 |---|---|---|
-| `DioClient.noAuthClient` | `final client = DioClient.noAuthClient;` | Endpoint publik (login, banner) |
-| `DioClient.authClient(secureStorage)` | `Dio get _authClient => DioClient.authClient(secureStorage);` | Endpoint yang butuh token (CRUD) |
+| `DioClient.noAuthClient` | `final client = DioClient.noAuthClient;` | Public endpoints (login, banner) |
+| `DioClient.authClient(secureStorage)` | `Dio get _authClient => DioClient.authClient(secureStorage);` | Endpoints requiring a token (CRUD) |
 
-> `authClient` otomatis inject Bearer token dan handle 401 → refresh token.
+> `authClient` automatically injects the Bearer token and handles 401 → refresh token.
 
 ---
 
-## Step 5: Gunakan di Repository → UseCase → Controller
+## Step 5: Use in Repository → UseCase → Controller
 
-Untuk alur lengkap Clean Architecture setelah API Service dibuat, ikuti pola yang sama seperti module `Home`:
+For the complete Clean Architecture flow after creating the API Service, follow the same pattern as the `Home` module:
 
 ```
 Entity → Repository (abstract) → UseCase
                     ↓
-            RepositoryImpl (implements Repository, pakai ApiService)
+            RepositoryImpl (implements Repository, uses ApiService)
                     ↓
             Binding (inject dependencies)
                     ↓
-            Controller (panggil UseCase via callUseCase)
+            Controller (calls UseCase via callUseCase)
 ```
 
 ---
 
-## Contoh Alur Lengkap yang Sudah Ada
+## Complete Flow Example (Existing)
 
-| Layer | File | Contoh |
+| Layer | File | Example |
 |---|---|---|
 | `.env` | `.env` | `NEX_BE_DEV=https://...` |
 | Config | `environments.dart` | `be: dotenv.env['NEX_BE_DEV']!` |
@@ -216,11 +216,11 @@ Entity → Repository (abstract) → UseCase
 
 ## Switch Environment (Runtime)
 
-Environment bisa diganti saat runtime tanpa restart:
+The environment can be changed at runtime without restarting:
 
 ```dart
 final envCtrl = Get.find<EnvironmentController>();
 envCtrl.switchEnvironment(Environment.staging);
 ```
 
-State disimpan di `GetStorage` — env yang dipilih persist setelah restart app.
+The state is saved in `GetStorage` — the selected env persists after an app restart.

@@ -1,6 +1,10 @@
+---
+name: Atom Components
+description: Reusable small UI components like CustomButton and CustomText
+---
 # Skill: Atom Components
 
-Komponen terkecil yang reusable: `CustomButton` dan `CustomText`.
+The smallest reusable components: `CustomButton` and `CustomText`.
 
 ---
 
@@ -23,7 +27,7 @@ CustomButton({
   EdgeInsetsGeometry? padding,
   double? borderRadius,                // default: theme defaultRadius (22)
   bool enable,                         // default: true
-  Widget? widget,                      // override child widget sepenuhnya
+  Widget? widget,                      // override child widget completely
 })
 ```
 
@@ -35,7 +39,7 @@ enum CustomButtonType { filled, outline }
 
 ---
 
-### Contoh Penggunaan
+### Usage Example
 
 ```dart
 // Filled button (default)
@@ -44,7 +48,7 @@ CustomButton(
   onPressed: controller.doLogin,
 ),
 
-// Filled dengan loading state
+// Filled with loading state
 Obx(() => CustomButton(
   title: controller.isLoading.value ? 'Loading...' : 'Submit',
   onPressed: controller.isLoading.value ? null : controller.submit,
@@ -53,7 +57,7 @@ Obx(() => CustomButton(
 
 // Outline button
 CustomButton(
-  title: 'Batal',
+  title: 'Cancel',
   onPressed: () => Get.back(),
   buttonType: CustomButtonType.outline,
   color: Colors.red,
@@ -62,7 +66,7 @@ CustomButton(
 
 // Custom color
 CustomButton(
-  title: 'Hapus',
+  title: 'Delete',
   onPressed: controller.delete,
   color: Colors.red,
   textColor: Colors.white,
@@ -70,7 +74,7 @@ CustomButton(
 
 // Custom size
 CustomButton(
-  title: 'Simpan',
+  title: 'Save',
   onPressed: controller.save,
   height: 56,
   width: 200,
@@ -86,7 +90,7 @@ CustomButton(
     children: [
       Image.asset('assets/google.png', height: 24),
       const SizedBox(width: 8),
-      const Text('Login dengan Google'),
+      const Text('Login with Google'),
     ],
   ),
 ),
@@ -136,51 +140,51 @@ enum FontType {
 }
 ```
 
-Font selalu Quicksand (FontFamilyType.primary).
+Font is always Quicksand (FontFamilyType.primary).
 
 ---
 
-### Contoh Penggunaan
+### Usage Example
 
 ```dart
-// Body text biasa
-CustomText(text: 'Selamat datang'),
+// Regular body text
+CustomText(text: 'Welcome'),
 
-// Title besar
+// Large title
 CustomText(
   text: 'Dashboard',
   fontType: FontType.headlineMedium,
 ),
 
-// Text kecil dengan warna kustom
+// Small text with custom color
 CustomText(
   text: 'Optional',
   fontType: FontType.labelSmall,
   color: Colors.grey,
 ),
 
-// Error text merah
+// Red error text
 CustomText(
   text: controller.errorMessage.value,
   fontType: FontType.bodySmall,
   color: ColorData.error,
 ),
 
-// Text dengan opacity
+// Text with opacity
 CustomText(
   text: 'Subtitle',
   fontType: FontType.bodyMedium,
   opacity: 0.6,
 ),
 
-// Text terpotong
+// Truncated text
 CustomText(
-  text: 'Judul yang sangat panjang ini akan dipotong dengan ellipsis',
+  text: 'This very long title will be truncated with ellipsis',
   fontType: FontType.titleMedium,
   maxLines: 1,
 ),
 
-// Tengah + bold
+// Center + bold
 CustomText(
   text: 'Header',
   fontType: FontType.titleLarge,
@@ -190,7 +194,7 @@ CustomText(
 
 // Underline
 CustomText(
-  text: 'Lihat selengkapnya',
+  text: 'See more',
   fontType: FontType.bodySmall,
   color: Colors.blue,
   decoration: TextDecoration.underline,
@@ -199,15 +203,15 @@ CustomText(
 
 ---
 
-## ColorData (dari utils/config.dart)
+## ColorData (from utils/config.dart)
 
-Gunakan untuk warna semantik:
+Use for semantic colors:
 
 ```dart
-ColorData.error    // Merah — untuk error/danger
-ColorData.success  // Hijau — untuk sukses
-ColorData.warning  // Kuning — untuk peringatan
-ColorData.info     // Biru — untuk informasi
+ColorData.error    // Red — for errors/danger
+ColorData.success  // Green — for success
+ColorData.warning  // Yellow — for warnings
+ColorData.info     // Blue — for information
 ```
 
 ---
@@ -215,10 +219,10 @@ ColorData.info     // Biru — untuk informasi
 ## Checklist
 
 ```
-[ ] Gunakan CustomButton bukan ElevatedButton/TextButton langsung
-[ ] Gunakan CustomText bukan Text() langsung
-[ ] fontType dari FontType enum (tidak hardcode fontSize)
-[ ] color dari ColorData atau Theme.of(context).colorScheme.*
-[ ] Loading state: enable: false atau onPressed: null
-[ ] Tidak hardcode font family (CustomText sudah Quicksand)
+[ ] Use CustomButton instead of raw ElevatedButton/TextButton
+[ ] Use CustomText instead of raw Text()
+[ ] fontType from FontType enum (do not hardcode fontSize)
+[ ] color from ColorData or Theme.of(context).colorScheme.*
+[ ] Loading state: enable: false or onPressed: null
+[ ] Do not hardcode font family (CustomText is already Quicksand)
 ```

@@ -3,52 +3,52 @@ import 'package:get/get.dart';
 
 import '../../presentation/core/base_pagination_controller.dart';
 
-/// Widget reusable untuk menampilkan paginated list dengan infinite scroll.
+/// Reusable widget to display a paginated list with infinite scroll.
 ///
-/// Otomatis terhubung ke [BasePaginationController] dan menyediakan:
+/// Automatically connects to [BasePaginationController] and provides:
 /// - Pull to refresh
 /// - Loading state (initial)
 /// - Empty state
 /// - Bottom loading indicator (load more)
 /// - Error state
 ///
-/// **Cara pakai:**
+/// **Usage:**
 /// ```dart
 /// PaginationListView<BannerModel>(
 ///   controller: controller, // extends BasePaginationController<BannerModel>
 ///   itemBuilder: (context, item, index) => BannerCard(banner: item),
-///   emptyMessage: 'Belum ada banner',
+///   emptyMessage: 'No banners yet',
 /// )
 /// ```
 class PaginationListView<T> extends StatelessWidget {
-  /// Controller yang extends [BasePaginationController]
+  /// Controller that extends [BasePaginationController]
   final BasePaginationController<T> controller;
 
-  /// Builder untuk setiap item di list
+  /// Builder for each item in the list
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
 
-  /// Builder untuk separator antar item (opsional)
+  /// Builder for separator between items (optional)
   final Widget Function(BuildContext context, int index)? separatorBuilder;
 
-  /// Pesan yang ditampilkan saat list kosong
+  /// Message displayed when list is empty
   final String emptyMessage;
 
-  /// Icon yang ditampilkan saat list kosong
+  /// Icon displayed when list is empty
   final IconData emptyIcon;
 
-  /// Custom widget untuk loading state awal
+  /// Custom widget for initial loading state
   final Widget? loadingWidget;
 
-  /// Custom widget untuk empty state
+  /// Custom widget for empty state
   final Widget? emptyWidget;
 
-  /// Padding di sekitar list
+  /// Padding around the list
   final EdgeInsets padding;
 
-  /// Physics dari scroll
+  /// Scroll physics
   final ScrollPhysics? physics;
 
-  /// Apakah list bisa di-pull-to-refresh
+  /// Whether the list can be pulled to refresh
   final bool enableRefresh;
 
   const PaginationListView({
@@ -56,7 +56,7 @@ class PaginationListView<T> extends StatelessWidget {
     required this.controller,
     required this.itemBuilder,
     this.separatorBuilder,
-    this.emptyMessage = 'Data tidak ditemukan',
+    this.emptyMessage = 'Data not found',
     this.emptyIcon = Icons.inbox_outlined,
     this.loadingWidget,
     this.emptyWidget,
@@ -89,7 +89,7 @@ class PaginationListView<T> extends StatelessWidget {
             _EmptyView(message: emptyMessage, icon: emptyIcon);
       }
 
-      // ── List dengan infinite scroll ──
+      // ── List with infinite scroll ──
       final listView = ListView.separated(
         controller: controller.scrollController,
         physics: physics ?? const AlwaysScrollableScrollPhysics(),
@@ -181,7 +181,7 @@ class _ErrorView extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh, size: 18),
-            label: const Text('Coba Lagi'),
+            label: const Text('Try Again'),
           ),
         ],
       ),

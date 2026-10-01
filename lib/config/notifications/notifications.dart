@@ -549,14 +549,14 @@ class NotificationImageHelper {
       // Return cached file if already exists
       if (await file.exists()) return file.path;
 
-      // Gunakan DioClient.download (secara default noAuthClient, kecuali ditaruh parameter secureStorage)
+      // Use DioClient.download (by default noAuthClient, unless secureStorage parameter is passed)
       final response = await DioClient.download(
         url: imageUrl,
         savePath: file.path,
       );
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        // Hapus file jika gagal
+        // Delete file if failed
         if (await file.exists()) {
           await file.delete();
         }

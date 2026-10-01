@@ -4,7 +4,7 @@ import '../../../domain/contacts/entities/contact_entity.dart';
 import '../../../domain/contacts/usecases/get_contacts_usecase.dart';
 import '../../core/base_pagination_controller.dart';
 
-/// Contoh controller pagination nyata — lihat juga
+/// Example of a real pagination controller — see also
 /// `.agents/skills/controller-pagination/SKILL.md`.
 class ContactsController extends BasePaginationController<ContactEntity> {
   final GetContactsUseCase getContactsUseCase;
@@ -42,7 +42,7 @@ class ContactsController extends BasePaginationController<ContactEntity> {
     );
   }
 
-  /// Dipanggil dari search field — di-debounce supaya tidak fetch tiap ketikan.
+  /// Called from search field — debounced so it doesn't fetch on every keystroke.
   void onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 // ─── Breakpoints ──────────────────────────────────────────────
 
-/// Breakpoint constants untuk responsive layout.
+/// Breakpoint constants for responsive layout.
 class Breakpoints {
   Breakpoints._();
 
@@ -13,12 +13,12 @@ class Breakpoints {
 
 // ─── Responsive Widget ───────────────────────────────────────
 
-/// Widget untuk memilih layout berbeda berdasarkan ukuran layar.
+/// Widget to select different layout based on screen size.
 ///
 /// ```dart
 /// Responsive(
 ///   mobile: MobileLayout(),
-///   tablet: TabletLayout(),   // opsional, fallback ke mobile
+///   tablet: TabletLayout(),   // optional, fallback to mobile
 ///   desktop: DesktopLayout(),
 /// )
 /// ```
@@ -52,7 +52,7 @@ class Responsive extends StatelessWidget {
 
 // ─── Extension ───────────────────────────────────────────────
 
-/// Extension pada [BuildContext] untuk akses cepat ke responsive helpers.
+/// Extension on [BuildContext] for quick access to responsive helpers.
 ///
 /// ```dart
 /// final cols = context.responsive(mobile: 2, tablet: 3, desktop: 4);
@@ -67,8 +67,8 @@ extension ResponsiveExtension on BuildContext {
       screenWidth >= Breakpoints.mobile && screenWidth < Breakpoints.desktop;
   bool get isDesktop => screenWidth >= Breakpoints.desktop;
 
-  /// Memilih value berdasarkan breakpoint saat ini.
-  /// [tablet] opsional — jika null, akan fallback ke [mobile].
+  /// Select value based on current breakpoint.
+  /// [tablet] is optional — if null, will fallback to [mobile].
   T responsive<T>({required T mobile, T? tablet, required T desktop}) {
     if (isDesktop) return desktop;
     if (isTablet) return tablet ?? mobile;

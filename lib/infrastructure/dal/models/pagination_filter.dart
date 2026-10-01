@@ -1,6 +1,6 @@
-/// Model standard untuk mengirim filter ke API saat melakukan pagination.
+/// Standard model for sending filters to API during pagination.
 ///
-/// Biasa di-passing ke UseCase sebagai parameter.
+/// Usually passed to UseCase as a parameter.
 class PaginationFilter {
   final int page;
   final int limit;
@@ -8,7 +8,7 @@ class PaginationFilter {
 
   const PaginationFilter({this.page = 1, this.limit = 15, this.search});
 
-  /// Convert to Json/QueryParameters untuk Dio
+  /// Convert to Json/QueryParameters for Dio
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{'page': page, 'limit': limit};
 

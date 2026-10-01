@@ -1,20 +1,20 @@
 # Cursor Rules — rekanara_getx
 
-Flutter project dengan Clean Architecture + GetX.
+Flutter project with Clean Architecture + GetX.
 
-## Skills — Baca Sebelum Mengerjakan Task
+## Skills — Read Before Working on a Task
 
-Panduan lengkap ada di `.agents/skills/`. Baca file SKILL.md yang relevan sebelum membuat atau mengubah kode.
+Complete guides are in `.agents/skills/`. Read the relevant SKILL.md file before creating or modifying code.
 
-### Skill yang Tersedia
+### Available Skills
 
 ```
 .agents/skills/
-├── new-feature/           # Panduan lengkap membuat fitur baru (BACA INI DULU)
-├── project-structure/     # Struktur folder + naming convention
-├── clean-architecture/    # Prinsip arsitektur + dependency rule
+├── new-feature/           # Complete guide for creating a new feature (READ THIS FIRST)
+├── project-structure/     # Folder structure + naming convention
+├── clean-architecture/    # Architectural principles + dependency rule
 ├── entity/                # Domain entity (pure Dart)
-├── repository/            # Abstract interface + implementasi
+├── repository/            # Abstract interface + implementation
 ├── usecase/               # UseCase<T, Params>
 ├── model/                 # Model extends Entity + fromJson
 ├── api-service/           # DioClient: noAuth vs auth
@@ -46,11 +46,11 @@ Panduan lengkap ada di `.agents/skills/`. Baca file SKILL.md yang relevan sebelu
 
 ## Rules
 
-### Arsitektur
-- Domain layer: TIDAK boleh import Flutter, Dio, GetX, storage package apapun
-- Controller: selalu gunakan `callUseCase()` dari BaseController
+### Architecture
+- Domain layer: MUST NOT import Flutter, Dio, GetX, or any storage package
+- Controller: always use `callUseCase()` from BaseController
 - DI order: Storage → ApiService → Repository(abstract) → UseCase → Controller
-- URL: selalu `Endpoint.{service}.{action}`, tidak hardcode
+- URL: always `Endpoint.{service}.{action}`, never hardcoded
 
 ### State
 - Default: `BaseController` + `.obs` + `Obx`
@@ -58,13 +58,13 @@ Panduan lengkap ada di `.agents/skills/`. Baca file SKILL.md yang relevan sebelu
 - Pagination: `BasePaginationController<T>` + `PaginationListView<T>`
 
 ### Storage
-- Token, credentials → `SecureStorage` → key di `SecureStorageKey`
-- Theme, version, env → `GetStorage` → key di `StorageValue`
+- Token, credentials → `SecureStorage` → key in `SecureStorageKey`
+- Theme, version, env → `GetStorage` → key in `StorageValue`
 
 ### UI Components
-- Text → `CustomText(fontType: FontType.xxx)` bukan `Text()`
-- Button → `CustomButton(title, onPressed)` bukan `ElevatedButton()`
-- Image URL → `CustomCachedImage()` bukan `Image.network()`
+- Text → `CustomText(fontType: FontType.xxx)` not `Text()`
+- Button → `CustomButton(title, onPressed)` not `ElevatedButton()`
+- Image URL → `CustomCachedImage()` not `Image.network()`
 
 ### Error
 - Repository catch block → `return Left(ServerFailure(message))`

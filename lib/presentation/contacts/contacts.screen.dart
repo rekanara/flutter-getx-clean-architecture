@@ -9,9 +9,9 @@ import '../../domain/contacts/entities/contact_entity.dart';
 import '../../utils/config.dart';
 import 'controllers/contacts.controller.dart';
 
-/// Contoh nyata end-to-end: Entity -> Repository -> UseCase -> Model ->
+/// Real end-to-end example: Entity -> Repository -> UseCase -> Model ->
 /// ApiService -> RepositoryImpl -> Binding -> Controller (pagination) ->
-/// Screen (PaginationListView). Lihat `.agents/skills/new-feature/SKILL.md`.
+/// Screen (PaginationListView). See `.agents/skills/new-feature/SKILL.md`.
 class ContactsScreen extends GetView<ContactsController> {
   const ContactsScreen({super.key});
 
@@ -30,7 +30,7 @@ class ContactsScreen extends GetView<ContactsController> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: CustomTextField(
-              hintText: 'Cari nama atau email...',
+              hintText: 'Search name or email...',
               prefixIcon: const Icon(Icons.search),
               onChanged: controller.onSearchChanged,
             ),
@@ -38,7 +38,7 @@ class ContactsScreen extends GetView<ContactsController> {
           Expanded(
             child: PaginationListView<ContactEntity>(
               controller: controller,
-              emptyMessage: 'Contact tidak ditemukan',
+              emptyMessage: 'Contact not found',
               itemBuilder: (context, contact, index) {
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 4),

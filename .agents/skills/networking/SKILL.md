@@ -1,6 +1,10 @@
+---
+name: Networking (DioClient)
+description: HTTP requests, interceptors, refresh tokens, file downloads
+---
 # Skill: Networking (DioClient)
 
-Panduan penggunaan DioClient untuk HTTP request, termasuk auth interceptor, refresh token, dan download file.
+Guide to using DioClient for HTTP requests, including auth interceptors, refresh tokens, and file downloads.
 
 ---
 
@@ -9,17 +13,17 @@ Panduan penggunaan DioClient untuk HTTP request, termasuk auth interceptor, refr
 ```dart
 // lib/infrastructure/network/dio_client.dart
 
-// 3 utilitas utama:
-DioClient.noAuthClient                    // Dio tanpa token
+// 3 main utilities:
+DioClient.noAuthClient                    // Dio without tokens
 DioClient.authClient(secureStorage)       // Dio + Bearer token + auto-refresh
-DioClient.download(...)                   // Helper untuk download file
+DioClient.download(...)                   // Helper for file downloads
 ```
 
 ---
 
-## noAuthClient — Endpoint Publik
+## noAuthClient — Public Endpoints
 
-Gunakan untuk endpoint yang **tidak memerlukan** autentikasi:
+Use for endpoints that **do not require** authentication:
 
 ```dart
 class AuthApiService {
@@ -35,19 +39,19 @@ class AuthApiService {
 }
 ```
 
-Saat ini semua endpoint ada di satu namespace: `Endpoint.be.*` (`login`, `refresh`, `banners`, `customerDetail`).
+Currently, all endpoints are in one namespace: `Endpoint.be.*` (`login`, `refresh`, `banners`, `customerDetail`).
 
-**Fitur noAuthClient:**
-- Timeout 30 detik (connect + send + receive)
+**noAuthClient Features:**
+- 30-second timeout (connect + send + receive)
 - TalkerDioLogger (debug mode only)
 - ChuckerDioInterceptor (debug mode only)
-- TIDAK ada Bearer token
+- NO Bearer token
 
 ---
 
-## authClient — Endpoint Private
+## authClient — Private Endpoints
 
-Gunakan untuk endpoint yang **memerlukan** autentikasi:
+Use for endpoints that **require** authentication:
 
 ```dart
 class ProductApiService {
@@ -62,29 +66,29 @@ class ProductApiService {
 }
 ```
 
-**Fitur authClient (tambahan dari noAuthClient):**
-- Auto-inject `Authorization: Bearer <token>` dari SecureStorage
-- Interceptor 401: auto-refresh token via `Endpoint.be.refresh`
-  - Jika refresh berhasil: simpan token baru → retry request asli
-  - Jika refresh gagal: `secureStorage.deleteAll()` → redirect ke login
+**authClient Features (in addition to noAuthClient):**
+- Auto-inject `Authorization: Bearer <token>` from SecureStorage
+- 401 Interceptor: auto-refresh token via `Endpoint.be.refresh`
+  - If refresh succeeds: saves new tokens → retries original request
+  - If refresh fails: `secureStorage.deleteAll()` → redirects to login
 
 ---
 
 ## Refresh Token Flow
 
 ```
-Request gagal 401
+Request fails 401
     │
     ▼
-Baca refreshToken dari SecureStorage
+Read refreshToken from SecureStorage
     │
     ▼
-POST /auth/refresh (menggunakan bare Dio() — sengaja tanpa interceptor agar tidak trigger auth loop)
+POST /auth/refresh (using a bare Dio() — intentionally without interceptors to avoid auth loops)
     ├─ Success (200)
-    │   ├─ Simpan accessToken baru ke SecureStorage
-    │   └─ Retry request asli dengan token baru
+    │   ├─ Save new accessToken to SecureStorage
+    │   └─ Retry original request with the new token
     └─ Failed (401/500)
-        ├─ deleteAll() — hapus semua token
+        ├─ deleteAll() — delete all tokens
         └─ Get.offAllNamed(Routes.login) — force logout
 ```
 
@@ -132,14 +136,14 @@ final response = await client.post(Endpoint.product.create, data: formData);
 
 ---
 
-## Download File
+## File Downloads
 
 ```dart
-// Di ApiService atau Repository
+// In ApiService or Repository
 await DioClient.download(
   url: 'https://example.com/file.pdf',
   savePath: '/storage/downloads/file.pdf',
-  secureStorage: secureStorage,  // pass null jika tidak butuh auth
+  secureStorage: secureStorage,  // pass null if no auth needed
   onReceiveProgress: (received, total) {
     final progress = (received / total * 100).toStringAsFixed(0);
     print('Download: $progress%');
@@ -149,9 +153,9 @@ await DioClient.download(
 
 ---
 
-## Error Handling di RepositoryImpl
+## Error Handling in RepositoryImpl
 
-Pola standar untuk handle DioException:
+Standard pattern for handling DioExceptions:
 
 ```dart
 try {
@@ -161,7 +165,7 @@ try {
   }
   return Left(ServerFailure(response.statusMessage ?? 'Error'));
 } on DioException catch (e) {
-  // Cek response body untuk pesan error dari server
+  // Check response body for server error messages
   final message = e.response?.data?['message'] as String?;
   return Left(ServerFailure(message ?? e.message ?? 'Network Error'));
 } catch (e) {
@@ -171,15 +175,15 @@ try {
 
 ---
 
-## Response Format Standar
+## Standard Response Format
 
-API selalu mengembalikan format:
+The API always returns this format:
 ```json
 {
   "success": true,
   "message": "OK",
-  "data": { ... },       // atau array
-  "meta": {              // untuk pagination
+  "data": { ... },       // or an array
+  "meta": {              // for pagination
     "current_page": 1,
     "last_page": 5,
     "per_page": 10,
@@ -188,7 +192,7 @@ API selalu mengembalikan format:
 }
 ```
 
-Parse dengan `ApiResponse`:
+Parse with `ApiResponse`:
 ```dart
 // Single object
 final apiResponse = ApiResponse.fromJson(
@@ -210,21 +214,21 @@ final lastPage = apiResponse.meta?.lastPage; // int?
 
 ## Logging & Inspector
 
-- **TalkerDioLogger**: log request/response ke console (debug only)
-- **ChuckerDioInterceptor**: HTTP inspector UI yang bisa diakses dengan shake gesture (debug only)
+- **TalkerDioLogger**: logs requests/responses to the console (debug only)
+- **ChuckerDioInterceptor**: HTTP inspector UI accessible via shake gesture (debug only)
 
-Keduanya otomatis aktif di debug, tidak aktif di release.
+Both are automatically active in debug mode and disabled in release.
 
 ---
 
 ## Checklist
 
 ```
-[ ] Endpoint publik → noAuthClient
-[ ] Endpoint private → authClient(secureStorage)
-[ ] Tidak hardcode URL — gunakan Endpoint.x.y
-[ ] Error handling: DioException catch terpisah
-[ ] Ambil pesan error dari e.response?.data?['message']
-[ ] Download file menggunakan DioClient.download()
-[ ] Tidak ada manual Bearer token injection (sudah di authClient)
+[ ] Public endpoints → noAuthClient
+[ ] Private endpoints → authClient(secureStorage)
+[ ] Do not hardcode URLs — use Endpoint.x.y
+[ ] Error handling: Catch DioExceptions separately
+[ ] Extract error messages from e.response?.data?['message']
+[ ] Download files using DioClient.download()
+[ ] No manual Bearer token injection (already handled by authClient)
 ```

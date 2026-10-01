@@ -240,7 +240,7 @@ class HomeScreen extends GetView<HomeController> {
                         const SizedBox(height: 16),
                         CustomText(
                           text:
-                              'Gambar di atas di-load dari internet secara asinkron dan otomatis di-cache ke dalam penyimpanan lokal menggunakan cached_network_image.',
+                              'The image above is loaded from the internet asynchronously and automatically cached in local storage using cached_network_image.',
                           fontType: FontType.bodyMedium,
                           color: Colors.grey.shade600,
                         ),

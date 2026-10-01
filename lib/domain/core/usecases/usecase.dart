@@ -1,15 +1,15 @@
 import 'package:dartz/dartz.dart';
 import '../errors/failures.dart';
 
-/// Base class untuk semua UseCase.
+/// Base class for all UseCases.
 ///
 /// [T] = Return type on success
-/// [Params] = Parameter yang dibutuhkan UseCase
+/// [Params] = Parameters required by UseCase
 ///
-/// Gunakan [NoParams] jika UseCase tidak membutuhkan parameter.
+/// Use [NoParams] if UseCase requires no parameters.
 abstract class UseCase<T, Params> {
   Future<Either<Failure, T>> execute(Params params);
 }
 
-/// Digunakan ketika UseCase tidak membutuhkan parameter.
+/// Used when UseCase requires no parameters.
 class NoParams {}

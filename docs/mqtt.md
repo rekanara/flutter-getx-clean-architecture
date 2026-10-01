@@ -1,16 +1,16 @@
 # MQTT Service
 
-Dokumentasi lengkap untuk `MqttService` — service MQTT yang terintegrasi dengan `EnvironmentConfig` dan `SecureStorage`.
+Complete documentation for `MqttService` — an MQTT service integrated with `EnvironmentConfig` and `SecureStorage`.
 
 ## Overview
 
-`MqttService` (`lib/config/mqtt/mqtt_service.dart`) menyediakan abstraksi penuh untuk komunikasi real-time melalui protokol MQTT. Service ini dibangun di atas package `mqtt_client` dan terintegrasi langsung dengan:
+`MqttService` (`lib/config/mqtt/mqtt_service.dart`) provides full abstraction for real-time communication via the MQTT protocol. This service is built on top of the `mqtt_client` package and integrates directly with:
 
-- **`EnvironmentConfig`** — Konfigurasi broker otomatis berdasarkan environment aktif (dev/staging/prod)
-- **`SecureStorage`** — Menyimpan dan me-restore daftar topic subscription secara encrypted
-- **`GetxController`** — State management reaktif (observable)
+- **`EnvironmentConfig`** — Automatic broker configuration based on the active environment (dev/staging/prod)
+- **`SecureStorage`** — Saves and restores the list of topic subscriptions securely
+- **`GetxController`** — Reactive state management (observable)
 
-## Arsitektur
+## Architecture
 
 ```
 MqttService (GetxController)
@@ -28,18 +28,18 @@ MqttService (GetxController)
     ├── _topicListeners ───► Per-topic callbacks
     ├── _globalListeners ──► Global callbacks
     │
-    └── publish() ─────────► Kirim pesan ke topic
+    └── publish() ─────────► Send message to topic
 ```
 
 ## Setup
 
-### 1. Register di DI (main.dart atau binding)
+### 1. Register in DI (`main.dart` or binding)
 
 ```dart
-// Di main.dart (global singleton)
+// In main.dart (global singleton)
 Get.put(MqttService(), permanent: true);
 
-// Atau di binding tertentu
+// Or in a specific binding
 Get.lazyPut(() => MqttService());
 ```
 
@@ -49,7 +49,7 @@ Get.lazyPut(() => MqttService());
 final mqtt = Get.find<MqttService>();
 await mqtt.connect(); // auto-reconnect enabled by default
 
-// Tanpa auto-reconnect:
+// Without auto-reconnect:
 await mqtt.connect(autoReconnect: false);
 ```
 
@@ -61,14 +61,14 @@ mqtt.disconnect();
 
 ## Subscribe & Unsubscribe
 
-### Subscribe ke satu topic
+### Subscribe to a single topic
 
 ```dart
 mqtt.subscribe('chat/room/123');
 mqtt.subscribe('notification/user/456');
 ```
 
-### Subscribe ke banyak topic sekaligus
+### Subscribe to multiple topics at once
 
 ```dart
 mqtt.subscribeMany([
@@ -78,13 +78,13 @@ mqtt.subscribeMany([
 ]);
 ```
 
-### Unsubscribe dari satu topic
+### Unsubscribe from a single topic
 
 ```dart
 mqtt.unsubscribe('chat/room/123');
 ```
 
-### Unsubscribe dari semua topic
+### Unsubscribe from all topics
 
 ```dart
 mqtt.unsubscribeAll();
@@ -92,12 +92,12 @@ mqtt.unsubscribeAll();
 
 ### Wildcard Topics
 
-MQTT mendukung 2 jenis wildcard:
+MQTT supports 2 types of wildcards:
 
-| Wildcard | Deskripsi | Contoh |
+| Wildcard | Description | Example |
 |---|---|---|
-| `+` | Single-level — cocok dengan 1 segment | `chat/+/messages` cocok dengan `chat/room1/messages` |
-| `#` | Multi-level — cocok dengan semua sub-segment | `chat/#` cocok dengan `chat/room1/messages/new` |
+| `+` | Single-level — matches 1 segment | `chat/+/messages` matches `chat/room1/messages` |
+| `#` | Multi-level — matches all sub-segments | `chat/#` matches `chat/room1/messages/new` |
 
 ```dart
 mqtt.subscribe('notification/+/alerts');  // single-level wildcard
@@ -108,24 +108,24 @@ mqtt.subscribe('chat/#');                 // multi-level wildcard
 
 ### Per-Topic Listener
 
-Callback spesifik yang hanya dipanggil untuk pesan dari topic tertentu:
+Specific callback that is only triggered for messages from a specific topic:
 
 ```dart
 mqtt.addTopicListener('chat/room/123', (topic, payload) {
   final data = jsonDecode(payload);
-  print('Pesan baru di room 123: ${data['message']}');
+  print('New message in room 123: ${data['message']}');
 });
 
-// Hapus listener tertentu
+// Remove a specific listener
 mqtt.removeTopicListener('chat/room/123', myCallback);
 
-// Hapus semua listener dari sebuah topic
+// Clear all listeners from a topic
 mqtt.clearTopicListeners('chat/room/123');
 ```
 
 ### Global Listener
 
-Callback yang dipanggil untuk **semua** pesan masuk:
+Callback triggered for **all** incoming messages:
 
 ```dart
 mqtt.addGlobalListener((topic, payload) {
@@ -135,49 +135,49 @@ mqtt.addGlobalListener((topic, payload) {
 
 ## Publish
 
-Kirim pesan ke topic tertentu:
+Send a message to a specific topic:
 
 ```dart
 // Default QoS: atLeastOnce
 mqtt.publish('chat/room/123', '{"message": "Hello!"}');
 
-// Dengan opsi
+// With options
 mqtt.publish(
   'chat/room/123',
   jsonEncode({'message': 'Hello!', 'sender': 'user_001'}),
   qos: MqttQos.exactlyOnce,
-  retain: true, // Broker simpan pesan terakhir
+  retain: true, // Broker saves the last message
 );
 ```
 
 ## Persistence (SecureStorage)
 
-Daftar topic yang sedang aktif **otomatis** tersimpan di `SecureStorage` setiap kali `subscribe()` atau `unsubscribe()` dipanggil.
+The list of currently active topics is **automatically** saved to `SecureStorage` every time `subscribe()` or `unsubscribe()` is called.
 
-Saat `connect()` berhasil, topics otomatis di-restore dan di-subscribe ulang.
+When `connect()` succeeds, topics are automatically restored and re-subscribed.
 
 ### Manual Control
 
 ```dart
-// Restore manual (biasanya tidak perlu — otomatis saat connect)
+// Manual restore (usually not needed — automatic on connect)
 await mqtt.restoreSubscriptions();
 
-// Hapus semua topic tersimpan
+// Clear all saved topics
 await mqtt.clearPersistedTopics();
 ```
 
 ## Observing State
 
-`MqttService` expose reactive state yang bisa digunakan di UI:
+`MqttService` exposes reactive state that can be used in the UI:
 
 ```dart
-// Di controller
+// In the controller
 final mqtt = Get.find<MqttService>();
 
-// Cek status koneksi
+// Check connection status
 Obx(() => Text('Status: ${mqtt.connectionStatus.value}'));
 
-// Cek daftar topic aktif
+// Check active topics list
 Obx(() => Column(
   children: mqtt.subscribedTopics.map((t) => Text(t)).toList(),
 ));
@@ -188,14 +188,14 @@ if (mqtt.isConnected) { ... }
 
 ### Connection Status
 
-| Status | Deskripsi |
+| Status | Description |
 |---|---|
-| `connected` | Terhubung ke broker |
-| `connecting` | Sedang proses koneksi / reconnect |
-| `disconnected` | Tidak terhubung |
-| `error` | Koneksi gagal |
+| `connected` | Connected to broker |
+| `connecting` | Connecting / reconnecting |
+| `disconnected` | Not connected |
+| `error` | Connection failed |
 
-## Contoh Lengkap di Controller
+## Complete Controller Example
 
 ```dart
 class ChatController extends GetxController {
@@ -214,15 +214,15 @@ class ChatController extends GetxController {
   }
 
   Future<void> _setupMqtt() async {
-    // Pastikan connected
+    // Ensure connected
     if (!mqtt.isConnected) {
       await mqtt.connect();
     }
 
-    // Subscribe ke room
+    // Subscribe to room
     mqtt.subscribe(_topic);
 
-    // Listen pesan masuk di room ini saja
+    // Listen to messages in this room only
     mqtt.addTopicListener(_topic, _onMessageReceived);
   }
 
@@ -248,11 +248,11 @@ class ChatController extends GetxController {
 }
 ```
 
-## Konfigurasi Environment
+## Environment Configuration
 
-Konfigurasi broker diambil otomatis dari `EnvironmentConfig` (file `.env`):
+Broker configuration is automatically retrieved from `EnvironmentConfig` (`.env` file):
 
-| Key di `.env` | Field | Contoh |
+| Key in `.env` | Field | Example |
 |---|---|---|
 | `MQTT_BROKER_URL_DEV` | `mqttBrokerUrl` | `broker.hivemq.com` |
 | `MQTT_BROKER_PORT_DEV` | `mqttBrokerPort` | `1883` |
@@ -260,26 +260,26 @@ Konfigurasi broker diambil otomatis dari `EnvironmentConfig` (file `.env`):
 | `MQTT_USERNAME_DEV` | `mqttUsername` | `user` |
 | `MQTT_PASSWORD_DEV` | `mqttPassword` | `pass` |
 
-> Ganti suffix `_DEV` dengan `_STAGING` atau `_PROD` untuk environment lain.
+> Replace the `_DEV` suffix with `_STAGING` or `_PROD` for other environments.
 
 ## Auto-Reconnect
 
-Auto-reconnect sudah built-in dari `mqtt_client`:
+Auto-reconnect is built-in from `mqtt_client`:
 
 ```
-Koneksi terputus
+Connection lost
     │
     ▼
 onDisconnected() callback
     │
     ▼
-Auto-reconnect attempt (otomatis)
+Auto-reconnect attempt (automatic)
     │
     ▼
 onAutoReconnected() callback
     │
     ▼
-Topics otomatis di-resubscribe (resubscribeOnAutoReconnect: true)
+Topics automatically re-subscribed (resubscribeOnAutoReconnect: true)
 ```
 
-Semua proses ini sudah di-handle secara internal oleh `MqttService`. Kamu cukup memanggil `connect()` sekali di awal.
+All these processes are handled internally by `MqttService`. You only need to call `connect()` once at the start.

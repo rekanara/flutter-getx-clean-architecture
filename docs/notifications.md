@@ -1,51 +1,51 @@
 # Notifications
 
-Lokasi: `lib/config/notifications/notifications.dart`
+Location: `lib/config/notifications/notifications.dart`
 
 ## Overview
 
-Sistem notifikasi lokal menggunakan `flutter_local_notifications`. Terdiri dari beberapa class:
+Local notification system using `flutter_local_notifications`. Consists of several classes:
 
-| Class | Fungsi |
+| Class | Function |
 |---|---|
 | `NotificationsHelper` | Init, create channels, show notification |
 | `NotificationController` | Handle tap (foreground/background), parse payload |
-| `NotificationChannels` | Definisi channel IDs dan configs |
-| `ShowNotificationHelper` | Facade untuk menampilkan notifikasi berdasarkan `NotificationType` |
-| `NotificationImageHelper` | Download gambar untuk big picture notification |
+| `NotificationChannels` | Definition of channel IDs and configs |
+| `ShowNotificationHelper` | Facade for showing notifications based on `NotificationType` |
+| `NotificationImageHelper` | Download images for big picture notifications |
 
 ---
 
-## Inisialisasi
+## Initialization
 
 ```dart
 await NotificationsHelper.init();
 ```
 
-Dipanggil di `main.dart` sebelum Firebase Messaging. Membuat semua notification channels (Android) dan konfigurasi platform.
+Called in `main.dart` before Firebase Messaging. Creates all notification channels (Android) and platform configuration.
 
 ---
 
 ## Notification Channels
 
-Android memerlukan notification channels. Channels yang tersedia didefinisikan di `NotificationChannels`:
+Android requires notification channels. Available channels are defined in `NotificationChannels`:
 
-Setiap channel memiliki `key`, `name`, dan `description` yang otomatis di-generate dari key.
+Each channel has a `key`, `name`, and `description` that is automatically generated from the key.
 
 ---
 
-## Menampilkan Notifikasi
+## Showing Notifications
 
 ### Via `ShowNotificationHelper` (Recommended)
 
-Facade yang otomatis memilih channel, icon, dan style berdasarkan `NotificationType`:
+Facade that automatically selects the channel, icon, and style based on `NotificationType`:
 
 ```dart
 ShowNotificationHelper.showNotification(
   type: NotificationType.order,
-  title: 'Pesanan Baru',
-  body: 'Pesanan #123 telah dibuat',
-  summary: 'Detail tambahan',
+  title: 'New Order',
+  body: 'Order #123 has been created',
+  summary: 'Additional details',
   iconUrl: 'https://img.com/icon.png',
   payload: {'order_id': '123'},
 );
@@ -53,7 +53,7 @@ ShowNotificationHelper.showNotification(
 
 ### Via `NotificationsHelper` (Low-Level)
 
-Kontrol penuh terhadap semua parameter:
+Full control over all parameters:
 
 ```dart
 NotificationsHelper.showNotification(
@@ -76,24 +76,24 @@ NotificationsHelper.showNotification(
 
 ```dart
 enum NotificationType {
-  order,      // Pesanan
+  order,      // Order
   alert,      // Alert/Warning
-  system,     // Sistem
-  chat,       // Pesan chat
-  payment,    // Pembayaran
-  ticket,     // Tiket support
-  ads,        // Iklan
+  system,     // System
+  chat,       // Chat message
+  payment,    // Payment
+  ticket,     // Support ticket
+  ads,        // Ads
   marketing,  // Marketing
-  other,      // Lainnya
-  general,    // Umum (default)
+  other,      // Other
+  general,    // General (default)
 }
 ```
 
-Setiap type di-map ke channel yang sesuai di `ShowNotificationHelper`.
+Each type is mapped to the corresponding channel in `ShowNotificationHelper`.
 
 ---
 
-## Handle Tap Notifikasi
+## Handle Notification Tap
 
 ```dart
 class NotificationController {
@@ -103,12 +103,12 @@ class NotificationController {
   // Background tap (isolate)
   static void onBackgroundActionReceived(NotificationResponse response) { ... }
 
-  // Parse payload JSON dan navigasi
+  // Parse JSON payload and navigate
   static void _handlePayload(String? rawPayload) { ... }
 }
 ```
 
-Payload yang di-expect:
+Expected payload:
 
 ```json
 {
@@ -122,12 +122,12 @@ Payload yang di-expect:
 
 ## Big Picture Notification
 
-`NotificationImageHelper` mendownload gambar dari URL ke temp directory:
+`NotificationImageHelper` downloads an image from a URL to a temporary directory:
 
 ```dart
 final localPath = await NotificationImageHelper.downloadToTemp(imageUrl);
 ```
 
-- Menggunakan `DioClient.download()` 
-- Auto-cleanup file gambar yang lebih dari 7 hari
-- Disimpan di `{tempDir}/notification_images/`
+- Uses `DioClient.download()` 
+- Auto-cleanup for image files older than 7 days
+- Saved in `{tempDir}/notification_images/`

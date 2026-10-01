@@ -9,8 +9,7 @@ import 'package:dartz/dartz.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:rekanara_getx/domain/core/errors/failures.dart' as _i6;
 import 'package:rekanara_getx/domain/core/usecases/usecase.dart' as _i8;
-import 'package:rekanara_getx/domain/home/entities/banner_entity.dart'
-    as _i7;
+import 'package:rekanara_getx/domain/home/entities/banner_entity.dart' as _i7;
 import 'package:rekanara_getx/domain/home/repositories/home_repository.dart'
     as _i2;
 import 'package:rekanara_getx/domain/home/usecases/get_banners_usecase.dart'

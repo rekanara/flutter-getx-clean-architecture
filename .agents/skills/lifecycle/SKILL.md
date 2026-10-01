@@ -1,6 +1,10 @@
+---
+name: App Lifecycle Service
+description: Handling app resume and pause states
+---
 # Skill: App Lifecycle Service
 
-Panduan menggunakan `AppLifecycleService` untuk menjalankan callback saat app di-resume atau di-pause.
+Guide to using `AppLifecycleService` to run callbacks when the app is resumed or paused.
 
 ---
 
@@ -12,11 +16,11 @@ Panduan menggunakan `AppLifecycleService` untuk menjalankan callback saat app di
 - On **resumed**: reconnect MQTT → fire `onResumeCallbacks`
 - On **paused**: disconnect MQTT → fire `onPauseCallbacks`
 - On **detached**: disconnect MQTT
-- Controller register/remove callback via method
+- Controller register/remove callbacks via methods
 
 ---
 
-## Mengakses Service
+## Accessing the Service
 
 ```dart
 final lifecycleService = Get.find<AppLifecycleService>();
@@ -24,30 +28,30 @@ final lifecycleService = Get.find<AppLifecycleService>();
 
 ---
 
-## Register Callback Resume
+## Register Resume Callback
 
-Gunakan untuk refresh data saat user kembali ke app:
+Use to refresh data when the user returns to the app:
 
 ```dart
 class HomeController extends BaseController {
   @override
   void onInit() {
     super.onInit();
-    fetchBanners(); // fetch awal
+    fetchBanners(); // initial fetch
 
-    // Register callback resume
+    // Register resume callback
     Get.find<AppLifecycleService>().addOnResumeCallback(_onAppResumed);
   }
 
   @override
   void onClose() {
-    // PENTING: hapus callback saat controller di-dispose
+    // IMPORTANT: remove callback when controller is disposed
     Get.find<AppLifecycleService>().removeOnResumeCallback(_onAppResumed);
     super.onClose();
   }
 
   void _onAppResumed() {
-    // Dipanggil otomatis saat app di-resume dari background
+    // Automatically called when app is resumed from the background
     fetchBanners();
     LoggerHelper.d('App resumed — refreshing banners');
   }
@@ -56,7 +60,7 @@ class HomeController extends BaseController {
 
 ---
 
-## Register Callback Pause
+## Register Pause Callback
 
 ```dart
 class VideoController extends BaseController {
@@ -75,11 +79,11 @@ class VideoController extends BaseController {
   }
 
   void _onAppPaused() {
-    videoPlayer.pause(); // pause video saat app ke background
+    videoPlayer.pause(); // pause video when app goes to background
   }
 
   void _onAppResumed() {
-    videoPlayer.play(); // resume video saat app kembali
+    videoPlayer.play(); // resume video when app returns
   }
 }
 ```
@@ -89,31 +93,31 @@ class VideoController extends BaseController {
 ## Lifecycle States
 
 ```dart
-// AppLifecycleState dari Flutter SDK
-// yang di-handle oleh AppLifecycleService:
+// AppLifecycleState from Flutter SDK
+// handled by AppLifecycleService:
 
 AppLifecycleState.resumed   → MQTT reconnect + onResumeCallbacks
 AppLifecycleState.paused    → MQTT disconnect + onPauseCallbacks
 AppLifecycleState.detached  → MQTT disconnect
-AppLifecycleState.inactive  → (tidak di-handle khusus)
+AppLifecycleState.inactive  → (not handled specifically)
 ```
 
 ---
 
-## MQTT Auto-Reconnect
+## Auto-Reconnect MQTT
 
-Saat app resume dari background:
-1. `AppLifecycleService` deteksi `resumed` state
-2. Cek MQTT connection status
-3. Jika disconnected → `mqtt.connect()` otomatis
-4. Setelah connect → `mqtt.restoreSubscriptions()` (pulihkan topic yang tersimpan)
+When the app resumes from the background:
+1. `AppLifecycleService` detects the `resumed` state
+2. Checks MQTT connection status
+3. If disconnected → `mqtt.connect()` automatically
+4. After connect → `mqtt.restoreSubscriptions()` (restore saved topics)
 5. Fire `onResumeCallbacks`
 
-Tidak perlu implement reconnect secara manual di controller.
+No need to implement reconnect manually in controllers.
 
 ---
 
-## Pattern di Controller
+## Controller Pattern
 
 ```dart
 class DashboardController extends BaseController {
@@ -161,10 +165,10 @@ class DashboardController extends BaseController {
 ## Checklist
 
 ```
-[ ] Daftarkan callback di onInit()
-[ ] HAPUS callback di onClose() — cegah memory leak
-[ ] Tidak perlu handle MQTT connect/disconnect — sudah otomatis
-[ ] Gunakan named method reference (bukan lambda) agar removeCallback bekerja
-[ ] onResumeCallback untuk: refresh data, start audio/video, dll
-[ ] onPauseCallback untuk: pause media, stop timer, dll
+[ ] Register callback in onInit()
+[ ] REMOVE callback in onClose() — prevent memory leaks
+[ ] No need to handle MQTT connect/disconnect — it is automatic
+[ ] Use named method references (not lambdas) so removeCallback works
+[ ] onResumeCallback for: refreshing data, starting audio/video, etc
+[ ] onPauseCallback for: pausing media, stopping timers, etc
 ```

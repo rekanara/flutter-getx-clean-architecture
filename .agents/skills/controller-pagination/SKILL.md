@@ -1,6 +1,10 @@
+---
+name: Controller Pagination
+description: Specialized controller for infinite scroll and pagination using BasePaginationController
+---
 # Skill: Controller Pagination (BasePaginationController)
 
-Controller khusus untuk infinite scroll / load more. Extend `BasePaginationController<T>`.
+Specialized controller for infinite scroll / load more. Extends `BasePaginationController<T>`.
 
 ---
 
@@ -9,28 +13,28 @@ Controller khusus untuk infinite scroll / load more. Extend `BasePaginationContr
 ```dart
 // lib/presentation/core/base_pagination_controller.dart
 abstract class BasePaginationController<T> extends BaseController {
-  // State bawaan
-  final items = <T>[].obs;          // semua item yang telah di-load
-  final isLoadMore = false.obs;      // true saat sedang load halaman berikutnya
+  // Built-in state
+  final items = <T>[].obs;          // all items that have been loaded
+  final isLoadMore = false.obs;      // true when loading the next page
 
   int currentPage = 1;
   int lastPage = 1;
-  int limit = 10;                    // bisa di-override
-  late ScrollController scrollController;  // pasang di ListView
+  int limit = 10;                    // can be overridden
+  late ScrollController scrollController;  // attach to ListView
 
-  // Harus di-override
+  // Must be overridden
   Future<void> fetchPage(int page);
 
-  // Panggil di onSuccess untuk append data
+  // Call in onSuccess to append data
   void appendData({
     required List<T> newItems,
     required int lastPage,
   });
 
-  // Reset ke halaman 1 dan fetch ulang
+  // Reset to page 1 and refetch
   Future<void> refreshData();
 
-  // Getter
+  // Getters
   bool get isEmpty => items.isEmpty && !isLoading.value;
   bool get hasReachedMax => currentPage >= lastPage;
 }
@@ -38,7 +42,7 @@ abstract class BasePaginationController<T> extends BaseController {
 
 ---
 
-## Template Lengkap
+## Complete Template
 
 ```dart
 // lib/presentation/product/controllers/product_list.controller.dart
@@ -54,14 +58,14 @@ class ProductListController extends BasePaginationController<ProductEntity> {
 
   ProductListController({required this.getProductsUseCase});
 
-  // Tambahan state (opsional)
+  // Additional state (optional)
   final searchQuery = ''.obs;
   final selectedCategory = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    fetchPage(1); // Auto fetch saat init
+    fetchPage(1); // Auto fetch on init
   }
 
   @override
@@ -73,7 +77,7 @@ class ProductListController extends BasePaginationController<ProductEntity> {
     );
 
     await callUseCase(
-      // UseCase harus return ApiResponse<List<T>> yang punya meta.lastPage
+      // UseCase must return ApiResponse<List<T>> which has meta.lastPage
       getProductsUseCase.execute(GetProductsParams(filter: filter)),
       onSuccess: (response) {
         appendData(
@@ -84,19 +88,19 @@ class ProductListController extends BasePaginationController<ProductEntity> {
     );
   }
 
-  // Reset filter + refresh dari halaman 1
+  // Reset filter + refresh from page 1
   Future<void> applySearch(String query) async {
     searchQuery.value = query;
-    await refreshData(); // reset currentPage=1 + fetchPage(1)
+    await refreshData(); // resets currentPage=1 + fetchPage(1)
   }
 }
 ```
 
 ---
 
-## Di UI: PaginationListView (Recommended)
+## In UI: PaginationListView (Recommended)
 
-Gunakan komponen `PaginationListView<T>` yang sudah terintegrasi:
+Use the integrated `PaginationListView<T>` component:
 
 ```dart
 // lib/presentation/product/product_list.screen.dart
@@ -129,7 +133,7 @@ class ProductListScreen extends GetView<ProductListController> {
             subtitle: Text('Rp ${product.price}'),
           );
         },
-        emptyMessage: 'Tidak ada produk',
+        emptyMessage: 'No products',
         emptyIcon: Icons.inventory_2_outlined,
       ),
     );
@@ -139,14 +143,14 @@ class ProductListScreen extends GetView<ProductListController> {
 
 ---
 
-## Di UI: ListView Manual (jika tidak pakai PaginationListView)
+## In UI: Manual ListView (if not using PaginationListView)
 
 ```dart
 Obx(() => ListView.builder(
-  controller: controller.scrollController,  // PENTING: pasang scrollController
+  controller: controller.scrollController,  // IMPORTANT: attach scrollController
   itemCount: controller.items.length + (controller.isLoadMore.value ? 1 : 0),
   itemBuilder: (context, index) {
-    // Loading indicator di bawah
+    // Bottom loading indicator
     if (index == controller.items.length) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -162,7 +166,7 @@ Obx(() => ListView.builder(
 
 ```dart
 RefreshIndicator(
-  onRefresh: controller.refreshData,  // reset ke page 1
+  onRefresh: controller.refreshData,  // resets to page 1
   child: PaginationListView(...)
 )
 ```
@@ -200,11 +204,11 @@ class PaginationFilter {
 
 ---
 
-## ApiResponse dengan PaginationMeta
+## ApiResponse with PaginationMeta
 
-Repository harus return:
+The Repository must return:
 ```dart
-// ApiResponse<List<T>> sudah punya field meta
+// ApiResponse<List<T>> already has a meta field
 class ApiResponse<T> {
   final bool success;
   final String? message;
@@ -220,13 +224,13 @@ class PaginationMeta {
 }
 ```
 
-Di RepositoryImpl:
+In RepositoryImpl:
 ```dart
 final apiResponse = ApiResponse.fromJsonList(
   response.data,
   ProductModel.fromJson,
 );
-return Right(apiResponse); // return ApiResponse, bukan hanya list
+return Right(apiResponse); // return ApiResponse, not just the list
 ```
 
 ---
@@ -235,10 +239,10 @@ return Right(apiResponse); // return ApiResponse, bukan hanya list
 
 ```
 [ ] Class extends BasePaginationController<T>
-[ ] Override fetchPage(int page) — panggil appendData() di onSuccess
-[ ] Panggil fetchPage(1) di onInit()
-[ ] Di UI: pasang controller.scrollController ke ListView
-[ ] Atau gunakan PaginationListView<T> (lebih simpel)
-[ ] refreshData() otomatis reset ke page 1
-[ ] UseCase return ApiResponse dengan meta.lastPage
+[ ] Override fetchPage(int page) — call appendData() in onSuccess
+[ ] Call fetchPage(1) in onInit()
+[ ] In UI: attach controller.scrollController to ListView
+[ ] Or use PaginationListView<T> (simpler)
+[ ] refreshData() automatically resets to page 1
+[ ] UseCase returns ApiResponse with meta.lastPage
 ```

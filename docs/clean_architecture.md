@@ -1,34 +1,34 @@
 # Clean Architecture Guide
 
-Panduan step-by-step membuat fitur baru dari awal hingga UI menggunakan Clean Architecture di codebase ini.
+Step-by-step guide to creating a new feature from scratch up to the UI using Clean Architecture in this codebase.
 
 ---
 
-## Diagram Alur
+## Flow Diagram
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│  DOMAIN (Pure Dart — tidak import Flutter/Dio/GetX)           │
+│  DOMAIN (Pure Dart — do not import Flutter/Dio/GetX)          │
 │                                                               │
-│  Entity ← Repository (abstract) ← UseCase                    │
+│  Entity ← Repository (abstract) ← UseCase                     │
 └───────────────────────────┬───────────────────────────────────┘
                             │ implements
 ┌───────────────────────────▼───────────────────────────────────┐
 │  INFRASTRUCTURE                                               │
 │                                                               │
-│  Model (extends Entity) → RepositoryImpl → ApiService → Dio  │
+│  Model (extends Entity) → RepositoryImpl → ApiService → Dio   │
 └───────────────────────────┬───────────────────────────────────┘
                             │ injected via
 ┌───────────────────────────▼───────────────────────────────────┐
 │  PRESENTATION                                                 │
 │                                                               │
-│  Binding → Controller (callUseCase) → Screen (Obx/GetBuilder)│
+│  Binding → Controller (callUseCase) → Screen (Obx/GetBuilder) │
 └───────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Step-by-Step: Membuat Fitur "Product"
+## Step-by-Step: Creating a "Product" Feature
 
 ### Step 1: Entity (Domain Layer)
 
@@ -50,7 +50,7 @@ class ProductEntity {
 }
 ```
 
-> **Aturan:** Entity TIDAK import package apapun. Hanya field + constructor.
+> **Rule:** Entity MUST NOT import any packages. Only fields + constructors.
 
 ---
 
@@ -70,7 +70,7 @@ abstract class ProductRepository {
 }
 ```
 
-> **Aturan:** Repository di domain adalah `abstract class`. Implementasi ada di infrastructure.
+> **Rule:** Repository in the domain is an `abstract class`. Implementation is in the infrastructure.
 
 ---
 
@@ -97,7 +97,7 @@ class GetProductsUseCase extends UseCase<List<ProductEntity>, NoParams> {
 }
 ```
 
-> **Aturan:** Satu UseCase = Satu aksi bisnis. Extend `UseCase<ReturnType, ParamsType>`. Pakai `NoParams` jika tidak ada parameter.
+> **Rule:** One UseCase = One business action. Extend `UseCase<ReturnType, ParamsType>`. Use `NoParams` if there are no parameters.
 
 ---
 
@@ -136,7 +136,7 @@ class ProductModel extends ProductEntity {
 }
 ```
 
-> **Aturan:** Model `extends` Entity dan menambahkan `fromJson` / `toJson`.
+> **Rule:** Model `extends` Entity and adds `fromJson` / `toJson`.
 
 ---
 
@@ -171,7 +171,7 @@ class ProductApiService {
 }
 ```
 
-> **Ingat:** Tambahkan `Endpoint.product` di `url.dart` (lihat `docs/environment.md`).
+> **Remember:** Add `Endpoint.product` in `url.dart` (see `docs/environment.md`).
 
 ---
 
@@ -214,7 +214,7 @@ class ProductRepositoryImpl implements ProductRepository {
     }
   }
 
-  // ... getProductById, createProduct serupa ...
+  // ... getProductById, createProduct are similar ...
 }
 ```
 
@@ -237,7 +237,7 @@ import '../../../../presentation/product/controllers/product.controller.dart';
 class ProductControllerBinding extends Bindings {
   @override
   void dependencies() {
-    // Urutan: dari paling bawah (storage) ke paling atas (controller)
+    // Order: from bottom (storage) to top (controller)
     Get.lazyPut<FlutterSecureStorageImpl>(() => FlutterSecureStorageImpl());
     Get.lazyPut<ProductApiService>(
       () => ProductApiService(secureStorage: Get.find()),
@@ -254,7 +254,7 @@ class ProductControllerBinding extends Bindings {
 }
 ```
 
-> **Urutan inject:** Storage → ApiService → Repository → UseCase → Controller
+> **Inject order:** Storage → ApiService → Repository → UseCase → Controller
 
 ---
 
@@ -293,7 +293,7 @@ class ProductController extends BaseController {
 }
 ```
 
-> `callUseCase` dari `BaseController` otomatis handle `isLoading` dan error snackbar.
+> `callUseCase` from `BaseController` automatically handles `isLoading` and error snackbars.
 
 ---
 
@@ -319,7 +319,7 @@ class ProductScreen extends GetView<ProductController> {
         }
 
         if (controller.products.isEmpty) {
-          return const Center(child: Text('Belum ada produk'));
+          return const Center(child: Text('No products yet'));
         }
 
         return ListView.builder(
@@ -354,7 +354,7 @@ GetPage(
 
 ---
 
-## Checklist Fitur Baru
+## New Feature Checklist
 
 ```
 [ ] Domain: Entity
@@ -363,9 +363,9 @@ GetPage(
 [ ] Infra:  Model (extends Entity + fromJson/toJson)
 [ ] Infra:  API Service (Dio calls)
 [ ] Infra:  Repository Implementation
-[ ] Infra:  Endpoint di url.dart
+[ ] Infra:  Endpoint in url.dart
 [ ] Infra:  Binding (DI)
 [ ] UI:     Controller (extends BaseController)
 [ ] UI:     Screen (GetView + Obx)
-[ ] Route:  Register di navigation.dart + routes.dart
+[ ] Route:  Register in navigation.dart + routes.dart
 ```

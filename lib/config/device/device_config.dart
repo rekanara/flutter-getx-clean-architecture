@@ -15,10 +15,10 @@ class DeviceConfig {
   // Singleton instance
   static final DeviceConfig _instance = DeviceConfig._();
 
-  // Getter untuk mengakses instance
+  // Getter to access instance
   static DeviceConfig get instance => _instance;
 
-  // Inisialisasi DeviceConfig
+  // Initialize DeviceConfig
   Future<void> init() async {
     _info = DeviceInfoPlugin();
     if (kIsWeb) {

@@ -1,16 +1,20 @@
+---
+name: UseCase (Domain Layer)
+description: Creating UseCases representing single business actions
+---
 # Skill: UseCase (Domain Layer)
 
-UseCase mewakili satu aksi bisnis yang dapat dieksekusi. Berada di Domain layer.
+A UseCase represents a single executable business action. It resides in the Domain layer.
 
 ---
 
-## Aturan UseCase
+## UseCase Rules
 
-1. Satu UseCase = satu aksi bisnis (Single Responsibility)
-2. Selalu extend `UseCase<T, Params>`
-3. Hanya satu method: `execute(Params params)`
-4. Tidak boleh berisi logic parsing, UI, atau I/O
-5. Inject repository melalui constructor
+1. One UseCase = one business action (Single Responsibility)
+2. Always extend `UseCase<T, Params>`
+3. Only one method: `execute(Params params)`
+4. Must not contain parsing, UI, or I/O logic
+5. Inject the repository via the constructor
 
 ---
 
@@ -27,9 +31,9 @@ class NoParams {}
 
 ---
 
-## Template: UseCase Tanpa Parameter
+## Template: UseCase Without Parameters
 
-Gunakan `NoParams` jika tidak ada input:
+Use `NoParams` if there is no input:
 
 ```dart
 // lib/domain/home/usecases/get_banners_usecase.dart
@@ -50,7 +54,7 @@ class GetBannersUseCase extends UseCase<List<BannerEntity>, NoParams> {
 }
 ```
 
-Dipanggil di controller:
+Calling from a controller:
 ```dart
 await callUseCase(
   getBannersUseCase.execute(NoParams()),
@@ -60,9 +64,9 @@ await callUseCase(
 
 ---
 
-## Template: UseCase Dengan Parameter
+## Template: UseCase With Parameters
 
-Buat class Params di file yang sama:
+Create a Params class in the same file:
 
 ```dart
 // lib/domain/auth/usecases/login_usecase.dart
@@ -89,7 +93,7 @@ class LoginUseCase extends UseCase<UserEntity, LoginParams> {
 }
 ```
 
-Dipanggil di controller:
+Calling from a controller:
 ```dart
 await callUseCase(
   loginUseCase.execute(LoginParams(email: email, password: password)),
@@ -99,7 +103,7 @@ await callUseCase(
 
 ---
 
-## Template: UseCase Dengan Params Kompleks
+## Template: UseCase With Complex Params
 
 ```dart
 class GetProductsParams {
@@ -134,9 +138,9 @@ class GetProductsUseCase extends UseCase<List<ProductEntity>, GetProductsParams>
 
 ---
 
-## Template: UseCase untuk Pagination
+## Template: UseCase for Pagination
 
-UseCase yang return `ApiResponse` dengan meta:
+A UseCase that returns `ApiResponse` with metadata:
 
 ```dart
 class GetProductsParams {
@@ -155,7 +159,7 @@ class GetProductsUseCase extends UseCase<ApiResponse<List<ProductEntity>>, GetPr
 }
 ```
 
-Di controller pagination:
+In a pagination controller:
 ```dart
 @override
 Future<void> fetchPage(int page) async {
@@ -174,7 +178,7 @@ Future<void> fetchPage(int page) async {
 
 ---
 
-## Lokasi File
+## File Locations
 
 ```
 lib/domain/{feature}/usecases/
@@ -190,11 +194,11 @@ lib/domain/{feature}/usecases/
 ## Checklist
 
 ```
-[ ] File di lib/domain/{feature}/usecases/{action}_{feature}_usecase.dart
+[ ] File placed in lib/domain/{feature}/usecases/{action}_{feature}_usecase.dart
 [ ] Class extends UseCase<T, Params>
-[ ] Class Params di file yang sama (jika ada parameter)
-[ ] Constructor hanya inject repository
-[ ] Method execute() hanya mendelegasikan ke repository
-[ ] Tidak ada try/catch di UseCase (cukup delegate)
-[ ] Test di test/domain/{feature}/usecases/{action}_{feature}_usecase_test.dart
+[ ] Params class created in the same file (if parameters are needed)
+[ ] Constructor injects only the repository
+[ ] execute() method only delegates to the repository
+[ ] No try/catch in the UseCase (just delegate)
+[ ] Tests written in test/domain/{feature}/usecases/{action}_{feature}_usecase_test.dart
 ```

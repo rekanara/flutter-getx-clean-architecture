@@ -1,18 +1,22 @@
+---
+name: Repository (Domain & Infrastructure)
+description: Creating abstract repositories and their implementations
+---
 # Skill: Repository (Domain & Infrastructure)
 
-Repository terdiri dari dua bagian: abstract interface di Domain, dan implementasi di Infrastructure.
+A Repository consists of two parts: an abstract interface in the Domain layer, and its implementation in the Infrastructure layer.
 
 ---
 
-## Bagian 1: Abstract Repository (Domain Layer)
+## Part 1: Abstract Repository (Domain Layer)
 
 `lib/domain/{feature}/repositories/{feature}_repository.dart`
 
-### Aturan
-- Hanya `abstract class`
-- Tidak ada implementasi
-- Return type selalu `Future<Either<Failure, T>>`
-- Import hanya `dartz`, `failures.dart`, dan entity
+### Rules
+- Only an `abstract class`
+- No implementation
+- Return type is always `Future<Either<Failure, T>>`
+- Import only `dartz`, `failures.dart`, and entities
 
 ### Template
 
@@ -48,15 +52,15 @@ abstract class ProductRepository {
 
 ---
 
-## Bagian 2: Repository Implementation (Infrastructure Layer)
+## Part 2: Repository Implementation (Infrastructure Layer)
 
 `lib/infrastructure/dal/{feature}/repositories/{feature}_repository_impl.dart`
 
-### Aturan
-- `implements` abstract repository dari Domain
-- Inject `ApiService` melalui constructor
-- Semua method menggunakan try/catch → return `Right` (sukses) atau `Left` (gagal)
-- Tangkap `DioException` secara terpisah dari generic `Exception`
+### Rules
+- `implements` the abstract repository from Domain
+- Inject `ApiService` via constructor
+- All methods use try/catch → return `Right` (success) or `Left` (failure)
+- Catch `DioException` separately from generic `Exception`
 
 ### Template
 
@@ -92,7 +96,7 @@ class ProductRepositoryImpl implements ProductRepository {
         final data = response.data['data'] as List?;
         if (data == null) return const Right([]);
 
-        // Gunakan JsonParser untuk data besar (>=50 items pakai isolate)
+        // Use JsonParser for large datasets (>=50 items uses isolate)
         final products = await JsonParser.parseList(
           jsonList: data,
           fromJson: ProductModel.fromJson,
@@ -101,7 +105,7 @@ class ProductRepositoryImpl implements ProductRepository {
       }
       return Left(ServerFailure(response.statusMessage ?? 'Server Error'));
     } on DioException catch (e) {
-      // Cek pesan error dari response body terlebih dahulu
+      // Check error message from response body first
       final message = e.response?.data?['message'] as String?;
       return Left(ServerFailure(message ?? e.message ?? 'Network Error'));
     } catch (e) {
@@ -169,9 +173,9 @@ class ProductRepositoryImpl implements ProductRepository {
 
 ---
 
-## Pattern ApiResponse (untuk endpoint dengan wrapper standar)
+## ApiResponse Pattern (for endpoints with standard wrappers)
 
-Jika API selalu return format `{success, message, data, meta}`, gunakan `ApiResponse`:
+If the API always returns a `{success, message, data, meta}` format, use `ApiResponse`:
 
 ```dart
 @override
@@ -197,11 +201,11 @@ Future<Either<Failure, List<ProductEntity>>> getProducts() async {
 ## Checklist
 
 ```
-[ ] Abstract repo di lib/domain/{feature}/repositories/{feature}_repository.dart
-[ ] Impl di lib/infrastructure/dal/{feature}/repositories/{feature}_repository_impl.dart
-[ ] Impl menggunakan `implements` bukan `extends`
-[ ] Constructor inject ApiService
-[ ] Setiap method: try/catch → Right/Left
-[ ] DioException ditangkap terpisah dari catch (e)
-[ ] Cek response.data['message'] untuk pesan error dari server
+[ ] Abstract repo in lib/domain/{feature}/repositories/{feature}_repository.dart
+[ ] Impl in lib/infrastructure/dal/{feature}/repositories/{feature}_repository_impl.dart
+[ ] Impl uses `implements`, not `extends`
+[ ] Constructor injects ApiService
+[ ] Every method: try/catch → Right/Left
+[ ] Catch DioException separately from catch (e)
+[ ] Check response.data['message'] for server error messages
 ```

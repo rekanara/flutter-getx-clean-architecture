@@ -1,10 +1,10 @@
 # App Lifecycle Service
 
-Lokasi: `lib/config/lifecycle/app_lifecycle_service.dart`
+Location: `lib/config/lifecycle/app_lifecycle_service.dart`
 
 ## Overview
 
-Global observer untuk mengelola perilaku app saat berpindah antara **foreground** dan **background**. Didaftarkan sebagai permanent singleton di `main.dart`.
+Global observer to manage app behavior when transitioning between **foreground** and **background**. Registered as a permanent singleton in `main.dart`.
 
 ```dart
 Get.put(AppLifecycleService(), permanent: true);
@@ -14,23 +14,23 @@ Get.put(AppLifecycleService(), permanent: true);
 
 ## Lifecycle States
 
-| State | Kapan | Aksi Otomatis |
+| State | When | Automatic Action |
 |---|---|---|
-| `resumed` | App kembali ke foreground | MQTT reconnect + panggil resume callbacks |
-| `paused` | App masuk background | MQTT disconnect + panggil pause callbacks |
-| `inactive` | App visible tapi tidak menerima input (dialog, split screen) | Log saja |
-| `detached` | App di-terminate | MQTT disconnect |
+| `resumed` | App returns to foreground | MQTT reconnect + trigger resume callbacks |
+| `paused` | App goes to background | MQTT disconnect + trigger pause callbacks |
+| `inactive` | App visible but not receiving input (dialog, split screen) | Log only |
+| `detached` | App is terminated | MQTT disconnect |
 
-### Alur
+### Flow
 
 ```
-User minimize app
+User minimizes app
     │
     ▼  paused
-MQTT.disconnect()  ← hemat baterai
-Firebase tetap jalan  ← SDK handle sendiri
-
-User buka app kembali
+MQTT.disconnect()  ← save battery
+Firebase keeps running  ← SDK handles it
+ 
+User reopens app
     │
     ▼  resumed
 MQTT.connect()  ← reconnect
@@ -41,9 +41,9 @@ onResumeCallbacks()  ← refresh data
 
 ## Callback Registration
 
-Controller bisa mendaftarkan fungsi yang otomatis dipanggil saat app resume atau pause.
+Controllers can register functions to be called automatically when the app resumes or pauses.
 
-### Mendaftarkan Callback
+### Registering a Callback
 
 ```dart
 class HomeController extends BaseController {
@@ -63,19 +63,19 @@ class HomeController extends BaseController {
   }
 
   void _refreshData() {
-    fetchBanners(); // dipanggil otomatis saat app resume
+    fetchBanners(); // called automatically when app resumes
   }
 }
 ```
 
 ### API
 
-| Method | Deskripsi |
+| Method | Description |
 |---|---|
-| `addOnResumeCallback(VoidCallback)` | Daftarkan fungsi yang dipanggil saat app resume |
-| `removeOnResumeCallback(VoidCallback)` | Hapus callback resume |
-| `addOnPauseCallback(VoidCallback)` | Daftarkan fungsi yang dipanggil saat app pause |
-| `removeOnPauseCallback(VoidCallback)` | Hapus callback pause |
+| `addOnResumeCallback(VoidCallback)` | Register function called when app resumes |
+| `removeOnResumeCallback(VoidCallback)` | Remove resume callback |
+| `addOnPauseCallback(VoidCallback)` | Register function called when app pauses |
+| `removeOnPauseCallback(VoidCallback)` | Remove pause callback |
 
 ### Observable State
 
@@ -85,16 +85,16 @@ final lifecycle = Get.find<AppLifecycleService>();
 Obx(() {
   // React to lifecycle changes
   if (lifecycle.currentState.value == AppLifecycleState.paused) {
-    return Text('App sedang di background');
+    return Text('App is in background');
   }
-  return Text('App aktif');
+  return Text('App is active');
 });
 ```
 
 ---
 
-## Catatan
+## Notes
 
-- **Firebase** tidak perlu di-handle di sini — SDK Firebase tetap berjalan di background secara native
-- **MQTT** di-disconnect untuk hemat baterai, karena MQTT client aktif terus-menerus makan resource
-- Selalu **hapus callback di `onClose()`** untuk mencegah memory leak
+- **Firebase** does not need to be handled here — the Firebase SDK keeps running in the background natively.
+- **MQTT** is disconnected to save battery, as an active MQTT client consumes resources continuously.
+- Always **remove callbacks in `onClose()`** to prevent memory leaks.

@@ -1,16 +1,20 @@
+---
+name: Project Structure
+description: Folder structure, naming conventions, and file organization
+---
 # Skill: Project Structure
 
-Panduan struktur folder, naming convention, dan organisasi file di codebase ini.
+Guide to the folder structure, naming conventions, and file organization in this codebase.
 
 ---
 
-## Struktur Folder Utama
+## Main Folder Structure
 
 ```
 lib/
-├── main.dart                          # Entry point + GlobalErrorHandler + inisialisasi semua service
+├── main.dart                          # Entry point + GlobalErrorHandler + service initialization
 │
-├── domain/                            # DOMAIN LAYER — Pure Dart, tidak import Flutter/Dio/GetX
+├── domain/                            # DOMAIN LAYER — Pure Dart, no Flutter/Dio/GetX imports
 │   ├── core/
 │   │   ├── errors/failures.dart       # Failure, ServerFailure, CacheFailure
 │   │   └── usecases/usecase.dart      # UseCase<T, Params> base class + NoParams
@@ -19,7 +23,7 @@ lib/
 │       ├── repositories/{feature}_repository.dart   # abstract class
 │       └── usecases/{action}_{feature}_usecase.dart
 │
-├── infrastructure/                    # INFRASTRUCTURE LAYER — Implementasi Domain
+├── infrastructure/                    # INFRASTRUCTURE LAYER — Domain implementation
 │   ├── dal/                           # Data Access Layer
 │   │   ├── models/
 │   │   │   ├── api_response.dart      # ApiResponse<T> + PaginationMeta
@@ -54,11 +58,11 @@ lib/
 │   │   ├── base_controller.dart       # BaseController (reactive, .obs)
 │   │   ├── base_builder_controller.dart  # BaseBuilderController (manual, update())
 │   │   └── base_pagination_controller.dart  # BasePaginationController<T>
-│   ├── screens.dart                   # barrel export semua screens
+│   ├── screens.dart                   # barrel export for all screens
 │   └── {feature}/
 │       ├── {feature}.screen.dart
 │       ├── controllers/{feature}.controller.dart
-│       └── widgets/                   # (opsional) widget spesifik fitur
+│       └── widgets/                   # (optional) feature-specific widgets
 │
 ├── components/                        # Reusable UI Components
 │   ├── atoms/
@@ -83,7 +87,7 @@ lib/
 │
 └── utils/                             # Utilities & Helpers
     ├── config.dart                    # Enums, ColorData, OtherColors, FontFamilyType, PlaceHolderImage
-    ├── json_parser.dart               # JsonParser (isolate untuk data > 50 items)
+    ├── json_parser.dart               # JsonParser (isolate for data > 50 items)
     ├── responsive.dart                # Responsive widget + ResponsiveExtension on BuildContext
     └── helper/
         ├── logger.dart               # LoggerHelper (static: d, i, w, e, t, f)
@@ -91,15 +95,15 @@ lib/
         ├── dialog.dart               # DialogHelper
         ├── date_time.dart            # DateTimeHelper
         ├── rupiah.dart               # RupiahHelper (IDR formatting)
-        └── open_setting.dart         # OpenSetting (dialog buka app settings)
+        └── open_setting.dart         # OpenSetting (dialog to open app settings)
 ```
 
 ---
 
 ## Naming Convention
 
-### File
-| Tipe | Format | Contoh |
+### Files
+| Type | Format | Example |
 |---|---|---|
 | Entity | `{feature}_entity.dart` | `user_entity.dart` |
 | Repository (abstract) | `{feature}_repository.dart` | `auth_repository.dart` |
@@ -113,8 +117,8 @@ lib/
 | Widget | `{widget_name}.dart` | `banner_carousel.dart` |
 | Test | `{file_tested}_test.dart` | `login_usecase_test.dart` |
 
-### Class
-| Tipe | Format | Contoh |
+### Classes
+| Type | Format | Example |
 |---|---|---|
 | Entity | `{Feature}Entity` | `UserEntity` |
 | Repository | `{Feature}Repository` | `AuthRepository` |
@@ -131,12 +135,12 @@ lib/
 ## Dependency Rule
 
 ```
-Domain ← tidak boleh import layer lain
-Infrastructure ← import Domain (implements)
-Presentation ← import Domain (use cases) + utils
+Domain ← must not import other layers
+Infrastructure ← imports Domain (implements)
+Presentation ← imports Domain (use cases) + utils
 ```
 
-Domain layer **tidak boleh** import: Flutter widgets, Dio, GetX, package storage apapun.
+The Domain layer **MUST NOT** import: Flutter widgets, Dio, GetX, or any storage packages.
 
 ---
 

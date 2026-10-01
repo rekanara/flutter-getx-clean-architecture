@@ -3,36 +3,36 @@ import 'package:get/get.dart';
 
 import 'base_controller.dart';
 
-/// Base Controller khusus untuk menangani Pagination dan Infinite Scroll.
+/// Base Controller specifically for handling Pagination and Infinite Scroll.
 ///
-/// Cara pakai:
+/// Usage:
 /// 1. `class MyController extends BasePaginationController<MyModel>`
-/// 2. Override method `fetchPage(int page)`
-/// 3. Panggil `appendData(newItems: data, lastPage: meta.lastPage)` saat success.
-/// 4. Hubungkan `scrollController` ke `ListView` atau `GridView`.
+/// 2. Override `fetchPage(int page)` method
+/// 3. Call `appendData(newItems: data, lastPage: meta.lastPage)` on success.
+/// 4. Connect `scrollController` to `ListView` or `GridView`.
 abstract class BasePaginationController<T> extends BaseController {
-  /// List item data yang ditampilkan di UI
+  /// List of item data displayed in UI
   final RxList<T> items = <T>[].obs;
 
-  /// Limit data per halaman (default 15)
+  /// Data limit per page (default 15)
   int limit = 15;
 
   int _currentPage = 1;
   int _lastPage = 1;
 
-  /// State khusus untuk loading halaman berikutnya (bottom loading indicator)
+  /// Special state for loading the next page (bottom loading indicator)
   final RxBool isLoadMore = false.obs;
 
-  /// Cek apakah sudah mencapai halaman terakhir
+  /// Check if it has reached the last page
   bool get hasReachedMax => _currentPage >= _lastPage;
 
   /// Current active page getter
   int get currentPage => _currentPage;
 
-  /// ScrollController otomatis bind untuk mendengarkan scroll ke bawah
+  /// ScrollController automatically bound to listen to scrolling down
   final ScrollController scrollController = ScrollController();
 
-  /// Default threshold jarak pixels dari bawah sebelum trigger fetch next page
+  /// Default threshold distance in pixels from bottom before triggering fetch next page
   final double scrollThreshold = 200.0;
 
   @override
@@ -59,25 +59,25 @@ abstract class BasePaginationController<T> extends BaseController {
     }
   }
 
-  /// Fungsi utama yang harus di-override di subclass.
-  /// Lakukan pemanggilan API / UseCase di dalam fungsi ini.
+  /// Main function that must be overridden in subclass.
+  /// Perform API / UseCase calls inside this function.
   ///
-  /// Gunakan `callUseCase` bawaan [BaseController], dan jika success,
-  /// panggil `appendData(newItems, lastPage)`.
+  /// Use the built-in `callUseCase` from [BaseController], and if successful,
+  /// call `appendData(newItems, lastPage)`.
   Future<void> fetchPage(int page);
 
-  /// Panggil fungsi ini untuk me-reset data dan mengambil halaman 1 kembali.
-  /// Cocok dipanggil dari [RefreshIndicator].
+  /// Call this function to reset data and fetch page 1 again.
+  /// Suitable to be called from [RefreshIndicator].
   Future<void> refreshData() async {
     _currentPage = 1;
     _lastPage = 1;
     errorMessage.value = '';
     items.clear();
-    // callUseCase di dalam fetchPage sudah menangani isLoading secara otomatis
+    // callUseCase inside fetchPage already handles isLoading automatically
     await fetchPage(1);
   }
 
-  /// Memuat halaman berikutnya. Otomatis dipanggil saat di-scroll ke bawah.
+  /// Load the next page. Automatically called when scrolling down.
   Future<void> loadNextPage() async {
     if (isLoadMore.value || hasReachedMax || isLoading.value) return;
 
@@ -89,9 +89,9 @@ abstract class BasePaginationController<T> extends BaseController {
     isLoadMore.value = false;
   }
 
-  /// Sisipkan data baru dari response API ke dalam list.
-  /// [newItems] adalah list data model yang didapat.
-  /// [lastPage] adalah total halaman dari meta pagination backend.
+  /// Insert new data from API response into the list.
+  /// [newItems] is the list of data models received.
+  /// [lastPage] is the total pages from backend pagination meta.
   void appendData({required List<T> newItems, required int lastPage}) {
     _lastPage = lastPage;
 
@@ -102,6 +102,6 @@ abstract class BasePaginationController<T> extends BaseController {
     }
   }
 
-  /// Pengecekan status list kosong (berguna untuk menampilkan UI empty state)
+  /// Check for empty list status (useful for displaying UI empty state)
   bool get isEmpty => !isLoading.value && items.isEmpty;
 }

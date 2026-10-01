@@ -4,25 +4,25 @@ import 'package:get/get.dart';
 import '../../utils/helper/logger.dart';
 import '../notifications/notifications.dart';
 
-/// Background message handler — HARUS top-level function (bukan method).
+/// Background message handler — MUST be a top-level function (not a method).
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   LoggerHelper.d('FCM Background: ${message.messageId}');
   _processMessage(message);
 }
 
-/// Service untuk mengelola Firebase Cloud Messaging (FCM).
+/// Service to manage Firebase Cloud Messaging (FCM).
 ///
-/// Fitur:
+/// Features:
 /// - Request permission (iOS)
-/// - Listen foreground, background, dan terminated messages
+/// - Listen foreground, background, and terminated messages
 /// - Parse notification title/body + JSON payload
-/// - Route ke `ShowNotificationHelper` berdasarkan field `type` di payload
+/// - Route to `ShowNotificationHelper` based on `type` field in payload
 /// - Expose FCM token (observable)
 class FirebaseMessagingService extends GetxController {
   late final FirebaseMessaging _messaging;
 
-  /// FCM token saat ini (observable)
+  /// Current FCM token (observable)
   final RxString fcmToken = ''.obs;
 
   @override
@@ -31,23 +31,23 @@ class FirebaseMessagingService extends GetxController {
     _messaging = FirebaseMessaging.instance;
   }
 
-  /// Inisialisasi lengkap FCM: permission, token, dan message listeners.
+  /// Complete FCM initialization: permission, token, and message listeners.
   Future<void> init() async {
     try {
-      // 1. Request permission (khusus iOS, Android otomatis granted)
+      // 1. Request permission (iOS only, Android is automatically granted)
       await _requestPermission();
 
-      // 2. Dapatkan FCM Token
+      // 2. Get FCM Token
       await _getToken();
 
-      // 3. Dapatkan APNs Token
+      // 3. Get APNs Token
       await getApnsToken();
 
       // 4. Listen token refresh
       _messaging.onTokenRefresh.listen((newToken) {
         fcmToken.value = newToken;
         LoggerHelper.i('FCM: 🔑 Token refreshed');
-        // TODO: Kirim token baru ke backend jika diperlukan
+        // TODO: Send new token to backend if needed
       });
 
       // 5. Setup message handlers
@@ -97,7 +97,7 @@ class FirebaseMessagingService extends GetxController {
     }
   }
 
-  /// Mendapatkan token terbaru (force refresh dari server).
+  /// Get the latest token (force refresh from server).
   Future<String?> refreshToken() async {
     await _messaging.deleteToken();
     final token = await _messaging.getToken();
@@ -108,16 +108,16 @@ class FirebaseMessagingService extends GetxController {
   }
 
   // ═══════════════════════════════════════════════════════════
-  //  TOPIC SUBSCRIBE (FCM Topics — berbeda dari MQTT)
+  //  TOPIC SUBSCRIBE (FCM Topics — different from MQTT)
   // ═══════════════════════════════════════════════════════════
 
-  /// Subscribe ke FCM topic (untuk broadcast push notification).
+  /// Subscribe to FCM topic (for broadcast push notifications).
   Future<void> subscribeToTopic(String topic) async {
     await _messaging.subscribeToTopic(topic);
     LoggerHelper.i('FCM: Subscribed to topic "$topic"');
   }
 
-  /// Unsubscribe dari FCM topic.
+  /// Unsubscribe from FCM topic.
   Future<void> unsubscribeFromTopic(String topic) async {
     await _messaging.unsubscribeFromTopic(topic);
     LoggerHelper.i('FCM: Unsubscribed from topic "$topic"');
@@ -134,7 +134,7 @@ class FirebaseMessagingService extends GetxController {
       _processMessage(message);
     });
 
-    // ── User tapped notification (app dari background) ──
+    // ── User tapped notification (app from background) ──
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       LoggerHelper.d('FCM Opened App: ${message.messageId}');
       _handleNotificationTap(message);
@@ -152,15 +152,15 @@ class FirebaseMessagingService extends GetxController {
     }
   }
 
-  /// Handle ketika user tap notifikasi — bisa navigasi ke halaman tertentu.
+  /// Handle when user taps notification — can navigate to a specific page.
   void _handleNotificationTap(RemoteMessage message) {
     final data = message.data;
     final type = data['type'] as String?;
 
     LoggerHelper.d('FCM Tap: type=$type, data=$data');
 
-    // TODO: Tambahkan navigasi berdasarkan type
-    // Contoh:
+    // TODO: Add navigation based on type
+    // Example:
     // if (type == 'order') Get.toNamed(Routes.orderDetail, arguments: data);
   }
 }
@@ -169,14 +169,14 @@ class FirebaseMessagingService extends GetxController {
 //  PROCESS MESSAGE (shared between foreground & background)
 // ═══════════════════════════════════════════════════════════
 
-/// Parse dan tampilkan notifikasi dari RemoteMessage.
+/// Parse and show notification from RemoteMessage.
 ///
-/// Struktur yang di-expect:
-/// - `message.notification.title` → Judul notifikasi
-/// - `message.notification.body` → Body singkat
-/// - `message.data` → JSON payload berisi:
-///   - `type` → Menentukan `NotificationType` (order, chat, payment, dll)
-///   - field lain sesuai kebutuhan
+/// Expected structure:
+/// - `message.notification.title` → Notification title
+/// - `message.notification.body` → Short body
+/// - `message.data` → JSON payload containing:
+///   - `type` → Determines `NotificationType` (order, chat, payment, etc.)
+///   - other fields as needed
 void _processMessage(RemoteMessage message) {
   final notification = message.notification;
   final data = message.data;
@@ -185,17 +185,17 @@ void _processMessage(RemoteMessage message) {
   final title = notification?.title ?? data['title'] ?? 'Notification';
   final body = notification?.body ?? data['body'] ?? '';
 
-  // Parse type dari data payload
+  // Parse type from data payload
   final typeStr = data['type'] as String? ?? 'general';
   final type = _parseNotificationType(typeStr);
 
-  // Parse summary (opsional)
+  // Parse summary (optional)
   final summary = data['summary'] as String?;
 
-  // Parse icon (opsional)
+  // Parse icon (optional)
   final iconUrl = data['icon_url'] as String?;
 
-  // Payload untuk navigasi saat user tap
+  // Payload for navigation when user taps
   final payload = <String, String>{};
   for (final entry in data.entries) {
     payload[entry.key] = entry.value.toString();
@@ -203,7 +203,7 @@ void _processMessage(RemoteMessage message) {
 
   LoggerHelper.d('FCM: Showing notification → type=$typeStr, title=$title');
 
-  // Tampilkan menggunakan ShowNotificationHelper yang sudah ada
+  // Show using existing ShowNotificationHelper
   ShowNotificationHelper.showNotification(
     type: type,
     title: title,
@@ -214,7 +214,7 @@ void _processMessage(RemoteMessage message) {
   );
 }
 
-/// Map string `type` dari JSON ke `NotificationType` enum.
+/// Map string `type` from JSON to `NotificationType` enum.
 NotificationType _parseNotificationType(String type) {
   switch (type.toLowerCase()) {
     case 'order':

@@ -31,11 +31,11 @@ class ContactsRepositoryImpl implements ContactsRepository {
         return Left(ServerFailure(response.statusMessage ?? 'Server Error'));
       }
 
-      // dummyjson.com tidak mengikuti kontrak standar {success, data, meta}
-      // (lihat api_response.dart) — jadi meta di-bangun manual dari
-      // total/skip/limit. Kalau backend kamu sudah mengikuti kontrak standar,
-      // pakai `ApiResponse.fromJsonList` + `PaginationMeta.fromJson` langsung
-      // seperti dijelaskan di `.agents/skills/api-service/SKILL.md`.
+      // dummyjson.com does not follow the standard {success, data, meta} contract
+      // (see api_response.dart) — so meta is built manually from
+      // total/skip/limit. If your backend follows the standard contract,
+      // use `ApiResponse.fromJsonList` + `PaginationMeta.fromJson` directly
+      // as explained in `.agents/skills/api-service/SKILL.md`.
       final rawUsers = response.data['users'] as List? ?? [];
       final total = response.data['total'] as int? ?? 0;
       final meta = PaginationMeta(

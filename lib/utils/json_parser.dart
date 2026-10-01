@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 
-/// Utility untuk parsing JSON berat menggunakan **Isolate** (`compute()`).
+/// Utility for parsing heavy JSON using **Isolate** (`compute()`).
 ///
-/// Menghindari jank pada Main Thread saat me-parse response API berukuran besar.
+/// Avoids jank on Main Thread when parsing large API responses.
 ///
-/// **Cara pakai:**
+/// **Usage:**
 /// ```dart
 /// // Parse list
 /// final banners = await JsonParser.parseList(
@@ -20,40 +20,40 @@ import 'package:flutter/foundation.dart';
 /// ```
 ///
 /// **Threshold:**
-/// - Jika jumlah item < [minItemsForIsolate], parsing dilakukan di Main Thread
-///   (overhead isolate lebih besar dari benefit-nya untuk list kecil).
+/// - If item count < [minItemsForIsolate], parsing is done on Main Thread
+///   (isolate overhead is greater than its benefit for small lists).
 class JsonParser {
   JsonParser._();
 
-  /// Minimum item count sebelum menggunakan Isolate.
-  /// List < threshold → parse di Main Thread (lebih cepat).
+  /// Minimum item count before using Isolate.
+  /// List < threshold → parse on Main Thread (faster).
   static const int minItemsForIsolate = 50;
 
   // ═══════════════════════════════════════════════════════════
   //  PARSE LIST
   // ═══════════════════════════════════════════════════════════
 
-  /// Parse JSON List menjadi `List<T>` menggunakan Isolate jika data besar.
+  /// Parse JSON List to `List<T>` using Isolate if data is large.
   ///
-  /// [jsonList] — raw `List<dynamic>` dari response API.
+  /// [jsonList] — raw `List<dynamic>` from API response.
   /// [fromJson] — factory constructor, e.g. `BannerModel.fromJson`.
   static Future<List<T>> parseList<T>({
     required List<dynamic> jsonList,
     required T Function(Map<String, dynamic> json) fromJson,
   }) async {
-    // Data kecil → parse di Main Thread
+    // Small data → parse on Main Thread
     if (jsonList.length < minItemsForIsolate) {
       return jsonList.map((e) => fromJson(e as Map<String, dynamic>)).toList();
     }
 
-    // Data besar → parse di Isolate
+    // Large data → parse on Isolate
     return compute(
       _parseListInIsolate<T>,
       _ParseListPayload<T>(jsonList: jsonList, fromJson: fromJson),
     );
   }
 
-  /// Fungsi top-level yang dijalankan di Isolate untuk parse list.
+  /// Top-level function running in Isolate to parse list.
   static List<T> _parseListInIsolate<T>(_ParseListPayload<T> payload) {
     return payload.jsonList
         .map((e) => payload.fromJson(e as Map<String, dynamic>))
@@ -64,9 +64,9 @@ class JsonParser {
   //  PARSE SINGLE OBJECT
   // ═══════════════════════════════════════════════════════════
 
-  /// Parse single JSON Map menjadi object `T`.
+  /// Parse single JSON Map to object `T`.
   ///
-  /// Selalu di Main Thread (overhead isolate tidak worth it untuk single object).
+  /// Always on Main Thread (isolate overhead is not worth it for single object).
   static T parseObject<T>({
     required Map<String, dynamic> json,
     required T Function(Map<String, dynamic> json) fromJson,
@@ -78,8 +78,8 @@ class JsonParser {
   //  PARSE LIST SYNC (Main Thread only)
   // ═══════════════════════════════════════════════════════════
 
-  /// Versi synchronous — selalu di Main Thread.
-  /// Gunakan jika yakin data kecil atau di dalam Isolate lain.
+  /// Synchronous version — always on Main Thread.
+  /// Use if certain data is small or inside another Isolate.
   static List<T> parseListSync<T>({
     required List<dynamic> jsonList,
     required T Function(Map<String, dynamic> json) fromJson,
@@ -88,8 +88,8 @@ class JsonParser {
   }
 }
 
-/// Payload container untuk dikirim ke Isolate.
-/// Harus top-level atau static agar bisa digunakan oleh `compute()`.
+/// Payload container to be sent to Isolate.
+/// Must be top-level or static to be used by `compute()`.
 class _ParseListPayload<T> {
   final List<dynamic> jsonList;
   final T Function(Map<String, dynamic> json) fromJson;

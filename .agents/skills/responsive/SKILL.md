@@ -1,6 +1,10 @@
+---
+name: Responsive UI
+description: Guide for creating responsive UIs (mobile, tablet, desktop)
+---
 # Skill: Responsive UI
 
-Panduan membuat UI yang responsif untuk mobile, tablet, dan desktop menggunakan `Responsive` widget dan `ResponsiveExtension`.
+Guide to creating responsive UIs for mobile, tablet, and desktop using the `Responsive` widget and `ResponsiveExtension`.
 
 ---
 
@@ -11,7 +15,7 @@ Panduan membuat UI yang responsif untuk mobile, tablet, dan desktop menggunakan 
 class Breakpoints {
   static const double mobile = 600;   // < 600
   static const double tablet = 900;   // 600 - 1200
-  static const double desktop = 1200; // >= 1200 (atau >= tablet threshold)
+  static const double desktop = 1200; // >= 1200 (or >= tablet threshold)
 }
 ```
 
@@ -19,21 +23,21 @@ class Breakpoints {
 
 ## Responsive Widget
 
-`Responsive` widget memilih layout berdasarkan lebar layar:
+The `Responsive` widget chooses a layout based on screen width:
 
 ```dart
 // lib/utils/responsive.dart
 Responsive(
-  mobile: MobileLayout(),          // required — tampil di < 600px
-  tablet: TabletLayout(),          // opsional — tampil di 600-1199px
-  desktop: DesktopLayout(),        // opsional — tampil di >= 1200px
+  mobile: MobileLayout(),          // required — shown for < 600px
+  tablet: TabletLayout(),          // optional — shown for 600-1199px
+  desktop: DesktopLayout(),        // optional — shown for >= 1200px
 )
 
-// Jika tablet tidak disediakan, mobile dipakai untuk tablet juga
-// Jika desktop tidak disediakan, tablet (atau mobile) dipakai untuk desktop
+// If tablet is not provided, mobile is used for tablets too
+// If desktop is not provided, tablet (or mobile) is used for desktop
 ```
 
-### Contoh
+### Example
 
 ```dart
 class ProductScreen extends GetView<ProductController> {
@@ -78,44 +82,44 @@ class ProductScreen extends GetView<ProductController> {
 
 ## ResponsiveExtension on BuildContext
 
-Akses responsive values langsung dari `context`:
+Access responsive values directly from `context`:
 
 ```dart
 // Boolean checks
-context.isMobile    // true jika width < 600
-context.isTablet    // true jika 600 <= width < 1200
-context.isDesktop   // true jika width >= 1200
+context.isMobile    // true if width < 600
+context.isTablet    // true if 600 <= width < 1200
+context.isDesktop   // true if width >= 1200
 
 // Shortcuts
 context.screenWidth  // MediaQuery.of(context).size.width
 context.screenHeight // MediaQuery.of(context).size.height
 
-// Responsive value — return nilai sesuai breakpoint
+// Responsive value — returns value matching the breakpoint
 context.responsive<int>(
   mobile: 1,     // required
-  tablet: 2,     // opsional
-  desktop: 4,    // opsional
+  tablet: 2,     // optional
+  desktop: 4,    // optional
 )
 
 context.responsive<double>(
-  mobile: 16.0,  // padding mobile
-  desktop: 24.0, // padding desktop
+  mobile: 16.0,  // mobile padding
+  desktop: 24.0, // desktop padding
 )
 ```
 
-### Contoh Penggunaan
+### Usage Example
 
 ```dart
 @override
 Widget build(BuildContext context) {
-  // Jumlah kolom grid berdasarkan device
+  // Grid column count based on device
   final crossAxisCount = context.responsive<int>(
     mobile: 1,
     tablet: 2,
     desktop: 3,
   );
 
-  // Padding adaptif
+  // Adaptive padding
   final padding = context.responsive<EdgeInsets>(
     mobile: const EdgeInsets.all(12),
     tablet: const EdgeInsets.all(16),
@@ -142,17 +146,17 @@ Widget build(BuildContext context) {
 
 ```dart
 // lib/config/device/device_config.dart
-// getDeviceType adalah method STATIC — panggil dari class, bukan dari .instance
+// getDeviceType is a STATIC method — call from class, not from .instance
 final deviceType = DeviceConfig.getDeviceType(context);
 // DeviceType.mobile / DeviceType.tablet / DeviceType.desktop
 ```
 
 ---
 
-## Pattern Responsif Sederhana
+## Simple Responsive Pattern
 
 ```dart
-// Tanpa Responsive widget — cukup dengan context extension
+// Without Responsive widget — using only context extensions
 Widget _buildContent(BuildContext context) {
   if (context.isMobile) {
     return const _MobileContent();
@@ -160,7 +164,7 @@ Widget _buildContent(BuildContext context) {
   return const _DesktopContent();
 }
 
-// Atau conditional sizing
+// Or conditional sizing
 SizedBox(
   width: context.isMobile ? double.infinity : 400,
   child: const LoginForm(),
@@ -172,9 +176,9 @@ SizedBox(
 ## Checklist
 
 ```
-[ ] Layout berbeda per device → Responsive widget
-[ ] Nilai berbeda per device → context.responsive<T>(mobile: ..., desktop: ...)
+[ ] Different layouts per device → Responsive widget
+[ ] Different values per device → context.responsive<T>(mobile: ..., desktop: ...)
 [ ] Check device type → context.isMobile / isTablet / isDesktop
-[ ] Tidak hardcode nilai width/height — gunakan responsive values
-[ ] LayoutBuilder untuk container yang tergantung parent (bukan screen)
+[ ] Avoid hardcoding width/height values — use responsive values
+[ ] Use LayoutBuilder for containers dependent on parents (not the screen)
 ```

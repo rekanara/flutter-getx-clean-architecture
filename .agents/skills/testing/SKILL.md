@@ -1,13 +1,17 @@
-# Skill: Testing dengan Mockito
+---
+name: Unit Testing
+description: Unit testing UseCases and Controllers with Mockito
+---
+# Skill: Unit Testing (Mockito)
 
-Panduan unit test untuk UseCase dan Controller menggunakan Mockito dan build_runner.
+Guide to unit testing UseCases and Controllers using Mockito and build_runner.
 
 ---
 
 ## Setup
 
 ```yaml
-# pubspec.yaml — sudah ada
+# pubspec.yaml — already present
 dev_dependencies:
   mockito: ^5.x.x
   build_runner: ^2.x.x
@@ -23,9 +27,9 @@ dart run build_runner build --delete-conflicting-outputs
 
 ---
 
-## Unit Test UseCase
+## Unit Testing UseCases
 
-Struktur: `test/domain/{feature}/usecases/{action}_{feature}_usecase_test.dart`
+Structure: `test/domain/{feature}/usecases/{action}_{feature}_usecase_test.dart`
 
 ```dart
 // test/domain/product/usecases/get_products_usecase_test.dart
@@ -102,7 +106,7 @@ void main() {
 
 ---
 
-## Unit Test UseCase dengan Parameter
+## Unit Testing UseCases with Parameters
 
 ```dart
 @GenerateMocks([AuthRepository])
@@ -136,13 +140,13 @@ void main() {
 
   test('should return ServerFailure on wrong credentials', () async {
     when(mockRepository.login(any, any))
-        .thenAnswer((_) async => Left(ServerFailure('Email atau password salah')));
+        .thenAnswer((_) async => Left(ServerFailure('Invalid email or password')));
 
     final result = await useCase.execute(tParams);
 
     expect(result.isLeft(), true);
     result.fold(
-      (failure) => expect(failure.message, 'Email atau password salah'),
+      (failure) => expect(failure.message, 'Invalid email or password'),
       (_) => fail('Expected Left'),
     );
   });
@@ -151,7 +155,7 @@ void main() {
 
 ---
 
-## Unit Test Controller
+## Unit Testing Controllers
 
 ```dart
 // test/presentation/controllers/product_controller_test.dart
@@ -214,7 +218,7 @@ void main() {
 
 ---
 
-## Contoh Nyata di Codebase
+## Real Example from the Codebase
 
 ```dart
 // test/domain/auth/usecases/login_usecase_test.dart
@@ -246,19 +250,19 @@ void main() {
 
 ---
 
-## Menjalankan Test
+## Running Tests
 
 ```bash
-# Semua test
+# All tests
 flutter test
 
-# Test spesifik file
+# Specific test file
 flutter test test/domain/product/usecases/get_products_usecase_test.dart
 
-# Test spesifik dengan filter
+# Specific test by name
 flutter test --name "should return list"
 
-# Generate mocks setelah tambah @GenerateMocks
+# Generate mocks after adding @GenerateMocks
 dart run build_runner build --delete-conflicting-outputs
 ```
 
@@ -267,12 +271,12 @@ dart run build_runner build --delete-conflicting-outputs
 ## Checklist
 
 ```
-[ ] Tambah @GenerateMocks([Repository]) di file test
-[ ] Generate mock: dart run build_runner build --delete-conflicting-outputs
-[ ] setUp(): buat mock + inject ke usecase/controller
-[ ] tearDown(): Get.reset() untuk controller test
-[ ] Test naming: 'should [hasil] when [kondisi]'
-[ ] Test minimal: success case, failure case, empty case
-[ ] verify() untuk cek repository dipanggil dengan benar
-[ ] verifyNoMoreInteractions() jika ingin strict check
+[ ] Add @GenerateMocks([Repository]) in test file
+[ ] Generate mocks: dart run build_runner build --delete-conflicting-outputs
+[ ] setUp(): create mocks + inject into usecase/controller
+[ ] tearDown(): Get.reset() for controller tests
+[ ] Test naming convention: 'should [result] when [condition]'
+[ ] Minimum tests: success case, failure case, empty case
+[ ] use verify() to check if repository was called correctly
+[ ] use verifyNoMoreInteractions() if strict checking is needed
 ```

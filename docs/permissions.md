@@ -1,67 +1,67 @@
 # Permissions
 
-Lokasi: `lib/config/permissions/permissions.dart`
+Location: `lib/config/permissions/permissions.dart`
 
 ## Overview
 
-Handler terpusat untuk meminta izin (permissions) dari user menggunakan package `permission_handler`.
+Centralized handler for requesting permissions from the user using the `permission_handler` package.
 
 ---
 
-## Inisialisasi
+## Initialization
 
 ```dart
 final permissions = PermissionHandler();
 await permissions.init();
 ```
 
-`init()` meminta izin berikut secara berurutan (semua optional — app tetap jalan jika ditolak):
+`init()` requests the following permissions sequentially (all optional — the app will still run if denied):
 
-1. **Notification** — untuk push notification
-2. **Location** — untuk fitur berbasis lokasi
-3. **Camera** — untuk foto/video
+1. **Notification** — for push notifications
+2. **Location** — for location-based features
+3. **Camera** — for photos/videos
 
 ---
 
-## Permission yang Tersedia
+## Available Permissions
 
-| Method | Permission | Deskripsi |
+| Method | Permission | Description |
 |---|---|---|
-| `requestNotificationPermission()` | `Permission.notification` | Izin notifikasi |
-| `requestLocationPermission()` | `Permission.locationWhenInUse` | Izin lokasi (saat app aktif) |
-| `requestStoragePermission()` | `Permission.storage` | Izin storage (opsional, tidak di-init) |
-| `requestCameraPermission()` | `Permission.camera` | Izin kamera |
+| `requestNotificationPermission()` | `Permission.notification` | Notification permission |
+| `requestLocationPermission()` | `Permission.locationWhenInUse` | Location permission (while in use) |
+| `requestStoragePermission()` | `Permission.storage` | Storage permission (optional, not initialized) |
+| `requestCameraPermission()` | `Permission.camera` | Camera permission |
 
 ---
 
-## Alur Request Permission
+## Permission Request Flow
 
 ```
-Cek status → Granted?
-    │            ✅ → Selesai
+Check status → Granted?
+    │            ✅ → Done
     ▼  
   Denied? → Request → Granted?
-    │                    ✅ → Selesai
+    │                    ✅ → Done
     ▼
-Permanently Denied? → Buka App Settings (dialog)
+Permanently Denied? → Open App Settings (dialog)
 ```
 
 ---
 
-## Cara Pakai Manual
+## Manual Usage
 
 ```dart
 final permissions = PermissionHandler();
 
-// Request satu permission
+// Request a single permission
 bool granted = await permissions.requestCameraPermission();
 if (granted) {
-  // buka kamera
+  // open camera
 } else {
-  // tampilkan pesan
+  // show message
 }
 
-// Request storage (tidak termasuk di init)
+// Request storage (not included in init)
 bool storageGranted = await permissions.requestStoragePermission();
 ```
 
@@ -69,14 +69,14 @@ bool storageGranted = await permissions.requestStoragePermission();
 
 ## Permanently Denied
 
-Jika user menolak permission secara permanen, `PermissionHandler` otomatis:
+If the user denies a permission permanently, `PermissionHandler` will automatically:
 
-1. Menampilkan dialog via `OpenSetting`
-2. Mengarahkan user ke **App Settings** untuk mengaktifkan izin secara manual
+1. Show a dialog via `OpenSetting`
+2. Redirect the user to **App Settings** to enable the permission manually
 
 ---
 
-## Konfigurasi Platform
+## Platform Configuration
 
 ### Android (`AndroidManifest.xml`)
 
@@ -90,7 +90,7 @@ Jika user menolak permission secara permanen, `PermissionHandler` otomatis:
 
 ```xml
 <key>NSCameraUsageDescription</key>
-<string>Kami membutuhkan akses kamera untuk mengambil foto.</string>
+<string>We need camera access to take photos.</string>
 <key>NSLocationWhenInUseUsageDescription</key>
-<string>Kami membutuhkan lokasi untuk fitur terdekat.</string>
+<string>We need location access for nearby features.</string>
 ```

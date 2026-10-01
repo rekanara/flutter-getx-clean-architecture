@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-/// Reusable Component untuk menampilkan gambar dari jaringan (URL)
-/// dengan fitur caching otomastis menggunakan [CachedNetworkImage].
+/// Reusable Component for displaying images from the network (URL)
+/// with automatic caching using [CachedNetworkImage].
 ///
-/// Termasuk default handling untuk status Loading (Placeholder) dan Error.
+/// Includes default handling for Loading (Placeholder) and Error states.
 class CustomCachedImage extends StatelessWidget {
   final String imageUrl;
   final double? width;
@@ -29,7 +29,7 @@ class CustomCachedImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // CachedNetworkImage melempar / empty frame pada URL kosong.
+    // CachedNetworkImage throws / empty frame on empty URL.
     if (imageUrl.isEmpty) {
       return _buildErrorContent();
     }
@@ -49,8 +49,8 @@ class CustomCachedImage extends StatelessWidget {
     );
   }
 
-  /// ClipRRect + errorWidget fallback. Dipakai baik di early-return URL
-  /// kosong maupun di callback errorWidget CachedNetworkImage.
+  /// ClipRRect + errorWidget fallback. Used in both early-return empty URL
+  /// and CachedNetworkImage's errorWidget callback.
   Widget _buildErrorContent() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),

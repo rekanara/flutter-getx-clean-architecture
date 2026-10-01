@@ -1,19 +1,23 @@
+---
+name: Environment & URL
+description: Multi-environment setup (dev/staging/prod), domain, and endpoint configurations
+---
 # Skill: Environment & URL Configuration
 
-Panduan multi-environment (dev/staging/prod), cara tambah service domain baru, dan cara define endpoint.
+Guide to multi-environment (dev/staging/prod) configurations, how to add a new domain service, and how to define endpoints.
 
 ---
 
-## Arsitektur Environment
+## Environment Architecture
 
 ```
 .env
-  ↓ dibaca oleh flutter_dotenv di main.dart
+  ↓ read by flutter_dotenv in main.dart
 EnvironmentConfig (strongly-typed class)
-  ↓ disimpan di GetStorage (key: 'env')
+  ↓ saved in GetStorage (key: 'env')
 ConfigEnvironments.current  ←  EnvironmentController
   ↓
-ConfigEnvironments.config  (EnvironmentConfig aktif)
+ConfigEnvironments.config  (active EnvironmentConfig)
   ↓
 Domain.{service}   (base URL per service)
   ↓
@@ -22,68 +26,68 @@ Endpoint.{service}.{action}  (full path)
 
 ---
 
-## Struktur Saat Ini (Real)
+## Current Structure (Real)
 
-Saat ini hanya ada **satu backend service**: `be` (dibaca dari `NEX_BE_DEV`/`NEX_BE_STAGING`/`NEX_BE_PROD` di `.env`), diakses lewat `Domain.be` dan `Endpoint.be.{login,refresh,banners,customerDetail}`. Contoh di bawah ("SSO", "Nexadmin", "Product") adalah ilustrasi pola untuk **menambah service baru** — bukan yang sudah ada di kode.
+Currently, there is only **one backend service**: `be` (read from `NEX_BE_DEV`/`NEX_BE_STAGING`/`NEX_BE_PROD` in `.env`), accessed via `Domain.be` and `Endpoint.be.{login,refresh,banners,customerDetail}`. The examples below ("SSO", "Nexadmin", "Product") are patterns for **adding a new service** — not what is currently in the code.
 
-## File: .env (contoh menambah service baru "Product")
+## File: .env (example of adding a new "Product" service)
 
 ```env
-# Service baru (ilustrasi — sesuaikan prefix dengan konvensi kamu)
+# New service (illustration — adjust the prefix to your convention)
 PRODUCT_DEV=https://product-dev.example.com
 PRODUCT_STAGING=https://product-staging.example.com
 PRODUCT_PROD=https://product.example.com
 ```
 
-Lihat `.env.example` untuk daftar lengkap key yang benar-benar dipakai saat ini (JWT, NEX_BE/FE, CDN, FIREBASE_*, MQTT_*, URL_APPCAST_*).
+See `.env.example` for the complete list of keys actually used (JWT, NEX_BE/FE, CDN, FIREBASE_*, MQTT_*, URL_APPCAST_*).
 
 ---
 
 ## File: environments.dart
 
-### Step 1: Tambah field di EnvironmentConfig
+### Step 1: Add a field in EnvironmentConfig
 
 ```dart
 // lib/infrastructure/network/environments.dart
 class EnvironmentConfig {
-  final String be; // ← sudah ada (backend utama)
-  final String product; // ← TAMBAHKAN
+  final String be; // ← already exists (main backend)
+  final String product; // ← ADD THIS
 
   const EnvironmentConfig({
     required this.be,
-    required this.product, // ← TAMBAHKAN
-    // ... field lain (mqtt, firebase, dll — sudah ada)
+    required this.product, // ← ADD THIS
+    // ... other fields (mqtt, firebase, etc. — already exist)
   });
 }
 ```
 
-### Step 2: Isi nilai per environment
+### Step 2: Fill in the values per environment
 
-`ConfigEnvironments` di kode sebenarnya menyimpan config sebagai `List<EnvironmentConfig> _configs` (bukan getter `_devConfig`/`_stagingConfig`/`_prodConfig` terpisah) — tambahkan field `product` di tiap entry `EnvironmentConfig(...)` yang sudah ada untuk `Environment.dev`, `.staging`, dan `.prod`:
+`ConfigEnvironments` in the actual code stores the configs as a `List<EnvironmentConfig> _configs` (not separate `_devConfig`/`_stagingConfig`/`_prodConfig` getters) — add the `product` field to each existing `EnvironmentConfig(...)` entry for `Environment.dev`, `.staging`, and `.prod`:
 
 ```dart
 static final List<EnvironmentConfig> _configs = [
   EnvironmentConfig(
     env: Environment.dev,
     be: dotenv.env['NEX_BE_DEV']!,
-    product: dotenv.env['PRODUCT_DEV']!, // ← TAMBAHKAN
-    // ... field lain yang sudah ada
+    product: dotenv.env['PRODUCT_DEV']!, // ← ADD THIS
+    // ... other existing fields
   ),
   EnvironmentConfig(
     env: Environment.staging,
     be: dotenv.env['NEX_BE_STAGING']!,
-    product: dotenv.env['PRODUCT_STAGING']!, // ← TAMBAHKAN
+    product: dotenv.env['PRODUCT_STAGING']!, // ← ADD THIS
     // ...
   ),
   EnvironmentConfig(
     env: Environment.prod,
     be: dotenv.env['NEX_BE_PROD']!,
-    product: dotenv.env['PRODUCT_PROD']!, // ← TAMBAHKAN
+    product: dotenv.env['PRODUCT_PROD']!, // ← ADD THIS
     // ...
   ),
 ];
 
-// getter current + config — sudah ada, tidak perlu diubah
+// current + config getters — already exist, no changes needed
 static EnvironmentConfig get config =>
     _configs.firstWhere((c) => c.env == current);
 ```
@@ -92,38 +96,38 @@ static EnvironmentConfig get config =>
 
 ## File: url.dart
 
-### Step 3: Tambah Domain getter
+### Step 3: Add Domain getter
 
 ```dart
-// lib/infrastructure/network/url.dart — PathSegment/Domain/Endpoint sudah ada,
-// ini contoh MENAMBAH getter baru di class yang sudah ada
+// lib/infrastructure/network/url.dart — PathSegment/Domain/Endpoint already exist,
+// this is an example of ADDING a new getter to the existing class
 class Domain {
   static EnvironmentConfig get _cfg => ConfigEnvironments.config;
 
-  static String get be => '${_cfg.be}${PathSegment.api}${PathSegment.v1}'; // ← sudah ada
-  static String get product => '${_cfg.product}${PathSegment.api}${PathSegment.v1}'; // ← TAMBAHKAN
+  static String get be => '${_cfg.be}${PathSegment.api}${PathSegment.v1}'; // ← already exists
+  static String get product => '${_cfg.product}${PathSegment.api}${PathSegment.v1}'; // ← ADD THIS
 }
 ```
 
-### Step 4: Tambah Endpoint class
+### Step 4: Add Endpoint class
 
 ```dart
 class Endpoint {
   Endpoint._();
-  static final be = _BeEndpoints(); // ← sudah ada
-  static final product = _ProductEndpoints(); // ← TAMBAHKAN
+  static final be = _BeEndpoints(); // ← already exists
+  static final product = _ProductEndpoints(); // ← ADD THIS
 }
 
-// ← TAMBAHKAN class ini
+// ← ADD this class
 class _ProductEndpoints {
   String get list   => '${Domain.product}/products';
-  String get detail => '${Domain.product}/products'; // + /$id di service
+  String get detail => '${Domain.product}/products'; // + /$id in the service
   String get create => '${Domain.product}/products';
-  String get update => '${Domain.product}/products'; // + /$id di service
-  String get delete => '${Domain.product}/products'; // + /$id di service
+  String get update => '${Domain.product}/products'; // + /$id in the service
+  String get delete => '${Domain.product}/products'; // + /$id in the service
 }
 
-// Yang sudah ada di kode saat ini:
+// Currently existing in the code:
 class _BeEndpoints {
   String get login          => '${Domain.be}/auth/login';
   String get refresh        => '${Domain.be}/auth/refresh';
@@ -134,10 +138,10 @@ class _BeEndpoints {
 
 ---
 
-## Menggunakan Endpoint
+## Using Endpoints
 
 ```dart
-// Di ApiService — gunakan Endpoint.{service}.{action}
+// In ApiService — use Endpoint.{service}.{action}
 final response = await _client.get(Endpoint.product.list);
 final response = await _client.get('${Endpoint.product.detail}/$id');
 final response = await _client.post(Endpoint.product.create, data: data);
@@ -145,38 +149,38 @@ final response = await _client.post(Endpoint.product.create, data: data);
 
 ---
 
-## Switch Environment (untuk dev)
+## Switch Environment (for dev)
 
 ```dart
-// Di controller atau settings screen
+// In a controller or settings screen
 final envController = Get.find<EnvironmentController>();
 
-// Switch ke staging
+// Switch to staging
 envController.switchEnvironment(Environment.staging);
 
-// Switch ke prod
+// Switch to prod
 envController.switchEnvironment(Environment.prod);
 ```
 
-**Catatan:** hanya ada satu method — `switchEnvironment()`. Tidak ada `setEnvironment()`.
+**Note:** there is only one method — `switchEnvironment()`. There is no `setEnvironment()`.
 
-Environment disimpan di `GetStorage` (key `StorageValue.env`), persisten saat restart.
+The environment is stored in `GetStorage` (key `StorageValue.env`), persisting across restarts.
 
 ---
 
 ## EnvironmentsBadge
 
-Badge "DEV" / "STAGING" muncul otomatis di semua screen melalui `EnvironmentsBadge` widget yang wrap setiap `GetPage` di `navigation.dart`. Badge tidak muncul di prod.
+The "DEV" / "STAGING" badge appears automatically on all screens via the `EnvironmentsBadge` widget wrapping each `GetPage` in `navigation.dart`. The badge does not appear in production.
 
 ---
 
 ## Checklist
 
 ```
-[ ] .env: tambah key untuk tiap environment (DEV, STAGING, PROD)
-[ ] environments.dart: tambah field di EnvironmentConfig
-[ ] environments.dart: isi nilai untuk _devConfig, _stagingConfig, _prodConfig
-[ ] url.dart: tambah getter di Domain class
-[ ] url.dart: tambah class _FeatureEndpoints dan daftarkan di Endpoint
-[ ] Endpoint digunakan di ApiService (tidak hardcode URL)
+[ ] .env: add keys for each environment (DEV, STAGING, PROD)
+[ ] environments.dart: add a field in EnvironmentConfig
+[ ] environments.dart: fill in values for _devConfig, _stagingConfig, _prodConfig
+[ ] url.dart: add getter in Domain class
+[ ] url.dart: add _FeatureEndpoints class and register it in Endpoint
+[ ] Endpoint used in ApiService (do not hardcode URLs)
 ```

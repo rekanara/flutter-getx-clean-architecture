@@ -1,7 +1,7 @@
 import '../../../../domain/contacts/entities/contact_entity.dart';
 
-/// Model contoh yang meng-adapt shape response API eksternal
-/// (`firstName`/`lastName`/`image`) ke bentuk domain (`fullName`/`avatarUrl`).
+/// Example model that adapts external API response shape
+/// (`firstName`/`lastName`/`image`) to domain shape (`fullName`/`avatarUrl`).
 class ContactModel extends ContactEntity {
   ContactModel({
     required super.id,

@@ -1,6 +1,10 @@
+---
+name: Helpers & Utilities
+description: Guide for Logger, Snackbar, Dialog, DateTime, Rupiah, OpenSetting
+---
 # Skill: Helpers & Utilities
 
-Panduan menggunakan semua helper/utility yang tersedia: Logger, Snackbar, Dialog, DateTime, Rupiah, dan OpenSetting.
+Guide to using all available helpers/utilities: Logger, Snackbar, Dialog, DateTime, Rupiah, and OpenSetting.
 
 ---
 
@@ -8,21 +12,21 @@ Panduan menggunakan semua helper/utility yang tersedia: Logger, Snackbar, Dialog
 
 `lib/utils/helper/logger.dart`
 
-Logger dengan PrettyPrinter, color-coded, dan ProductionFilter (tidak print di production).
+Logger with PrettyPrinter, color-coded, and ProductionFilter (does not print in production).
 
 ```dart
 import 'package:rekanara_getx/utils/helper/logger.dart';
 
-// Level-level logger:
-LoggerHelper.d('Debug: memulai fetch data');            // Debug
-LoggerHelper.i('Info: user login berhasil');            // Info (biru)
-LoggerHelper.w('Warning: koneksi lambat');              // Warning (kuning)
-LoggerHelper.e(                                         // Error (merah)
-  'Error: gagal parse JSON',
+// Logger levels:
+LoggerHelper.d('Debug: starting to fetch data');            // Debug
+LoggerHelper.i('Info: user login successful');            // Info (blue)
+LoggerHelper.w('Warning: slow connection');              // Warning (yellow)
+LoggerHelper.e(                                         // Error (red)
+  'Error: failed to parse JSON',
   error: exception,
   stackTrace: stackTrace,
 );
-LoggerHelper.t('Trace: detail verbose');               // Trace
+LoggerHelper.t('Trace: verbose details');               // Trace
 LoggerHelper.f('Fatal: app state corrupt');            // Fatal
 ```
 
@@ -32,28 +36,28 @@ LoggerHelper.f('Fatal: app state corrupt');            // Fatal
 
 `lib/utils/helper/snackbar.dart`
 
-Snackbar GetX dengan posisi TOP (floating) atau BOTTOM (grounded).
+GetX Snackbar with TOP (floating) or BOTTOM (grounded) positioning.
 
 ```dart
 import 'package:rekanara_getx/utils/helper/snackbar.dart';
 
-// Shortcuts (posisi BOTTOM default)
-SnackbarHelper.showError('Gagal memuat data');
-SnackbarHelper.showSuccess('Data berhasil disimpan');
-SnackbarHelper.showWarning('Koneksi tidak stabil');
-SnackbarHelper.showInfo('Ada pembaruan tersedia');
+// Shortcuts (default BOTTOM position)
+SnackbarHelper.showError('Failed to load data');
+SnackbarHelper.showSuccess('Data saved successfully');
+SnackbarHelper.showWarning('Unstable connection');
+SnackbarHelper.showInfo('Update available');
 
 // Full control
 SnackbarHelper.show(
-  status: SnackStatus.error,              // SnackStatus, BUKAN MessageType
-  message: 'Pesan error lengkap di sini',
-  title: 'Oops!',                         // opsional
+  status: SnackStatus.error,              // SnackStatus, NOT MessageType
+  message: 'Full error message here',
+  title: 'Oops!',                         // optional
   duration: const Duration(seconds: 5),   // default: 3s
-  position: SnackPosition.TOP,            // TOP = floating, BOTTOM = grounded (huruf besar, enum dari GetX)
+  position: SnackPosition.TOP,            // TOP = floating, BOTTOM = grounded (uppercase, GetX enum)
 );
 ```
 
-`status` bertipe `SnackStatus` (didefinisikan di `snackbar.dart`: `success, error, info, warning`) — beda dengan `MessageType` yang ada di `utils/config.dart`. Jangan tertukar, keduanya enum yang berbeda.
+`status` is of type `SnackStatus` (defined in `snackbar.dart`: `success, error, info, warning`) — different from `MessageType` in `utils/config.dart`. Do not confuse them; they are two different enums.
 
 ---
 
@@ -64,27 +68,27 @@ SnackbarHelper.show(
 ```dart
 import 'package:rekanara_getx/utils/helper/dialog.dart';
 
-// Dialog konfirmasi dengan dua tombol
+// Confirmation dialog with two buttons
 DialogHelper.showDialog(
-  title: 'Konfirmasi Hapus',
-  message: 'Yakin ingin menghapus item ini?',
+  title: 'Confirm Deletion',
+  message: 'Are you sure you want to delete this item?',
   onSubmit: () {
-    Get.back(); // tutup dialog
+    Get.back(); // close dialog
     controller.deleteItem(id);
   },
   onCancel: () => Get.back(),
-  submitLabel: 'Hapus',     // opsional, default: 'OK'
-  cancelLabel: 'Batal',     // opsional, default: 'Batal'
+  submitLabel: 'Delete',     // optional, default: 'OK'
+  cancelLabel: 'Cancel',     // optional, default: 'Batal'
 );
 
-// Info dialog satu tombol (Cupertino style)
+// One-button info dialog (Cupertino style)
 DialogHelper.showInfoDialog(
-  'Data berhasil dihapus',
-  isSuccess: true,   // true = ikon centang hijau, false = ikon X merah
-  title: 'Berhasil', // opsional
+  'Data deleted successfully',
+  isSuccess: true,   // true = green check icon, false = red X icon
+  title: 'Success', // optional
 );
 
-// Tutup dialog
+// Close dialog
 DialogHelper.closeDialog();
 ```
 
@@ -106,13 +110,13 @@ final localTime = DateTimeHelper.fromUnixToLocal(1719187200);
 // DateTime → Unix timestamp
 final unix = DateTimeHelper.toUnix(DateTime.now()); // int
 
-// Format DateTime ke string — TIDAK menerima parameter pattern,
-// selalu format fixed "yyyy-MM-dd HH:mm:ss"
+// Format DateTime to string — DOES NOT accept pattern parameters,
+// always fixed format "yyyy-MM-dd HH:mm:ss"
 final formatted = DateTimeHelper.format(DateTime.now());
 // "2026-06-24 10:30:00"
 ```
 
-**Catatan:** `format()` tidak pakai package `intl`/`DateFormat` — kalau butuh pattern custom, format manual atau tambahkan parameter ke `DateTimeHelper.format()`.
+**Note:** `format()` does not use the `intl`/`DateFormat` package — if you need a custom pattern, format it manually or add a parameter to `DateTimeHelper.format()`.
 
 ---
 
@@ -123,7 +127,7 @@ final formatted = DateTimeHelper.format(DateTime.now());
 ```dart
 import 'package:rekanara_getx/utils/helper/rupiah.dart';
 
-// Method INSTANCE, bukan static — harus instantiate dulu
+// INSTANCE method, not static — must instantiate first
 final rupiahHelper = RupiahHelper();
 
 // double → IDR string
@@ -134,7 +138,7 @@ final rupiah = rupiahHelper.formatCurrencyToRupiah(150000.0);
 final rupiah2 = rupiahHelper.formatCurrencyStringToRupiah('150000');
 // "Rp 150.000"
 
-// Penggunaan di widget
+// Usage in widget
 CustomText(
   text: RupiahHelper().formatCurrencyToRupiah(product.price),
   fontType: FontType.titleMedium,
@@ -147,22 +151,22 @@ CustomText(
 
 `lib/utils/helper/open_setting.dart`
 
-Dialog platform-aware yang membuka pengaturan app:
+Platform-aware dialog that opens app settings:
 
 ```dart
 import 'package:rekanara_getx/utils/helper/open_setting.dart';
 
-// openSettings() adalah method INSTANCE, bukan static
+// openSettings() is an INSTANCE method, not static
 OpenSetting().openSettings(
-  label: 'Kamera',           // nama permission di dialog
-  message: 'Izin kamera diperlukan. Buka pengaturan untuk mengaktifkan.',
+  label: 'Camera',           // permission name in dialog
+  message: 'Camera permission is required. Open settings to enable it.',
   afterCreateUpdate: () {
-    // callback opsional setelah dialog tampil
+    // optional callback after dialog is shown
   },
 );
-// iOS: CupertinoAlertDialog dengan tombol "Pengaturan" dan "Batal"
-// Android: AlertDialog dengan tombol "Pengaturan" dan "Batal"
-// Tekan "Pengaturan" → buka app settings native
+// iOS: CupertinoAlertDialog with "Settings" and "Cancel" buttons
+// Android: AlertDialog with "Settings" and "Cancel" buttons
+// Tap "Settings" → opens native app settings
 ```
 
 ---
@@ -176,40 +180,40 @@ import 'package:rekanara_getx/config/device/device_config.dart';
 
 final device = DeviceConfig.instance;
 
-// PENTING: panggil init() dulu (biasanya di main.dart) sebelum baca properti di bawah
+// IMPORTANT: call init() first (usually in main.dart) before reading the properties below
 await DeviceConfig.instance.init();
 
 device.deviceId;         // unique device ID (String?)
 device.deviceOS;         // 'Android' / 'iOS' / 'Web' (String)
-device.deviceMake;       // manufacturer (misal: 'Samsung')
-device.deviceModel;      // model name (misal: 'Galaxy S21')
-device.deviceTypeCode;   // '1' Android, '2' iOS, '3' Web (String) — BUKAN 'mobile'/'tablet'
+device.deviceMake;       // manufacturer (e.g.: 'Samsung')
+device.deviceModel;      // model name (e.g.: 'Galaxy S21')
+device.deviceTypeCode;   // '1' Android, '2' iOS, '3' Web (String) — NOT 'mobile'/'tablet'
 
-// Device type berdasarkan screen size — getDeviceType STATIC, panggil dari class bukan instance
+// Device type based on screen size — getDeviceType is STATIC, call from class not instance
 final deviceType = DeviceConfig.getDeviceType(context); // DeviceType.mobile/tablet/desktop
 ```
 
 ---
 
-## Enums Penting (utils/config.dart)
+## Important Enums (utils/config.dart)
 
 ```dart
-// FontType — untuk CustomText
-FontType.bodyMedium, titleLarge, headlineSmall, labelSmall, dll.
+// FontType — for CustomText
+FontType.bodyMedium, titleLarge, headlineSmall, labelSmall, etc.
 
-// ButtonType — untuk CustomButton (jarang dipakai langsung)
+// ButtonType — for CustomButton (rarely used directly)
 ButtonType.primary, secondary
 
-// MessageType — untuk SnackbarHelper
+// MessageType — for SnackbarHelper
 MessageType.error, success, warning, info
 
-// RequestType — untuk HTTP method tracking
+// RequestType — for HTTP method tracking
 RequestType.get, post, put, patch, delete
 
-// AppFlavor — untuk feature flag
+// AppFlavor — for feature flags
 AppFlavor.dev, staging, prod
 
-// ColorData — warna semantik
+// ColorData — semantic colors
 ColorData.error, success, warning, info
 ```
 
@@ -218,13 +222,13 @@ ColorData.error, success, warning, info
 ## Checklist
 
 ```
-[ ] Logging: LoggerHelper.d/i/w/e() (tidak print() langsung)
+[ ] Logging: LoggerHelper.d/i/w/e() (do not use print() directly)
 [ ] Snackbar: SnackbarHelper.showError/Success/Warning/Info()
-[ ] Dialog konfirmasi: DialogHelper.showDialog()
-[ ] Dialog info: DialogHelper.showInfoDialog(message, isSuccess: bool)
+[ ] Confirmation dialog: DialogHelper.showDialog()
+[ ] Info dialog: DialogHelper.showInfoDialog(message, isSuccess: bool)
 [ ] Format IDR: RupiahHelper().formatCurrencyToRupiah(double) — instance method
-[ ] Format tanggal: DateTimeHelper.format(DateTime, pattern)
+[ ] Format date: DateTimeHelper.format(DateTime, pattern)
 [ ] Unix timestamp: DateTimeHelper.fromUnixToLocal(unix)
-[ ] Permission denied permanent: OpenSetting().openSettings() — instance method
+[ ] Permanent permission denied: OpenSetting().openSettings() — instance method
 [ ] Device info: DeviceConfig.instance.deviceId / deviceOS
 ```

@@ -1,19 +1,23 @@
+---
+name: Entity (Domain)
+description: Rules and templates for creating pure domain Entities
+---
 # Skill: Entity (Domain Layer)
 
-Entity adalah representasi objek bisnis murni tanpa dependency apapun. Berada di layer Domain.
+An Entity is a pure business object representation without any dependencies. Located in the Domain layer.
 
 ---
 
-## Aturan Entity
+## Entity Rules
 
-1. **TIDAK boleh** import package: Flutter, Dio, GetX, storage, json package, dll.
-2. Hanya berisi field, constructor, dan method bisnis murni.
-3. Selalu di `lib/domain/{feature}/entities/{feature}_entity.dart`
-4. Nama class: `{Feature}Entity`
+1. **MUST NOT** import any packages: Flutter, Dio, GetX, storage, json packages, etc.
+2. Only contains fields, constructors, and pure business methods.
+3. Always located in `lib/domain/{feature}/entities/{feature}_entity.dart`
+4. Class name: `{Feature}Entity`
 
 ---
 
-## Template Dasar
+## Basic Template
 
 ```dart
 // lib/domain/product/entities/product_entity.dart
@@ -41,9 +45,9 @@ class ProductEntity {
 
 ---
 
-## Template dengan Method Bisnis
+## Template with Business Methods
 
-Entity boleh punya method jika logic bersifat murni (tidak perlu I/O):
+Entities can have methods if the logic is pure (no I/O needed):
 
 ```dart
 class OrderEntity {
@@ -59,7 +63,7 @@ class OrderEntity {
     required this.status,
   });
 
-  // Method bisnis murni — tidak perlu service/package
+  // Pure business methods — no services/packages needed
   double get subtotal => items.fold(0, (sum, item) => sum + item.total);
   double get total => subtotal - discount;
   bool get isPaid => status == 'paid';
@@ -69,7 +73,7 @@ class OrderEntity {
 
 ---
 
-## Template Entity List (Nested)
+## Entity List Template (Nested)
 
 ```dart
 class OrderItemEntity {
@@ -91,7 +95,7 @@ class OrderItemEntity {
 
 ---
 
-## Contoh Nyata di Codebase
+## Real Example in Codebase
 
 ```dart
 // lib/domain/auth/entities/user_entity.dart
@@ -132,10 +136,10 @@ class BannerEntity {
 ## Checklist
 
 ```
-[ ] File di lib/domain/{feature}/entities/{feature}_entity.dart
+[ ] File in lib/domain/{feature}/entities/{feature}_entity.dart
 [ ] Class name: {Feature}Entity
-[ ] Tidak ada import package eksternal
-[ ] Semua field final
-[ ] Constructor menggunakan named params + required
-[ ] Nullable field menggunakan ? (hanya jika memang opsional dari API)
+[ ] No external package imports
+[ ] All fields are final
+[ ] Constructor uses named params + required
+[ ] Nullable fields use ? (only if genuinely optional from the API)
 ```

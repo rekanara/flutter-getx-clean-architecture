@@ -20,8 +20,8 @@ class SnackbarHelper {
     Function()? onTap,
     AnimationController? animationController,
   }) {
-    // Skip UI layer di mode test — Get.snackbar butuh Material overlay yang
-    // tidak ada saat Get.testMode = true. Mencegah crash pada widget test.
+    // Skip UI layer in test mode — Get.snackbar needs Material overlay which
+    // is not available when Get.testMode = true. Prevents crash on widget test.
     if (Get.testMode) return;
 
     final theme = Get.theme;

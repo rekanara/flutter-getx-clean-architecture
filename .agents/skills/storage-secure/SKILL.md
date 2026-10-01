@@ -1,19 +1,23 @@
+---
+name: SecureStorage (Sensitive Data)
+description: AES/Keychain encryption for sensitive data
+---
 # Skill: SecureStorage (Sensitive Data)
 
-SecureStorage menggunakan enkripsi AES (Android) dan Keychain (iOS) untuk menyimpan data sensitif.
+SecureStorage uses AES encryption (Android) and Keychain (iOS) to store sensitive data.
 
 ---
 
-## Kapan Menggunakan SecureStorage
+## When to Use SecureStorage
 
-| WAJIB di SecureStorage | JANGAN di SecureStorage |
+| MUST be in SecureStorage | DO NOT store in SecureStorage |
 |---|---|
 | Access token | Theme preference |
 | Refresh token | App version |
 | Permission token | Environment selection |
-| Password tersimpan | Pengaturan non-sensitif |
-| API key | Cache data biasa |
-| Private key | |
+| Saved passwords | Non-sensitive settings |
+| API keys | Regular cached data |
+| Private keys | |
 | MQTT topic subscriptions | |
 
 ---
@@ -30,7 +34,7 @@ class SecureStorageKey {
 }
 ```
 
-**Penting:** Selalu tambahkan key baru sebagai constant di `SecureStorageKey`.
+**Important:** Always add new keys as constants in `SecureStorageKey`.
 
 ---
 
@@ -46,11 +50,11 @@ abstract class SecureStorage {
 }
 ```
 
-**Note:** Semua method adalah `async` (berbeda dari GetStorage yang sync).
+**Note:** All methods are `async` (unlike GetStorage which is sync).
 
 ---
 
-## Cara Pakai di Repository
+## Usage in Repository
 
 ```dart
 // Inject via binding
@@ -70,7 +74,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (response.statusCode == 200) {
         final user = UserModel.fromJson(response.data['data']);
 
-        // Simpan token ke SecureStorage setelah login berhasil
+        // Save tokens to SecureStorage after successful login
         await secureStorage.write(SecureStorageKey.accessToken, user.accessToken);
         await secureStorage.write(SecureStorageKey.refreshToken, user.refreshToken);
         await secureStorage.write(SecureStorageKey.permissionToken, user.permissionToken);
@@ -86,7 +90,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> logout() async {
     try {
-      // Hapus semua token
+      // Delete all tokens
       await secureStorage.deleteAll();
       return const Right(null);
     } catch (e) {
@@ -98,62 +102,62 @@ class AuthRepositoryImpl implements AuthRepository {
 
 ---
 
-## Cara Pakai di DioClient (auto-inject token)
+## Usage in DioClient (auto-inject token)
 
-`DioClient.authClient(secureStorage)` sudah otomatis membaca token dari SecureStorage dan meng-inject ke header:
+`DioClient.authClient(secureStorage)` automatically reads the token from SecureStorage and injects it into the header:
 
 ```dart
-// Tidak perlu manual — authClient sudah handle ini
+// No need to manually inject — authClient handles this
 Dio get _authClient => DioClient.authClient(secureStorage);
 
-// Cara kerja internal di DioClient:
+// Internal workings of DioClient:
 // request.headers['Authorization'] = 'Bearer ${await secureStorage.read(SecureStorageKey.accessToken)}';
 ```
 
 ---
 
-## Cara Pakai Langsung (rare case)
+## Direct Usage (rare case)
 
 ```dart
-// Di dalam method async
+// Inside an async method
 final token = await secureStorage.read(SecureStorageKey.accessToken);
 if (token == null) {
-  // user belum login
+  // user is not logged in
   Get.offAllNamed(Routes.login);
   return;
 }
 
-// Simpan data
+// Save data
 await secureStorage.write(SecureStorageKey.accessToken, newToken);
 
-// Hapus satu key
+// Delete one key
 await secureStorage.delete(SecureStorageKey.accessToken);
 
-// Hapus semua (logout)
+// Delete all (logout)
 await secureStorage.deleteAll();
 ```
 
 ---
 
-## Tambah Key Baru
+## Adding a New Key
 
-1. Buka `lib/infrastructure/platform/secure_storage/flutter_secure_storage_impl.dart`
-2. Tambah constant di `SecureStorageKey`:
+1. Open `lib/infrastructure/platform/secure_storage/flutter_secure_storage_impl.dart`
+2. Add a constant in `SecureStorageKey`:
 ```dart
 class SecureStorageKey {
   // ... existing keys
-  static const biometricKey = 'secure_biometric_key'; // ← tambahkan
+  static const biometricKey = 'secure_biometric_key'; // ← add
 }
 ```
 
 ---
 
-## FlutterSecureStorageImpl Detail
+## FlutterSecureStorageImpl Details
 
 ```dart
-// Konfigurasi enkripsi platform-specific:
-// Android: AES CBC, menggunakan AndroidOptions(encryptedSharedPreferences: true)
-// iOS: Keychain dengan accessibility IOSAccessibility.first_unlock
+// Platform-specific encryption configuration:
+// Android: AES CBC, uses AndroidOptions(encryptedSharedPreferences: true)
+// iOS: Keychain with IOSAccessibility.first_unlock
 ```
 
 ---
@@ -161,11 +165,11 @@ class SecureStorageKey {
 ## Checklist
 
 ```
-[ ] Data sensitif → SecureStorage (BUKAN GetStorage)
-[ ] Key baru sebagai constant di SecureStorageKey
-[ ] Semua method async (await)
-[ ] Token disimpan setelah login berhasil di RepositoryImpl
-[ ] Token dihapus di deleteAll() saat logout
+[ ] Sensitive data → SecureStorage (NOT GetStorage)
+[ ] New keys as constants in SecureStorageKey
+[ ] All methods are async (await)
+[ ] Tokens are saved after successful login in RepositoryImpl
+[ ] Tokens are deleted in deleteAll() during logout
 [ ] Inject FlutterSecureStorageImpl via binding
-[ ] Tidak hard-code string key di luar SecureStorageKey class
+[ ] Do not hard-code string keys outside the SecureStorageKey class
 ```

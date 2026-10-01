@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../utils/config.dart';
 
-/// Text input konsisten dengan [CustomButton]/[CustomText] — bungkus
-/// [TextFormField] supaya styling (border, warna, radius) tidak di-copy-paste
-/// manual di tiap screen.
+/// Text input consistent with [CustomButton]/[CustomText] — wraps
+/// [TextFormField] so styling (border, color, radius) is not copy-pasted
+/// manually in every screen.
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,

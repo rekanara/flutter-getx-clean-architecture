@@ -1,20 +1,24 @@
+---
+name: API Service (Infrastructure)
+description: Rules and templates for creating an API Service using DioClient in the infrastructure layer
+---
 # Skill: API Service (Infrastructure Layer)
 
-API Service bertugas melakukan HTTP call menggunakan Dio. Berada di Infrastructure layer.
+API Service is responsible for making HTTP calls using Dio. Located in the Infrastructure layer.
 
 ---
 
-## Aturan API Service
+## API Service Rules
 
-1. Inject `SecureStorage` melalui constructor (diperlukan untuk `authClient`)
-2. Gunakan `DioClient.noAuthClient` untuk endpoint publik (login, register)
-3. Gunakan `DioClient.authClient(secureStorage)` untuk endpoint yang butuh Bearer token
-4. Endpoint diambil dari `Endpoint.{feature}.{action}` (TIDAK hardcode URL)
-5. Lokasi: `lib/infrastructure/dal/services/{feature}_api_service.dart`
+1. Inject `SecureStorage` via constructor (required for `authClient`)
+2. Use `DioClient.noAuthClient` for public endpoints (login, register)
+3. Use `DioClient.authClient(secureStorage)` for endpoints that require a Bearer token
+4. Endpoints are taken from `Endpoint.{feature}.{action}` (DO NOT hardcode URLs)
+5. Location: `lib/infrastructure/dal/services/{feature}_api_service.dart`
 
 ---
 
-## Template Auth Client (dengan token)
+## Auth Client Template (with token)
 
 ```dart
 // lib/infrastructure/dal/services/product_api_service.dart
@@ -28,8 +32,8 @@ class ProductApiService {
 
   ProductApiService({required this.secureStorage});
 
-  // authClient auto-inject Bearer token dari SecureStorage
-  // authClient juga auto-refresh token saat 401
+  // authClient auto-injects Bearer token from SecureStorage
+  // authClient also auto-refreshes token on 401
   Dio get _client => DioClient.authClient(secureStorage);
 
   Future<Response> getProducts({Map<String, dynamic>? query}) async {
@@ -59,19 +63,19 @@ class ProductApiService {
 
 ---
 
-## Template No Auth Client (endpoint publik)
+## No Auth Client Template (public endpoint)
 
 ```dart
-// Contoh nyata (disederhanakan) — lib/infrastructure/dal/services/auth_api_service.dart
+// Real example (simplified) — lib/infrastructure/dal/services/auth_api_service.dart
 class AuthApiService {
   final SecureStorage secureStorage;
 
   AuthApiService({required this.secureStorage});
 
-  // noAuthClient tidak inject token
+  // noAuthClient does not inject a token
   final Dio _noAuthClient = DioClient.noAuthClient;
 
-  // authClient untuk endpoint yang perlu token (misal: getUserProfile)
+  // authClient for endpoints that need a token (e.g., getUserProfile)
   Dio get _authClient => DioClient.authClient(secureStorage);
 
   Future<Response> login(Map<String, dynamic> data) async {
@@ -84,11 +88,11 @@ class AuthApiService {
 }
 ```
 
-Saat ini hanya ada satu namespace endpoint: `Endpoint.be` (lihat `environment/SKILL.md`). `Endpoint.product`/dst di skill lain adalah contoh pola untuk menambah service baru, bukan yang sudah ada.
+Currently, there is only one endpoint namespace: `Endpoint.be` (see `environment/SKILL.md`). `Endpoint.product`/etc. in other skills are pattern examples for adding a new service, not existing ones.
 
 ---
 
-## Template dengan FormData (multipart)
+## Template with FormData (multipart)
 
 ```dart
 Future<Response> uploadProductImage(String id, String filePath) async {
@@ -104,7 +108,7 @@ Future<Response> uploadProductImage(String id, String filePath) async {
 
 ---
 
-## Template dengan Pagination Query
+## Template with Pagination Query
 
 ```dart
 Future<Response> getProducts({
@@ -130,40 +134,40 @@ Future<Response> getProducts({
 ## Download File
 
 ```dart
-// Menggunakan DioClient.download() static helper
+// Using DioClient.download() static helper
 Future<void> downloadReport(String url, String savePath) async {
   await DioClient.download(
     url: url,
     savePath: savePath,
-    secureStorage: secureStorage, // null jika tidak butuh auth
+    secureStorage: secureStorage, // null if auth is not needed
   );
 }
 ```
 
 ---
 
-## Perbedaan noAuthClient vs authClient
+## Differences between noAuthClient and authClient
 
 | | `noAuthClient` | `authClient(secureStorage)` |
 |---|---|---|
-| Bearer token | Tidak | Otomatis inject dari SecureStorage |
-| Refresh token | Tidak | Otomatis refresh saat 401 |
-| Force logout | Tidak | Ya, jika refresh gagal |
-| Gunakan untuk | Login, register, publik | Semua endpoint private |
-| Timeout | 30 detik | 30 detik |
-| Logger | Ya (debug only) | Ya (debug only) |
-| Chucker | Ya (debug only) | Ya (debug only) |
+| Bearer token | No | Automatically injects from SecureStorage |
+| Refresh token | No | Automatically refreshes on 401 |
+| Force logout | No | Yes, if refresh fails |
+| Use for | Login, register, public | All private endpoints |
+| Timeout | 30 seconds | 30 seconds |
+| Logger | Yes (debug only) | Yes (debug only) |
+| Chucker | Yes (debug only) | Yes (debug only) |
 
 ---
 
 ## Checklist
 
 ```
-[ ] File di lib/infrastructure/dal/services/{feature}_api_service.dart
+[ ] File in lib/infrastructure/dal/services/{feature}_api_service.dart
 [ ] Inject SecureStorage via constructor
-[ ] Gunakan noAuthClient untuk endpoint publik
-[ ] Gunakan authClient untuk endpoint private
-[ ] Endpoint dari Endpoint.{feature}.{action} (tidak hardcode URL)
-[ ] Method return Future<Response>
-[ ] Tidak ada try/catch di ApiService (tangkap di RepositoryImpl)
+[ ] Use noAuthClient for public endpoints
+[ ] Use authClient for private endpoints
+[ ] Endpoint from Endpoint.{feature}.{action} (do not hardcode URL)
+[ ] Method returns Future<Response>
+[ ] No try/catch in ApiService (catch in RepositoryImpl)
 ```

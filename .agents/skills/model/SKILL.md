@@ -1,20 +1,24 @@
+---
+name: Model (Infrastructure)
+description: Creating models extending Entities for JSON serialization
+---
 # Skill: Model (Infrastructure Layer)
 
-Model adalah implementasi Entity yang menambahkan kemampuan JSON serialization. Berada di Infrastructure layer.
+A Model is an implementation of an Entity that adds JSON serialization capabilities. Located in the Infrastructure layer.
 
 ---
 
-## Aturan Model
+## Model Rules
 
-1. Selalu `extends` Entity dari Domain layer (bukan implements)
-2. Tambahkan `factory fromJson(Map<String, dynamic> json)`
-3. Tambahkan `Map<String, dynamic> toJson()` jika perlu kirim data ke server
-4. Gunakan `super.fieldName` di constructor
-5. Lokasi: `lib/infrastructure/dal/{feature}/models/{feature}_model.dart`
+1. Always `extends` the Entity from the Domain layer (not implements).
+2. Add `factory fromJson(Map<String, dynamic> json)`.
+3. Add `Map<String, dynamic> toJson()` if you need to send data to the server.
+4. Use `super.fieldName` in the constructor.
+5. Location: `lib/infrastructure/dal/{feature}/models/{feature}_model.dart`
 
 ---
 
-## Template Dasar
+## Basic Template
 
 ```dart
 // lib/infrastructure/dal/product/models/product_model.dart
@@ -60,7 +64,7 @@ class ProductModel extends ProductEntity {
 
 ---
 
-## Contoh Nyata di Codebase
+## Real Example in Codebase
 
 ```dart
 // lib/infrastructure/dal/auth/models/user_model.dart
@@ -106,7 +110,7 @@ class BannerModel extends BannerEntity {
 
 ---
 
-## Pattern Parsing Umum
+## Common Parsing Patterns
 
 ```dart
 // String
@@ -115,13 +119,13 @@ name: json['name'] as String? ?? '',
 // Int
 count: json['count'] as int? ?? 0,
 
-// Double (num dapat menjadi int atau double dari JSON)
+// Double (num can be int or double from JSON)
 price: (json['price'] as num?)?.toDouble() ?? 0.0,
 
 // Bool
 isActive: json['is_active'] as bool? ?? false,
 
-// Nullable DateTime dari ISO string
+// Nullable DateTime from ISO string
 createdAt: json['created_at'] != null
     ? DateTime.tryParse(json['created_at'])
     : null,
@@ -140,13 +144,13 @@ status: OrderStatus.values.firstWhere(
   orElse: () => OrderStatus.pending,
 ),
 
-// id yang bisa int atau string dari server
+// id which can be int or string from the server
 id: json['id']?.toString() ?? '',
 ```
 
 ---
 
-## Model dengan List Nested
+## Model with Nested List
 
 ```dart
 class OrderModel extends OrderEntity {
@@ -184,11 +188,11 @@ class OrderModel extends OrderEntity {
 ## Checklist
 
 ```
-[ ] File di lib/infrastructure/dal/{feature}/models/{feature}_model.dart
-[ ] Class menggunakan `extends` (bukan implements)
-[ ] Constructor menggunakan `super.field` untuk field entity
-[ ] factory fromJson() ada
-[ ] Semua field nullable diberi default value (bukan null) jika field required di entity
-[ ] id selalu di-toString() karena server bisa kirim int atau string
-[ ] toJson() ada jika ada operasi POST/PUT
+[ ] File in lib/infrastructure/dal/{feature}/models/{feature}_model.dart
+[ ] Class uses `extends` (not implements)
+[ ] Constructor uses `super.field` for entity fields
+[ ] factory fromJson() exists
+[ ] All nullable fields are given a default value (not null) if the field is required in the entity
+[ ] id is always cast with toString() because the server might send int or string
+[ ] toJson() exists if there is a POST/PUT operation
 ```

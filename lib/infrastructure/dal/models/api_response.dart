@@ -1,6 +1,6 @@
 /// Generic API response wrapper.
 ///
-/// Standarisasi parsing response dari backend yang mengikuti format:
+/// Standardizes parsing responses from backend that follow this format:
 /// ```json
 /// {
 ///   "success": true,
@@ -23,10 +23,10 @@ class ApiResponse<T> {
     this.meta,
   });
 
-  /// Parse dari JSON map.
+  /// Parse from JSON map.
   ///
-  /// [fromJson] digunakan untuk parse field `data` menjadi tipe [T].
-  /// Jika `data` adalah List, gunakan [ApiResponse.fromJsonList].
+  /// [fromJson] is used to parse the `data` field into type [T].
+  /// If `data` is a List, use [ApiResponse.fromJsonList].
   factory ApiResponse.fromJson(
     Map<String, dynamic> json,
     T Function(dynamic json) fromJson,
@@ -38,7 +38,7 @@ class ApiResponse<T> {
     );
   }
 
-  /// Parse dari JSON map dimana field `data` adalah List.
+  /// Parse from JSON map where the `data` field is a List.
   static ApiResponse<List<T>> fromJsonList<T>(
     Map<String, dynamic> json,
     T Function(dynamic json) fromJson,
@@ -54,12 +54,12 @@ class ApiResponse<T> {
     );
   }
 
-  /// Apakah response menunjukkan error.
+  /// Whether the response indicates an error.
   bool get isError => !success;
 }
 
-/// Standarisasi Pagination Meta dari backend.
-/// Sesuaikan field keys jika nama dari backend berbeda.
+/// Standardization of Pagination Meta from backend.
+/// Adjust field keys if names from backend are different.
 class PaginationMeta {
   final int currentPage;
   final int lastPage;

@@ -7,8 +7,7 @@ import 'dart:async' as _i4;
 
 import 'package:dartz/dartz.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:rekanara_getx/domain/auth/entities/user_entity.dart'
-    as _i6;
+import 'package:rekanara_getx/domain/auth/entities/user_entity.dart' as _i6;
 import 'package:rekanara_getx/domain/auth/repositories/auth_repository.dart'
     as _i3;
 import 'package:rekanara_getx/domain/core/errors/failures.dart' as _i5;

@@ -1,15 +1,19 @@
+---
+name: Controller Reactive
+description: Main pattern for controllers using reactive state (.obs) and Obx
+---
 # Skill: Controller Reactive (BaseController + Obx)
 
-Pattern utama untuk controller yang menggunakan reactive state `.obs` dan `Obx` di UI.
+The main pattern for controllers that use reactive state `.obs` and `Obx` in the UI.
 
 ---
 
-## Kapan Digunakan
+## When to Use
 
-Gunakan `BaseController` ketika:
-- State sering berubah dan harus auto-update UI secara granular
-- Cocok untuk loading, list data, form field yang perlu reaktif
-- Default pilihan untuk hampir semua screen
+Use `BaseController` when:
+- State changes frequently and needs granular auto-updating UI
+- Suitable for loading, data lists, form fields that need to be reactive
+- The default choice for almost all screens
 
 ---
 
@@ -18,23 +22,23 @@ Gunakan `BaseController` ketika:
 ```dart
 // lib/presentation/core/base_controller.dart
 abstract class BaseController extends GetxController {
-  // State bawaan
+  // Built-in state
   final isLoading = false.obs;
   final errorMessage = ''.obs;
 
-  // Helper untuk memanggil UseCase
+  // Helper for calling UseCases
   Future<void> callUseCase<T>(
     Future<Either<Failure, T>> call, {
     required Function(T) onSuccess,
-    Function(Failure)? onFailure,  // opsional — default: SnackbarHelper.showError()
-    bool showLoading = true,        // opsional — default: true
+    Function(Failure)? onFailure,  // optional — default: SnackbarHelper.showError()
+    bool showLoading = true,        // optional — default: true
   });
 }
 ```
 
 ---
 
-## Template Controller
+## Controller Template
 
 ```dart
 // lib/presentation/product/controllers/product.controller.dart
@@ -54,7 +58,7 @@ class ProductController extends BaseController {
     required this.createProductUseCase,
   });
 
-  // === State (semua .obs) ===
+  // === State (all .obs) ===
   final products = <ProductEntity>[].obs;
   final selectedProduct = Rxn<ProductEntity>(); // nullable observable
   final searchQuery = ''.obs;
@@ -66,7 +70,7 @@ class ProductController extends BaseController {
     super.onInit();
     fetchProducts();
 
-    // Debounce search (reaktif terhadap perubahan searchQuery)
+    // Debounce search (reactive to changes in searchQuery)
     debounce(
       searchQuery,
       (_) => fetchProducts(),
@@ -79,7 +83,7 @@ class ProductController extends BaseController {
     await callUseCase(
       getProductsUseCase.execute(NoParams()),
       onSuccess: (data) => products.assignAll(data),
-      // showLoading: false,  // opsional: nonaktifkan loading global
+      // showLoading: false,  // optional: disable global loading
     );
   }
 
@@ -88,10 +92,10 @@ class ProductController extends BaseController {
       createProductUseCase.execute(CreateProductParams(name: name, price: price)),
       onSuccess: (newProduct) {
         products.add(newProduct);
-        Get.back(); // tutup dialog/form
+        Get.back(); // close dialog/form
       },
       onFailure: (failure) {
-        // Custom error handling (opsional — default showError snackbar)
+        // Custom error handling (optional — default showError snackbar)
         Get.snackbar('Error', failure.message);
       },
     );
@@ -109,23 +113,23 @@ class ProductController extends BaseController {
 
 ---
 
-## callUseCase — Detail
+## callUseCase — Details
 
 ```dart
-// Paling sederhana
+// Simplest
 await callUseCase(
   useCase.execute(NoParams()),
   onSuccess: (data) => items.assignAll(data),
 );
 
-// Dengan custom onFailure
+// With custom onFailure
 await callUseCase(
   useCase.execute(params),
   onSuccess: (data) => ...,
   onFailure: (failure) => DialogHelper.showInfoDialog(failure.message, isSuccess: false),
 );
 
-// Tanpa loading indicator (misal background refresh)
+// Without loading indicator (e.g., background refresh)
 await callUseCase(
   useCase.execute(params),
   onSuccess: (data) => items.assignAll(data),
@@ -135,7 +139,7 @@ await callUseCase(
 
 ---
 
-## Contoh Nyata di Codebase
+## Real Example in Codebase
 
 ```dart
 // lib/presentation/home/controllers/home.controller.dart
@@ -149,7 +153,7 @@ class HomeController extends BaseController {
   void onInit() {
     super.onInit();
     fetchBanners();
-    // Daftarkan callback saat app di-resume
+    // Register callback when app is resumed
     Get.find<AppLifecycleService>().addOnResumeCallback(_onAppResumed);
   }
 
@@ -172,7 +176,7 @@ class HomeController extends BaseController {
 
 ---
 
-## Pattern Observable Umum
+## Common Observable Patterns
 
 ```dart
 // List
@@ -182,11 +186,11 @@ items.add(item);            // add one
 items.removeWhere((e) => e.id == id);  // remove
 
 // Single value
-final isLoading = false.obs;  // dari BaseController
+final isLoading = false.obs;  // from BaseController
 isLoading.value = true;
 
 // Nullable
-final selected = Rxn<ProductEntity>();  // Rxn untuk nullable
+final selected = Rxn<ProductEntity>();  // Rxn for nullable
 selected.value = product;
 selected.value = null;
 
@@ -201,10 +205,10 @@ searchQuery.value = 'new query';
 
 ```
 [ ] Class extends BaseController
-[ ] State menggunakan .obs (Rx types)
-[ ] onInit() panggil super.onInit() + fetch awal
-[ ] onClose() panggil super.onClose() + cleanup (remove callbacks)
-[ ] Setiap action gunakan callUseCase()
-[ ] Tidak ada try/catch di controller (sudah di-handle callUseCase)
-[ ] Di UI: gunakan Obx(() => ...) untuk reactive widget
+[ ] State uses .obs (Rx types)
+[ ] onInit() calls super.onInit() + initial fetch
+[ ] onClose() calls super.onClose() + cleanup (remove callbacks)
+[ ] Every action uses callUseCase()
+[ ] No try/catch in the controller (already handled by callUseCase)
+[ ] In UI: use Obx(() => ...) for reactive widgets
 ```

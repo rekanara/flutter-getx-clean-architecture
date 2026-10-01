@@ -1,19 +1,23 @@
+---
+name: Error Handling
+description: Handling errors gracefully (GlobalErrorHandler, Either<Failure, T>)
+---
 # Skill: Error Handling
 
-Panduan error handling berlapis: GlobalErrorHandler (uncaught), Either<Failure, T> (domain), dan callUseCase (presentation).
+Guide to layered error handling: GlobalErrorHandler (uncaught), Either<Failure, T> (domain), and callUseCase (presentation).
 
 ---
 
-## Lapisan Error Handling
+## Error Handling Layers
 
 ```
 Layer 1: GlobalErrorHandler (uncaught errors)
     ↓
-Layer 2: Either<Failure, T> di Domain/Infrastructure
+Layer 2: Either<Failure, T> in Domain/Infrastructure
     ↓
-Layer 3: callUseCase() di BaseController (presentation)
+Layer 3: callUseCase() in BaseController (presentation)
     ↓
-Layer 4: UI (Obx errorMessage atau custom onFailure)
+Layer 4: UI (Obx errorMessage or custom onFailure)
 ```
 
 ---
@@ -22,27 +26,27 @@ Layer 4: UI (Obx errorMessage atau custom onFailure)
 
 `lib/config/error/global_error_handler.dart`
 
-Menangkap error yang tidak di-handle:
+Catches unhandled errors:
 
 ```dart
-// main.dart — sudah setup, tidak perlu konfigurasi ulang
+// main.dart — already set up, no reconfiguration needed
 GlobalErrorHandler.init(() async {
   await _initializeApp();
 });
 
-// 3 handler:
+// 3 handlers:
 FlutterError.onError          // Flutter framework errors (widgets, rendering)
 PlatformDispatcher.instance.onError // Uncaught async errors (returns true = handled)
-runZonedGuarded zone          // Safety net untuk semua error
+runZonedGuarded zone          // Safety net for all errors
 ```
 
 ### Manual Reporting
 
 ```dart
-// Report error ke Crashlytics/Sentry (future)
+// Report error to Crashlytics/Sentry (future)
 GlobalErrorHandler.reportError(error, stackTrace, reason: 'Context info');
 
-// Log event ke analytics
+// Log event to analytics
 GlobalErrorHandler.logEvent('button_tapped', {'button': 'login'});
 ```
 
@@ -79,7 +83,7 @@ class CacheFailure extends Failure {
 }
 ```
 
-### Penggunaan di RepositoryImpl
+### Usage in RepositoryImpl
 
 ```dart
 // Network error
@@ -90,7 +94,7 @@ class CacheFailure extends Failure {
 
 // Cache/storage error
 } catch (e) {
-  return Left(CacheFailure('Gagal membaca data: $e'));
+  return Left(CacheFailure('Failed to read data: $e'));
 }
 
 // Business logic error
@@ -99,9 +103,9 @@ if (response.data['success'] == false) {
 }
 ```
 
-### Tambah Failure Type Baru
+### Add a New Failure Type
 
-`TimeoutFailure`, `NoConnectionFailure`, dan `UnauthorizedFailure` **sudah ada** (lihat di atas) — tinggal pakai, tidak perlu dibuat ulang. Kalau butuh tipe lain:
+`TimeoutFailure`, `NoConnectionFailure`, and `UnauthorizedFailure` **already exist** (see above) — just use them, no need to recreate. If another type is needed:
 
 ```dart
 class ValidationFailure extends Failure {
@@ -111,14 +115,14 @@ class ValidationFailure extends Failure {
 
 ---
 
-## Layer 3: callUseCase di BaseController
+## Layer 3: callUseCase in BaseController
 
 ```dart
-// Default: tampilkan SnackbarHelper.showError(failure.message)
+// Default: show SnackbarHelper.showError(failure.message)
 await callUseCase(
   useCase.execute(params),
   onSuccess: (data) => items.assignAll(data),
-  // onFailure tidak perlu → auto snackbar
+  // onFailure not needed → auto snackbar
 );
 
 // Custom onFailure
@@ -134,7 +138,7 @@ await callUseCase(
   },
 );
 
-// Tanpa loading indicator (background refresh)
+// Without loading indicator (background refresh)
 await callUseCase(
   useCase.execute(params),
   onSuccess: (data) => items.assignAll(data),
@@ -147,7 +151,7 @@ await callUseCase(
 ## Layer 4: UI Error State
 
 ```dart
-// Mengakses errorMessage di UI
+// Accessing errorMessage in UI
 Obx(() {
   if (controller.isLoading.value) {
     return const CircularProgressIndicator();
@@ -161,7 +165,7 @@ Obx(() {
         Text(controller.errorMessage.value),
         const SizedBox(height: 16),
         CustomButton(
-          title: 'Coba Lagi',
+          title: 'Try Again',
           onPressed: controller.fetchData,
           width: 160,
         ),
@@ -174,7 +178,7 @@ Obx(() {
 
 ---
 
-## DioException Handling Detail
+## DioException Handling Details
 
 ```dart
 } on DioException catch (e) {
@@ -182,24 +186,24 @@ Obx(() {
     case DioExceptionType.connectionTimeout:
     case DioExceptionType.sendTimeout:
     case DioExceptionType.receiveTimeout:
-      return Left(ServerFailure('Koneksi timeout. Periksa koneksi internet Anda.'));
+      return Left(ServerFailure('Connection timeout. Check your internet connection.'));
 
     case DioExceptionType.badResponse:
-      // Server mengembalikan status code error (4xx, 5xx)
+      // Server returned error status code (4xx, 5xx)
       final statusCode = e.response?.statusCode;
       final message = e.response?.data?['message'] as String?;
 
       if (statusCode == 422) {
-        // Validation error dari server
-        return Left(ServerFailure(message ?? 'Data tidak valid'));
+        // Validation error from server
+        return Left(ServerFailure(message ?? 'Invalid data'));
       }
       if (statusCode == 403) {
-        return Left(ServerFailure('Akses ditolak'));
+        return Left(ServerFailure('Access denied'));
       }
       return Left(ServerFailure(message ?? 'Server error ($statusCode)'));
 
     case DioExceptionType.cancel:
-      return Left(ServerFailure('Request dibatalkan'));
+      return Left(ServerFailure('Request cancelled'));
 
     default:
       return Left(ServerFailure(e.message ?? 'Network Error'));
@@ -212,16 +216,16 @@ Obx(() {
 ## SnackbarHelper
 
 ```dart
-// Shortcuts untuk menampilkan error/success
-SnackbarHelper.showError('Gagal memuat data');
-SnackbarHelper.showSuccess('Data berhasil disimpan');
-SnackbarHelper.showWarning('Koneksi tidak stabil');
-SnackbarHelper.showInfo('Pembaruan tersedia');
+// Shortcuts for showing error/success
+SnackbarHelper.showError('Failed to load data');
+SnackbarHelper.showSuccess('Data saved successfully');
+SnackbarHelper.showWarning('Unstable connection');
+SnackbarHelper.showInfo('Update available');
 
 // Custom snackbar
 SnackbarHelper.show(
   status: SnackStatus.error,
-  message: 'Error detail',
+  message: 'Error details',
   title: 'Oops!',
   duration: const Duration(seconds: 5),
 );
@@ -233,9 +237,9 @@ SnackbarHelper.show(
 
 ```dart
 LoggerHelper.d('Debug info');           // Debug
-LoggerHelper.i('Informasi penting');    // Info
-LoggerHelper.w('Peringatan');           // Warning
-LoggerHelper.e(                         // Error dengan stack trace
+LoggerHelper.i('Important info');       // Info
+LoggerHelper.w('Warning');              // Warning
+LoggerHelper.e(                         // Error with stack trace
   'Error message',
   error: exception,
   stackTrace: stackTrace,
@@ -249,11 +253,11 @@ LoggerHelper.f('Fatal error');          // Fatal
 ## Checklist
 
 ```
-[ ] GlobalErrorHandler.init() di main.dart sudah ada
-[ ] Repository: return Left(ServerFailure/CacheFailure) di catch blocks
-[ ] DioException: ambil message dari e.response?.data?['message']
-[ ] Controller: gunakan callUseCase() — tidak perlu manual fold
-[ ] UI: tampilkan controller.errorMessage.value jika ada
-[ ] Custom onFailure untuk error yang butuh perlakuan khusus
-[ ] Tambah Failure subclass jika butuh tipe error baru
+[ ] GlobalErrorHandler.init() is present in main.dart
+[ ] Repository: return Left(ServerFailure/CacheFailure) in catch blocks
+[ ] DioException: extract message from e.response?.data?['message']
+[ ] Controller: use callUseCase() — no manual folding needed
+[ ] UI: display controller.errorMessage.value if not empty
+[ ] Custom onFailure for errors requiring special treatment
+[ ] Add Failure subclass if a new error type is needed
 ```

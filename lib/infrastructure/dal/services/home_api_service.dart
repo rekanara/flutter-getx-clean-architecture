@@ -8,7 +8,7 @@ class HomeApiService {
 
   HomeApiService({required this.secureStorage});
 
-  /// Auth client dibuat lazy agar SecureStorage sudah ter-inject
+  /// Auth client is made lazy so SecureStorage is already injected
   // Dio get _authClient => DioClient.authClient(secureStorage);
 
   Dio get _noAuthClient => DioClient.noAuthClient;

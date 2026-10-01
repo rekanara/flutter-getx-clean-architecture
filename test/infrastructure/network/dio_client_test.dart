@@ -15,7 +15,7 @@ void main() {
     test('should have interceptors (DioWrapper + Chucker)', () {
       final dio = DioClient.noAuthClient;
 
-      // Minimal 2 interceptors: TalkerDioLogger + ChuckerDioInterceptor
+      // Minimum 2 interceptors: TalkerDioLogger + ChuckerDioInterceptor
       expect(dio.interceptors.length, greaterThanOrEqualTo(2));
     });
 
@@ -23,7 +23,7 @@ void main() {
       final dio1 = DioClient.noAuthClient;
       final dio2 = DioClient.noAuthClient;
 
-      // Instance di-cache untuk reuse connection pool.
+      // Instance is cached to reuse connection pool.
       expect(identical(dio1, dio2), isTrue);
     });
   });

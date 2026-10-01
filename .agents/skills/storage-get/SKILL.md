@@ -1,21 +1,25 @@
+---
+name: GetStorage (Non-Sensitive Data)
+description: Persistent non-sensitive data storage (key-value)
+---
 # Skill: GetStorage (Non-Sensitive Data)
 
-GetStorage digunakan untuk menyimpan data non-sensitif yang perlu persisten antar sesi. Implementasi ada di `GetStorageImpl`.
+GetStorage is used to save non-sensitive data that needs to persist between sessions. Implementation is in `GetStorageImpl`.
 
 ---
 
-## Kapan Menggunakan GetStorage
+## When to Use GetStorage
 
-| Simpan di GetStorage | JANGAN simpan di GetStorage |
+| Save in GetStorage | DO NOT save in GetStorage |
 |---|---|
 | Theme preference (light/dark) | Access token |
 | Environment selection (dev/staging/prod) | Refresh token |
-| App version / build number | Password |
-| User preferences (bahasa, notif toggle) | API key |
-| Last seen timestamp | Permission token |
-| Non-sensitive cache | Data sensitif apapun |
+| App version / build number | Passwords |
+| User preferences (language, notif toggles) | API keys |
+| Last seen timestamp | Permission tokens |
+| Non-sensitive caches | Any sensitive data |
 
-Untuk data sensitif → gunakan `SecureStorage`.
+For sensitive data → use `SecureStorage`.
 
 ---
 
@@ -28,11 +32,11 @@ class StorageValue {
   static const appBuildNumber = 'appBuildNumber';
   static const env = 'env';              // Environment preference
   static const themeIsLight = 'themeIsLight';
-  static const accessToken = 'accessToken'; // non-sensitive copy (untuk display saja)
+  static const accessToken = 'accessToken'; // non-sensitive copy (for display only)
 }
 ```
 
-**Penting:** Selalu tambahkan key baru sebagai constant di `StorageValue`. Jangan hardcode string di luar file ini.
+**Important:** Always add new keys as constants in `StorageValue`. Do not hardcode strings outside this file.
 
 ---
 
@@ -40,7 +44,7 @@ class StorageValue {
 
 ```dart
 // lib/infrastructure/platform/storage/storage.dart
-// write/delete/clear semuanya Future<void> (async) — read tetap sync
+// write/delete/clear are all Future<void> (async) — read remains sync
 abstract class Storage {
   Future<void> write(String key, dynamic value);
   T? read<T>(String key);
@@ -51,7 +55,7 @@ abstract class Storage {
 
 ---
 
-## Cara Pakai di Repository / Service
+## Usage in Repository / Service
 
 ```dart
 // Inject via binding
@@ -84,33 +88,33 @@ class SomeRepositoryImpl implements SomeRepository {
 
 ---
 
-## Cara Pakai di Binding
+## Usage in Binding
 
 ```dart
-// Inject GetStorageImpl sebagai Storage
+// Inject GetStorageImpl as Storage
 Get.lazyPut<GetStorageImpl>(() => GetStorageImpl());
 
-// Saat inject ke repository, gunakan tipe abstract Storage
+// When injecting into a repository, use the abstract Storage type
 Get.lazyPut<AuthRepository>(
   () => AuthRepositoryImpl(
     apiService: Get.find(),
-    storage: Get.find<GetStorageImpl>(), // atau Get.find() jika tipenya sudah cukup
+    storage: Get.find<GetStorageImpl>(), // or Get.find() if types are sufficient
   ),
 );
 ```
 
 ---
 
-## Cara Pakai Langsung (tanpa inject)
+## Direct Usage (without inject)
 
 ```dart
-// Inisialisasi GetStorage sudah dilakukan di main.dart (await GetStorage.init())
-// Bisa akses langsung dari manapun:
+// GetStorage initialization is already done in main.dart (await GetStorage.init())
+// Can be accessed directly from anywhere:
 final box = GetStorage();
 box.write('myKey', 'myValue');
 final value = box.read<String>('myKey');
 box.remove('myKey');
-box.erase(); // hapus semua
+box.erase(); // clear all
 ```
 
 ---
@@ -145,14 +149,14 @@ final tags = storage.read<List>('tags') ?? [];
 
 ---
 
-## Tambah Key Baru
+## Adding a New Key
 
-1. Buka `lib/infrastructure/platform/storage/get_storage_impl.dart`
-2. Tambah constant di `StorageValue`:
+1. Open `lib/infrastructure/platform/storage/get_storage_impl.dart`
+2. Add a constant in `StorageValue`:
 ```dart
 class StorageValue {
   // ... existing keys
-  static const lastSyncTime = 'lastSyncTime'; // ← tambahkan
+  static const lastSyncTime = 'lastSyncTime'; // ← add
 }
 ```
 
@@ -161,9 +165,9 @@ class StorageValue {
 ## Checklist
 
 ```
-[ ] Data non-sensitif → GetStorage
-[ ] Key baru selalu sebagai constant di StorageValue
-[ ] Inject GetStorageImpl via binding (bukan akses langsung dari controller)
-[ ] read<T>() selalu diberi default value: ?? true / ?? '' / ?? []
-[ ] Jangan simpan token/password di GetStorage
+[ ] Non-sensitive data → GetStorage
+[ ] New keys always as constants in StorageValue
+[ ] Inject GetStorageImpl via binding (not direct access from controllers)
+[ ] read<T>() always has a default value: ?? true / ?? '' / ?? []
+[ ] Do not store tokens/passwords in GetStorage
 ```

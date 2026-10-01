@@ -5,17 +5,17 @@ import 'package:flutter/material.dart';
 
 import '../../utils/helper/logger.dart';
 
-/// Centralized Error Handler untuk seluruh aplikasi.
+/// Centralized Error Handler for the entire application.
 ///
-/// Menangani:
+/// Handles:
 /// - **Flutter Framework Errors** (rendering, layout, gesture)
 /// - **Uncaught Async Errors** (unhandled Future exceptions)
-/// - **Isolate Errors** (error di background isolates)
+/// - **Isolate Errors** (errors in background isolates)
 ///
-/// Di `kDebugMode` → error dilog ke console.
-/// Di release → siap disambungkan ke Crashlytics / Sentry.
+/// In `kDebugMode` → errors logged to console.
+/// In release → ready to be connected to Crashlytics / Sentry.
 ///
-/// **Penggunaan:**
+/// **Usage:**
 /// ```dart
 /// void main() async {
 ///   GlobalErrorHandler.init(() async {
@@ -27,17 +27,17 @@ import '../../utils/helper/logger.dart';
 class GlobalErrorHandler {
   GlobalErrorHandler._();
 
-  /// Inisialisasi semua error handlers dan jalankan app di dalam `runZonedGuarded`.
+  /// Initialize all error handlers and run the app inside `runZonedGuarded`.
   ///
-  /// [appRunner] adalah fungsi yang berisi semua initialization dan `runApp()`.
+  /// [appRunner] is a function containing all initialization and `runApp()`.
   static void init(Future<void> Function() appRunner) {
-    // 1. Flutter Framework Errors (rendering, layout, gesture, dll.)
+    // 1. Flutter Framework Errors (rendering, layout, gesture, etc.)
     FlutterError.onError = _handleFlutterError;
 
     // 2. Uncaught Async Errors (unhandled Future exceptions)
     PlatformDispatcher.instance.onError = _handlePlatformError;
 
-    // 3. Jalankan app di dalam runZonedGuarded sebagai safety net tambahan
+    // 3. Run app inside runZonedGuarded as an additional safety net
     runZonedGuarded(() async {
       WidgetsFlutterBinding.ensureInitialized();
       await appRunner();
@@ -50,7 +50,7 @@ class GlobalErrorHandler {
 
   /// Handle Flutter framework errors (widgets, rendering, gestures)
   static void _handleFlutterError(FlutterErrorDetails details) {
-    // Di debug mode, tampilkan error page standar Flutter (red screen)
+    // In debug mode, show standard Flutter error page (red screen)
     if (kDebugMode) {
       FlutterError.presentError(details);
     }
@@ -66,11 +66,11 @@ class GlobalErrorHandler {
   /// Handle uncaught async/platform errors
   static bool _handlePlatformError(Object error, StackTrace stack) {
     _reportError(error, stack, reason: 'Uncaught Platform Error');
-    // Return true = error sudah ditangani, jangan crash app
+    // Return true = error already handled, do not crash app
     return true;
   }
 
-  /// Handle errors yang lolos dari Zone (safety net terakhir)
+  /// Handle errors escaping the Zone (last safety net)
   static void _handleZoneError(Object error, StackTrace stack) {
     _reportError(error, stack, reason: 'Uncaught Zone Error');
   }
@@ -79,12 +79,12 @@ class GlobalErrorHandler {
   //  ERROR REPORTING
   // ═══════════════════════════════════════════════════════════
 
-  /// Central method untuk melaporkan error.
+  /// Central method to report errors.
   ///
-  /// Di debug → log ke console via LoggerHelper.
-  /// Di release → kirim ke crash reporting service.
+  /// In debug → log to console via LoggerHelper.
+  /// In release → send to crash reporting service.
   ///
-  /// **Untuk integrasi Crashlytics**, ganti isi method ini:
+  /// **For Crashlytics integration**, replace the content of this method:
   /// ```dart
   /// FirebaseCrashlytics.instance.recordError(error, stack, reason: reason);
   /// ```
@@ -94,7 +94,7 @@ class GlobalErrorHandler {
     String? reason,
     String? context,
   }) {
-    // ── Log ke console ──
+    // ── Log to console ──
     final label = reason ?? 'Unknown Error';
     LoggerHelper.e(
       '[$label]${context != null ? ' ($context)' : ''}',
@@ -102,9 +102,9 @@ class GlobalErrorHandler {
       stack,
     );
 
-    // ── Kirim ke Crash Reporting (release mode) ──
+    // ── Send to Crash Reporting (release mode) ──
     if (!kDebugMode) {
-      // TODO: Ganti dengan crash reporting service pilihan:
+      // TODO: Replace with your preferred crash reporting service:
       //
       // Firebase Crashlytics:
       //   FirebaseCrashlytics.instance.recordError(
@@ -117,7 +117,7 @@ class GlobalErrorHandler {
     }
   }
 
-  /// Method publik untuk melaporkan error secara manual dari bagian app manapun.
+  /// Public method to report errors manually from anywhere in the app.
   ///
   /// ```dart
   /// try {
@@ -139,7 +139,7 @@ class GlobalErrorHandler {
     LoggerHelper.d('[Event] $message${data != null ? ' | $data' : ''}');
 
     if (!kDebugMode) {
-      // TODO: Kirim ke analytics/crash reporting:
+      // TODO: Send to analytics/crash reporting:
       //   FirebaseCrashlytics.instance.log(message);
     }
   }

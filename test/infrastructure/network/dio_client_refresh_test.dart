@@ -17,9 +17,9 @@ import 'package:rekanara_getx/infrastructure/platform/secure_storage/secure_stor
 
 import 'dio_client_refresh_test.mocks.dart';
 
-/// Fake [HttpClientAdapter] — memetakan request ke response statis
-/// tanpa network call. Memungkinkan pengujian interceptor chain
-/// (401 → refresh → retry) secara end-to-end.
+/// Fake [HttpClientAdapter] — maps request to static response
+/// without network call. Allows end-to-end testing of interceptor chain
+/// (401 → refresh → retry).
 class FakeHttpClientAdapter implements HttpClientAdapter {
   FakeHttpClientAdapter(this.handler);
 
@@ -68,16 +68,16 @@ void main() {
   setUpAll(() async {
     Get.testMode = true;
 
-    // GetStorage (dipakai EnvironmentController via ConfigEnvironments)
-    // butuh path_provider — mock channel-nya supaya init() berjalan di test.
+    // GetStorage (used by EnvironmentController via ConfigEnvironments)
+    // needs path_provider — mock its channel so init() runs in test.
     final tmpDir = await Directory.systemTemp.createTemp('get_storage_test');
     const channel = MethodChannel('plugins.flutter.io/path_provider');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async => tmpDir.path);
     await GetStorage.init();
 
-    // Semua key `.env` wajib terisi — `ConfigEnvironments._configs`
-    // membangun DEV/STAGING/PROD sekaligus dengan null-assert (`!`).
+    // All `.env` keys must be filled — `ConfigEnvironments._configs`
+    // builds DEV/STAGING/PROD all at once with null-assert (`!`).
     dotenv.loadFromString(
       envString: [
         'JWT_SECRET=test',
@@ -102,7 +102,7 @@ void main() {
           'IOS_FIREBASE_API_KEY$suffix=x',
           'IOS_FIREBASE_APPID$suffix=x',
         ],
-        // Key prod memakai nama tanpa suffix.
+        // Prod keys use names without suffix.
         'FIREBASE_PROJECT_ID=x',
         'FIREBASE_STORAGE_BUCKET=x',
         'FIREBASE_BUNDLE_ID=x',
@@ -116,19 +116,19 @@ void main() {
 
     secureStorage = MockSecureStorage();
 
-    // Handler untuk client AUTH: selalu 401 (token expired).
+    // Handler for AUTH client: always 401 (token expired).
     authAdapter = FakeHttpClientAdapter(
       (options) async => (401, {'message': 'unauthorized'}),
     );
 
-    // Handler untuk client NO-AUTH: serve refresh POST + retry request.
+    // Handler for NO-AUTH client: serves refresh POST + retry request.
     noAuthAdapter = FakeHttpClientAdapter((options) async {
       if (options.method == 'POST' &&
           options.uri.path.endsWith('/auth/refresh')) {
         refreshCalls++;
         capturedRefreshBody = options.data;
-        // Delay kecil melebarkan window race — menjamin 401 paralel
-        // duduk di gate single-flight yang sama.
+        // Small delay widens race window — guarantees parallel 401s
+        // sit at the same single-flight gate.
         await Future<void>.delayed(const Duration(milliseconds: 50));
         return (
           200,
@@ -140,14 +140,14 @@ void main() {
           },
         );
       }
-      // Retry request original pasca-refresh → sukses.
+      // Retry original request post-refresh → success.
       return (200, {'ok': true, 'path': options.uri.path});
     });
 
     final authDio = DioClient.authClient(secureStorage);
 
-    // Chucker interceptor backed oleh sqflite — tidak tersedia di
-    // flutter_test. Dibuang supaya jalur adapter murni teruji.
+    // Chucker interceptor backed by sqflite — not available in
+    // flutter_test. Removed so pure adapter path is tested.
     authDio.interceptors.removeWhere((i) => i is ChuckerDioInterceptor);
     DioClient.noAuthClient.interceptors.removeWhere(
       (i) => i is ChuckerDioInterceptor,

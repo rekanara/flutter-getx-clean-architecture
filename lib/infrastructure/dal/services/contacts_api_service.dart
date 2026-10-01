@@ -3,13 +3,13 @@ import 'package:dio/dio.dart';
 import '../../network/dio_client.dart';
 import '../models/pagination_filter.dart';
 
-/// API service contoh — sengaja memanggil API publik ([dummyjson.com](https://dummyjson.com))
-/// alih-alih `Endpoint.be` (backend utama project), murni untuk membuktikan
-/// pola pagination end-to-end (`PaginationFilter` -> `BasePaginationController`
-/// -> `PaginationListView`) tanpa bergantung ke backend privat.
+/// Example API service — intentionally calling public API ([dummyjson.com](https://dummyjson.com))
+/// instead of `Endpoint.be` (main project backend), purely to demonstrate
+/// the end-to-end pagination pattern (`PaginationFilter` -> `BasePaginationController`
+/// -> `PaginationListView`) without depending on a private backend.
 ///
-/// Saat mengintegrasikan API sungguhan, ganti `_baseUrl` dengan
-/// `Domain.be` (atau domain lain di `url.dart`) seperti pada `HomeApiService`.
+/// When integrating a real API, replace `_baseUrl` with
+/// `Domain.be` (or another domain in `url.dart`) like in `HomeApiService`.
 class ContactsApiService {
   static const String _baseUrl = 'https://dummyjson.com';
 

@@ -1,6 +1,10 @@
+---
+name: Permissions
+description: Using PermissionHandler to request platform permissions
+---
 # Skill: Permissions
 
-Panduan request izin platform (notification, location, camera, storage) menggunakan `PermissionHandler`.
+Guide to requesting platform permissions (notification, location, camera, storage) using `PermissionHandler`.
 
 ---
 
@@ -12,14 +16,14 @@ Panduan request izin platform (notification, location, camera, storage) mengguna
 - `requestLocationPermission()`
 - `requestCameraPermission()`
 - `requestStoragePermission()`
-- Jika permanently denied → tampilkan dialog buka app settings via `OpenSetting`
+- If permanently denied → show a dialog to open app settings via `OpenSetting`
 
 ---
 
-## Menggunakan PermissionHandler
+## Using PermissionHandler
 
 ```dart
-// Method INSTANCE (bukan static) — buat instance dulu
+// INSTANCE method (not static) — instantiate first
 final permissions = PermissionHandler();
 await permissions.requestNotificationPermission();
 await permissions.requestCameraPermission();
@@ -29,10 +33,10 @@ await permissions.requestStoragePermission();
 
 ---
 
-## Kapan Request Permission
+## When to Request Permissions
 
 ```dart
-// Di controller atau screen saat pertama kali butuh:
+// In a controller or screen when first needed:
 class CameraController extends BaseController {
   @override
   void onInit() {
@@ -42,7 +46,7 @@ class CameraController extends BaseController {
 
   Future<void> _requestCameraPermission() async {
     await PermissionHandler().requestCameraPermission();
-    // Setelah ini user sudah di-prompt atau sudah granted
+    // After this returns, the user has been prompted or it's already granted
     openCamera();
   }
 }
@@ -50,25 +54,25 @@ class CameraController extends BaseController {
 
 ---
 
-## Flow Permission
+## Permission Flow
 
 ```
 requestXxxPermission()
     │
     ▼
 status == granted?
-    ├─ Yes → lanjutkan
+    ├─ Yes → proceed
     └─ No → request()
            │
            ▼
        status == granted?
-           ├─ Yes → lanjutkan
+           ├─ Yes → proceed
            └─ No (denied) → stop
                   │
                   ▼
            status == permanentlyDenied?
                └─ Yes → OpenSetting().openSettings() dialog
-                         (user harus buka settings manual)
+                         (user must open settings manually)
 ```
 
 ---
@@ -98,40 +102,40 @@ status == granted?
 ```xml
 <!-- Location -->
 <key>NSLocationWhenInUseUsageDescription</key>
-<string>Diperlukan untuk menentukan lokasi Anda</string>
+<string>Required to determine your location</string>
 
 <!-- Camera -->
 <key>NSCameraUsageDescription</key>
-<string>Diperlukan untuk mengambil foto</string>
+<string>Required to take photos</string>
 
 <!-- Photo Library -->
 <key>NSPhotoLibraryUsageDescription</key>
-<string>Diperlukan untuk mengakses galeri foto</string>
+<string>Required to access your photo library</string>
 ```
 
 ---
 
 ## OpenSetting
 
-Jika user permanently denied permission, tampilkan dialog:
+If the user permanently denies the permission, show a dialog:
 
 ```dart
-// Sudah di-handle otomatis di PermissionHandler
-// Tapi bisa juga dipanggil manual (openSettings method instance, bukan static):
+// Handled automatically in PermissionHandler
+// But can also be called manually (openSettings is an instance method, not static):
 OpenSetting().openSettings(
-  label: 'Kamera',
-  message: 'Izin kamera diperlukan untuk fitur ini. Buka pengaturan?',
+  label: 'Camera',
+  message: 'Camera permission is required for this feature. Open settings?',
   afterCreateUpdate: () {
-    // callback setelah dialog ditampilkan (opsional)
+    // callback after the dialog is shown (optional)
   },
 );
-// Di iOS: CupertinoAlertDialog
-// Di Android: Material AlertDialog
+// On iOS: CupertinoAlertDialog
+// On Android: Material AlertDialog
 ```
 
 ---
 
-## Pattern di Screen (Request saat tombol ditekan)
+## Screen Pattern (Request on button press)
 
 ```dart
 class ScanScreen extends GetView<ScanController> {
@@ -149,8 +153,8 @@ class ScanScreen extends GetView<ScanController> {
 
   Future<void> _onScanPressed() async {
     await PermissionHandler().requestCameraPermission();
-    // Setelah return — sudah handle granted/denied/permanentlyDenied
-    // Lanjutkan hanya jika granted
+    // After returning — granted/denied/permanentlyDenied handled
+    // Proceed only if granted
     final status = await Permission.camera.status;
     if (status.isGranted) {
       controller.startScan();
@@ -164,9 +168,9 @@ class ScanScreen extends GetView<ScanController> {
 ## Checklist
 
 ```
-[ ] Manifest: tambah permission di AndroidManifest.xml dan Info.plist
-[ ] Request permission sebelum menggunakan fitur yang butuh permission
-[ ] Gunakan PermissionHandler (bukan permission_handler package langsung)
-[ ] Tidak perlu handle permanently denied — sudah otomatis via OpenSetting
-[ ] Request permission saat pertama kali butuh (di onInit atau saat tombol ditekan)
+[ ] Manifest: add permissions to AndroidManifest.xml and Info.plist
+[ ] Request permissions before using a feature that needs them
+[ ] Use PermissionHandler (not the permission_handler package directly)
+[ ] No need to handle permanently denied manually — automatic via OpenSetting
+[ ] Request permission when first needed (in onInit or button press)
 ```

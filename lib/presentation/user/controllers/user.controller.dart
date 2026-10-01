@@ -1,18 +1,18 @@
 import '../../core/base_builder_controller.dart';
 
-/// Contoh controller menggunakan [BaseBuilderController] (GetBuilder pattern).
+/// Example controller using [BaseBuilderController] (GetBuilder pattern).
 ///
-/// Berbeda dengan HomeController yang pakai BaseController + Obx (reactive),
-/// controller ini menggunakan manual `update()` untuk trigger rebuild.
+/// Unlike HomeController which uses BaseController + Obx (reactive),
+/// this controller uses manual `update()` to trigger rebuilds.
 ///
-/// Di UI, wrap widget dengan `GetBuilder<UserController>(builder: ...)`.
+/// In UI, wrap widget with `GetBuilder<UserController>(builder: ...)`.
 class UserController extends BaseBuilderController {
-  // ── State (plain variables, tanpa .obs) ──
+  // ── State (plain variables, without .obs) ──
   List<Map<String, String>> users = [];
   String searchQuery = '';
   int selectedIndex = -1;
 
-  // ── Contoh ID untuk targeted update ──
+  // ── Example IDs for targeted update ──
   static const String listId = 'user_list';
   static const String searchId = 'user_search';
 
@@ -66,10 +66,10 @@ class UserController extends BaseBuilderController {
     update();
   }
 
-  /// Filter users berdasarkan search query — hanya rebuild list, bukan seluruh UI
+  /// Filter users based on search query — only rebuild list, not the whole UI
   void onSearch(String query) {
     searchQuery = query;
-    update([listId]); // Targeted update — hanya widget dengan id 'user_list'
+    update([listId]); // Targeted update — only widget with id 'user_list'
   }
 
   /// Get filtered users
@@ -84,7 +84,7 @@ class UserController extends BaseBuilderController {
         .toList();
   }
 
-  /// Select user — hanya rebuild list
+  /// Select user — only rebuild list
   void selectUser(int index) {
     selectedIndex = index;
     update([listId]);

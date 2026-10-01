@@ -8,8 +8,7 @@ import 'dart:async' as _i4;
 import 'package:dartz/dartz.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:rekanara_getx/domain/core/errors/failures.dart' as _i5;
-import 'package:rekanara_getx/domain/home/entities/banner_entity.dart'
-    as _i6;
+import 'package:rekanara_getx/domain/home/entities/banner_entity.dart' as _i6;
 import 'package:rekanara_getx/domain/home/repositories/home_repository.dart'
     as _i3;
 

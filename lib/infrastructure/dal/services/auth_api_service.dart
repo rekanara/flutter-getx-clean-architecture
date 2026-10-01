@@ -10,7 +10,7 @@ class AuthApiService {
 
   final Dio _noAuthClient = DioClient.noAuthClient;
 
-  /// Auth client dibuat lazy agar SecureStorage sudah ter-inject
+  /// Auth client is made lazy so SecureStorage is already injected
   Dio get _authClient => DioClient.authClient(secureStorage);
 
   Future<Response> login(Map<String, dynamic> data) async {

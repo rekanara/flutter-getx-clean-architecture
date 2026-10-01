@@ -1,10 +1,10 @@
 # rekanara getx
 
-Flutter project boilerplate menggunakan **Clean Architecture** dengan **GetX** sebagai state management, dependency injection, dan routing.
+Flutter project boilerplate using **Clean Architecture** with **GetX** as state management, dependency injection, and routing.
 
 ## Tech Stack
 
-| Kategori                  | Library                                                                                                                       |
+| Category                  | Library                                                                                                                       |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | State Management & DI     | [GetX](https://pub.dev/packages/get)                                                                                          |
 | HTTP Client               | [Dio](https://pub.dev/packages/dio)                                                                                           |
@@ -20,9 +20,9 @@ Flutter project boilerplate menggunakan **Clean Architecture** dengan **GetX** s
 | Logging                   | [Logger](https://pub.dev/packages/logger)                                                                                     |
 | Testing                   | [Mockito](https://pub.dev/packages/mockito) + [build_runner](https://pub.dev/packages/build_runner)                           |
 
-## Arsitektur
+## Architecture
 
-Project ini mengikuti prinsip **Clean Architecture** yang membagi codebase menjadi 3 layer utama:
+This project follows **Clean Architecture** principles, dividing the codebase into 3 main layers:
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -39,18 +39,18 @@ Project ini mengikuti prinsip **Clean Architecture** yang membagi codebase menja
 
 ### Dependency Rule
 
-> Domain layer **tidak boleh** bergantung pada layer lain. Infrastructure dan Presentation **bergantung ke** Domain.
+> The Domain layer **must not** depend on any other layer. Infrastructure and Presentation **depend on** the Domain.
 
-## Struktur Folder
+## Folder Structure
 
 ```
 lib/
-├── main.dart                          # Entry point + Global Error Handler + init semua service
+├── main.dart                          # Entry point + Global Error Handler + init all services
 │
 ├── domain/                            # 🧠 DOMAIN LAYER (Business Logic) — pure Dart, no Flutter/Dio/GetX
 │   ├── core/
 │   │   ├── errors/
-│   │   │   └── failures.dart          # Failure, ServerFailure, TimeoutFailure, NoConnectionFailure, dst.
+│   │   │   └── failures.dart          # Failure, ServerFailure, TimeoutFailure, NoConnectionFailure, etc.
 │   │   └── usecases/
 │   │       └── usecase.dart           # Generic UseCase<T, Params> + NoParams
 │   ├── auth/
@@ -62,14 +62,14 @@ lib/
 │       ├── repositories/home_repository.dart
 │       └── usecases/get_banners_usecase.dart
 │
-├── infrastructure/                    # 🔧 INFRASTRUCTURE LAYER (Implementasi Domain)
+├── infrastructure/                    # 🔧 INFRASTRUCTURE LAYER (Domain Implementation)
 │   ├── dal/                           # Data Access Layer
 │   │   ├── models/
 │   │   │   ├── api_response.dart      # Generic ApiResponse<T> + PaginationMeta
 │   │   │   └── pagination_filter.dart # PaginationFilter (page, limit, search)
 │   │   ├── services/
-│   │   │   ├── auth_api_service.dart  # HTTP calls (Dio) untuk auth
-│   │   │   └── home_api_service.dart  # HTTP calls (Dio) untuk home
+│   │   │   ├── auth_api_service.dart  # HTTP calls (Dio) for auth
+│   │   │   └── home_api_service.dart  # HTTP calls (Dio) for home
 │   │   ├── auth/
 │   │   │   ├── models/user_model.dart          # fromJson/toJson
 │   │   │   └── repositories/auth_repository_impl.dart
@@ -77,11 +77,11 @@ lib/
 │   │       ├── models/banner_model.dart
 │   │       └── repositories/home_repository_impl.dart
 │   │
-│   ├── network/                       # Konfigurasi Network
+│   ├── network/                       # Network Configuration
 │   │   ├── dio_client.dart            # noAuthClient / authClient (cached) + refresh-token interceptor
 │   │   ├── dio_wrapper.dart           # Talker logger interceptor
 │   │   ├── environments.dart          # EnvironmentConfig, EnvironmentController, ConfigEnvironments
-│   │   └── url.dart                   # PathSegment, Domain, Endpoint (URL builder reaktif)
+│   │   └── url.dart                   # PathSegment, Domain, Endpoint (reactive URL builder)
 │   │
 │   ├── navigation/                    # Routing & DI Bindings
 │   │   ├── routes.dart                # Route constants & initial route
@@ -95,7 +95,7 @@ lib/
 │   ├── platform/                      # Platform Services
 │   │   ├── storage/
 │   │   │   ├── storage.dart           # Abstract Storage interface
-│   │   │   └── get_storage_impl.dart  # GetStorage (non-sensitif) + StorageValue keys
+│   │   │   └── get_storage_impl.dart  # GetStorage (non-sensitive) + StorageValue keys
 │   │   └── secure_storage/
 │   │       ├── secure_storage.dart    # Abstract SecureStorage interface
 │   │       └── flutter_secure_storage_impl.dart  # Encrypted storage + SecureStorageKey keys
@@ -108,7 +108,7 @@ lib/
 │   │   ├── base_controller.dart           # BaseController (.obs) + callUseCase()
 │   │   ├── base_builder_controller.dart   # BaseBuilderController (manual update())
 │   │   └── base_pagination_controller.dart # BasePaginationController<T>
-│   ├── screens.dart                   # Barrel export untuk semua screens
+│   ├── screens.dart                   # Barrel export for all screens
 │   ├── login/
 │   │   ├── login.screen.dart
 │   │   └── controllers/login.controller.dart
@@ -116,7 +116,7 @@ lib/
 │   │   ├── home.screen.dart
 │   │   ├── controllers/home.controller.dart
 │   │   └── widgets/banner_carousel.dart
-│   └── user/                          # Contoh pola BaseBuilderController + GetBuilder
+│   └── user/                          # Example of BaseBuilderController + GetBuilder pattern
 │       ├── user.screen.dart
 │       └── controllers/user.controller.dart
 │
@@ -140,7 +140,7 @@ lib/
 │   │   ├── firebase_messaging_service.dart   # FCM foreground/background/tap handler
 │   │   └── remote_config_service.dart
 │   ├── lifecycle/
-│   │   └── app_lifecycle_service.dart # MQTT reconnect + refresh hooks saat app resume
+│   │   └── app_lifecycle_service.dart # MQTT reconnect + refresh hooks when app resumes
 │   ├── mqtt/
 │   │   └── mqtt_service.dart          # MQTT client (pub/sub) global singleton
 │   ├── notifications/
@@ -150,20 +150,20 @@ lib/
 │
 └── utils/                             # 🛠️ Utilities & Helpers
     ├── config.dart                    # Enums, ColorData, FontType
-    ├── json_parser.dart               # JsonParser (pakai Isolate untuk list > 50 item)
+    ├── json_parser.dart               # JsonParser (uses Isolate for list > 50 items)
     ├── responsive.dart                # Responsive widget + ResponsiveExtension
     └── helper/
         ├── date_time.dart             # Date formatting helper
         ├── dialog.dart                # Dialog helper
         ├── logger.dart                # LoggerHelper (static: d, i, w, e, t, f)
-        ├── open_setting.dart          # Dialog buka native app settings
+        ├── open_setting.dart          # Dialog to open native app settings
         ├── rupiah.dart                # Currency formatting (IDR)
         └── snackbar.dart              # SnackbarHelper
 ```
 
-## Alur Data (Data Flow)
+## Data Flow
 
-Berikut alur data saat user melakukan login:
+Here is the data flow when a user logs in:
 
 ```
 LoginScreen (UI)
@@ -188,7 +188,7 @@ AuthRepositoryImpl.login()         ← Infrastructure Layer
 AuthApiService.login()             ← HTTP call via Dio (noAuthClient)
     │
     ▼
-Either<Failure, UserEntity>        ← Response di-wrap dengan Dartz
+Either<Failure, UserEntity>        ← Response wrapped with Dartz
     │
     ▼
 BaseController.callUseCase()       ← fold: Left(error) / Right(success)
@@ -196,7 +196,7 @@ BaseController.callUseCase()       ← fold: Left(error) / Right(success)
 
 ## Dependency Injection (GetX Bindings)
 
-DI di-wire melalui **GetX Bindings** di setiap route. Contoh `LoginControllerBinding`:
+DI is wired via **GetX Bindings** on every route. Example `LoginControllerBinding`:
 
 ```dart
 class LoginControllerBinding extends Bindings {
@@ -226,78 +226,78 @@ class LoginControllerBinding extends Bindings {
 
 ### Dio Client
 
-Project ini menyediakan 3 utilitas HTTP request utama:
+This project provides 3 main HTTP request utilities:
 
-| Client                                | Deskripsi                                                                                                       |
+| Client                                | Description                                                                                                     |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `DioClient.noAuthClient`              | Untuk request tanpa token (login, register)                                                                     |
-| `DioClient.authClient(secureStorage)` | Otomatis inject `Bearer` token + refresh token interceptor                                                      |
-| `DioClient.download()`                | Utility khusus untuk mempermudah download file ke direktori lokal (mendukung request dengan maupun tanpa auth). |
+| `DioClient.noAuthClient`              | For requests without a token (login, register)                                                                  |
+| `DioClient.authClient(secureStorage)` | Automatically injects the `Bearer` token + refresh token interceptor                                            |
+| `DioClient.download()`                | Special utility to simplify file downloads to a local directory (supports both auth and noAuth requests).       |
 
 ### Refresh Token Flow
 
 ```
-Request gagal 401
+Request fails with 401
     │
     ▼
-Baca refreshToken dari SecureStorage
+Read refreshToken from SecureStorage
     │
     ▼
 Hit /auth/refresh endpoint
-    ├─ Berhasil → Simpan token baru → Retry request asli
-    └─ Gagal → Hapus semua token → Redirect ke Login
+    ├─ Success → Save new token → Retry original request
+    └─ Failed → Delete all tokens → Redirect to Login
 ```
 
 ### Multi-Environment
 
-Mendukung 3 environment reaktif yang terintegrasi dengan `GetStorage` untuk menyimpan preferensi environment saat aplikasi di-restart:
+Supports 3 reactive environments integrated with `GetStorage` to persist the environment preference across app restarts:
 
-| Environment           | Keterangan   |
-| --------------------- | ------------ |
-| `Environment.dev`     | Development  |
-| `Environment.staging` | Staging / QA |
-| `Environment.prod`    | Production   |
+| Environment           | Description   |
+| --------------------- | ------------- |
+| `Environment.dev`     | Development   |
+| `Environment.staging` | Staging / QA  |
+| `Environment.prod`    | Production    |
 
-Konfigurasi ditangani menggunakan class bawa tipe (_strongly-typed_) `EnvironmentConfig` agar _compile-time safe_ dan anti-typo.
+Configurations are managed using a strongly-typed `EnvironmentConfig` class to ensure compile-time safety and prevent typos.
 
 #### URL Endpoints
 
-Endpoint API dan URL sudah terdefinisi secara statik agar memudahkan pemanggilan fungsi tanpa menebak string manual:
-Rantai pengambilan: `ConfigEnvironments.config` → `Domain` → `Endpoint`.
+API endpoints and URLs are statically defined to make function calls easier without manually typing strings:
+Retrieval chain: `ConfigEnvironments.config` → `Domain` → `Endpoint`.
 
-Contoh pemanggilan endpoint:
+Example endpoint call:
 
 ```dart
-// Lebih bersih dan tanpa khawatir adanya string typo ".obs" atau ".value"
+// Cleaner and without worrying about string typos, ".obs" or ".value"
 final response = await dio.post(Endpoint.sso.login, data: data);
 ```
 
 ## Storage Strategy
 
-| Data             | Storage                     | Alasan        |
+| Data             | Storage                     | Reason        |
 | ---------------- | --------------------------- | ------------- |
-| Access Token     | `SecureStorage` (encrypted) | Data sensitif |
-| Refresh Token    | `SecureStorage` (encrypted) | Data sensitif |
-| Theme preference | `GetStorage`                | Non-sensitif  |
-| App version      | `GetStorage`                | Non-sensitif  |
+| Access Token     | `SecureStorage` (encrypted) | Sensitive data|
+| Refresh Token    | `SecureStorage` (encrypted) | Sensitive data|
+| Theme preference | `GetStorage`                | Non-sensitive |
+| App version      | `GetStorage`                | Non-sensitive |
 
 ## Base Classes
 
 ### `UseCase<T, Params>`
 
-Setiap use case extend base class ini:
+Every use case extends this base class:
 
 ```dart
-// Dengan parameter:
+// With parameters:
 class LoginUseCase extends UseCase<UserEntity, LoginParams> { ... }
 
-// Tanpa parameter:
+// Without parameters:
 class GetBannersUseCase extends UseCase<List<BannerEntity>, NoParams> { ... }
 ```
 
 ### `BaseController`
 
-Setiap controller extend base class ini untuk menghindari boilerplate:
+Every controller extends this base class to avoid boilerplate:
 
 ```dart
 class LoginController extends BaseController {
@@ -305,17 +305,17 @@ class LoginController extends BaseController {
     await callUseCase(
       loginUseCase.execute(params),
       onSuccess: (user) => Get.offAllNamed(Routes.home),
-          // onFailure opsional — default: SnackbarHelper.showError()
+          // onFailure is optional — default: SnackbarHelper.showError()
     );
   }
 }
 ```
 
-`callUseCase()` otomatis handle: `isLoading`, `errorMessage`, dan `Either fold`.
+`callUseCase()` automatically handles: `isLoading`, `errorMessage`, and `Either fold`.
 
 ### `BasePaginationController`
 
-Digunakan untuk list API yang memiliki pagination (contoh: infinite scroll, load more). Otomatis menangani state halaman dan scroll listener.
+Used for API lists that have pagination (e.g., infinite scroll, load more). Automatically handles page state and scroll listener.
 
 ```dart
 class UsersController extends BasePaginationController<UserEntity> {
@@ -324,7 +324,7 @@ class UsersController extends BasePaginationController<UserEntity> {
   @override
   void onInit() {
     super.onInit();
-    fetchPage(1); // Auto-fetch saat init
+    fetchPage(1); // Auto-fetch on init
   }
 
   @override
@@ -344,11 +344,11 @@ class UsersController extends BasePaginationController<UserEntity> {
 }
 ```
 
-Di UI, hubungkan ke `ListView` atau Widget sejenis:
+In the UI, link it to a `ListView` or similar Widget:
 
 ```dart
 ListView.builder(
-  controller: controller.scrollController, // Otomatis trigger fetchPage
+  controller: controller.scrollController, // Automatically triggers fetchPage
   itemCount: controller.items.length + (controller.isLoadMore.value ? 1 : 0),
   itemBuilder: (context, index) { ... },
 )
@@ -356,30 +356,30 @@ ListView.builder(
 
 ### `ApiResponse<T>`
 
-Generic wrapper untuk standarisasi parsing API response:
+Generic wrapper to standardize API response parsing:
 
 ```dart
 final response = ApiResponse.fromJson(json, (data) => UserModel.fromJson(data));
 
-// Atau untuk list:
+// Or for a list:
 final listResponse = ApiResponse.fromJsonList(json, (data) => BannerModel.fromJson(data));
 ```
 
 ## Global Error Handler
 
-Error yang tidak tertangkap di level Flutter maupun async akan otomatis di-log:
+Errors not caught at the Flutter level or async level are automatically logged:
 
 - `FlutterError.onError` — Flutter framework errors
 - `PlatformDispatcher.instance.onError` — Uncaught async errors
 
-Semua error di-log melalui `LoggerHelper.e()`.
+All errors are logged via `LoggerHelper.e()`.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Flutter SDK `^3.11.0`
-- [FVM](https://fvm.app/) (disarankan, menggunakan channel `stable`)
+- [FVM](https://fvm.app/) (recommended, using the `stable` channel)
 
 ### Setup
 
@@ -392,103 +392,103 @@ cd flutter
 flutter pub get
 
 # 3. Setup environment variables
-# Buat file .env di root project berdasarkan template yang ada
+# Create a .env file in the project root based on the existing template
 
-# 4. Generate mock files untuk testing
+# 4. Generate mock files for testing
 dart run build_runner build --delete-conflicting-outputs
 
-# 5. Jalankan aplikasi
+# 5. Run the application
 flutter run
 
-# 6. Generate app icon (opsional)
+# 6. Generate app icon (optional)
 dart run flutter_launcher_icons
 ```
 
-## Rebranding — Mengganti Namespace & Identitas App
+## Rebranding — Changing Namespace & App Identity
 
-Boilerplate ini di-publish dengan identitas generik (`com.rekanara.getx`, "rekanara getx"). Sebelum dipakai untuk project baru, ganti dulu bagian-bagian berikut:
+This boilerplate is published with a generic identity (`com.rekanara.getx`, "rekanara getx"). Before using it for a new project, change the following parts:
 
 ### 1. Android — `applicationId` & package
 
 ```bash
-# a. Rename folder package (sesuaikan com/namamu/appmu)
-mkdir -p android/app/src/main/kotlin/com/namamu/appmu
+# a. Rename package folder (adjust to com/yourname/yourapp)
+mkdir -p android/app/src/main/kotlin/com/yourname/yourapp
 mv android/app/src/main/kotlin/com/zidanfath/codebase/MainActivity.kt \
-   android/app/src/main/kotlin/com/namamu/appmu/MainActivity.kt
+   android/app/src/main/kotlin/com/yourname/yourapp/MainActivity.kt
 ```
 
-- Edit `MainActivity.kt` → ganti baris `package com.rekanara.getx` jadi `package com.namamu.appmu`.
-- Edit `android/app/build.gradle.kts` → ganti `namespace` dan `applicationId` ke `"com.namamu.appmu"`.
-- Edit `android/app/src/main/AndroidManifest.xml` → ganti `android:label` ke nama app kamu.
+- Edit `MainActivity.kt` → change the line `package com.rekanara.getx` to `package com.yourname.yourapp`.
+- Edit `android/app/build.gradle.kts` → change `namespace` and `applicationId` to `"com.yourname.yourapp"`.
+- Edit `android/app/src/main/AndroidManifest.xml` → change `android:label` to your app name.
 
 ### 2. iOS — Bundle Identifier & Display Name
 
-- Buka `ios/Runner.xcworkspace` di Xcode → tab **Signing & Capabilities** → ganti **Bundle Identifier**.
-  (Atau cari-ganti manual semua `PRODUCT_BUNDLE_IDENTIFIER = com.rekanara.getx*` di `ios/Runner.xcodeproj/project.pbxproj`.)
-- Edit `ios/Runner/Info.plist` → ganti `CFBundleDisplayName`.
-- Kalau butuh Universal Links/deep link, isi `AssociatedDomains` di `Info.plist` (sudah di-comment secara default) dengan domain milikmu sendiri, plus setup App Links `intent-filter` di `AndroidManifest.xml` untuk Android.
+- Open `ios/Runner.xcworkspace` in Xcode → **Signing & Capabilities** tab → change **Bundle Identifier**.
+  (Or manually search-and-replace all `PRODUCT_BUNDLE_IDENTIFIER = com.rekanara.getx*` in `ios/Runner.xcodeproj/project.pbxproj`.)
+- Edit `ios/Runner/Info.plist` → change `CFBundleDisplayName`.
+- If you need Universal Links/deep linking, fill in `AssociatedDomains` in `Info.plist` (commented out by default) with your own domain, plus setup App Links `intent-filter` in `AndroidManifest.xml` for Android.
 
-### 3. Nama App di Flutter
+### 3. App Name in Flutter
 
-- `lib/main.dart` → `GetMaterialApp(title: 'rekanara getx')` ganti sesuai nama app.
-- `pubspec.yaml` → `name:` (opsional, lebih invasif karena mempengaruhi semua import path `package:rekanara_getx/...` di seluruh `lib/` & `test/`).
+- `lib/main.dart` → change `GetMaterialApp(title: 'rekanara getx')` to your app name.
+- `pubspec.yaml` → `name:` (optional, more invasive as it affects all `package:rekanara_getx/...` import paths throughout `lib/` & `test/`).
 
 ### 4. Firebase
 
-- Buat project Firebase baru sesuai `applicationId`/Bundle ID baru kamu.
-- Download `google-services.json` (Android) → taruh di `android/app/src/`.
-- Download `GoogleService-Info.plist` (iOS) → taruh di `ios/Runner/`.
-- Kedua file ini sudah di-`.gitignore` — **jangan commit**, provision manual/lewat CI di tiap environment.
+- Create a new Firebase project matching your new `applicationId`/Bundle ID.
+- Download `google-services.json` (Android) → place in `android/app/src/`.
+- Download `GoogleService-Info.plist` (iOS) → place in `ios/Runner/`.
+- Both files are already in `.gitignore` — **do not commit**, provision manually/via CI in each environment.
 
 ### 5. Environment Variables
 
 ```bash
 cp .env.example .env
-# lalu isi semua value sesuai backend/MQTT/Firebase project kamu
+# then fill in all values according to your backend/MQTT/Firebase project
 ```
 
 ### 6. App Icon
 
-- Ganti `assets/icons/app_icon.png` dengan icon app kamu, lalu jalankan `dart run flutter_launcher_icons`.
+- Replace `assets/icons/app_icon.png` with your app icon, then run `dart run flutter_launcher_icons`.
 
-### Kompatibel dengan `get_cli`
+### Compatible with `get_cli`
 
-Project ini mendukung generate module baru menggunakan [get_cli](https://pub.dev/packages/get_cli):
+This project supports generating new modules using [get_cli](https://pub.dev/packages/get_cli):
 
 ```bash
 # Install get_cli
 dart pub global activate get_cli
 
-# Generate module baru
-get create page:nama_module
+# Generate new module
+get create page:module_name
 ```
 
-## Menambah Feature Baru
+## Adding a New Feature
 
-Ikuti langkah berikut saat menambah feature baru agar tetap konsisten:
+Follow these steps when adding a new feature to maintain consistency:
 
-1. **Domain** — Buat `entity`, `repository` (abstract), dan `usecase` (extend `UseCase<T, Params>`)
-2. **Infrastructure/DAL** — Buat `model` (fromJson), `api_service`, dan `repository_impl`
-3. **Presentation** — Buat `screen` dan `controller` (extend `BaseController`)
-4. **Navigation** — Tambahkan route di `routes.dart`, halaman di `navigation.dart`, dan binding di `bindings/`
-5. **Tests** — Buat unit test untuk usecase (mock repository)
+1. **Domain** — Create `entity`, `repository` (abstract), and `usecase` (extends `UseCase<T, Params>`)
+2. **Infrastructure/DAL** — Create `model` (fromJson), `api_service`, and `repository_impl`
+3. **Presentation** — Create `screen` and `controller` (extends `BaseController`)
+4. **Navigation** — Add route in `routes.dart`, page in `navigation.dart`, and binding in `bindings/`
+5. **Tests** — Create unit tests for usecase (mock repository)
 
 ## Testing
 
 ```bash
-# Jalankan semua test
+# Run all tests
 flutter test
 
-# Jalankan test spesifik
+# Run a specific test
 flutter test test/domain/auth/usecases/login_usecase_test.dart
 
-# Generate mocks (setelah menambah @GenerateMocks)
+# Generate mocks (after adding @GenerateMocks)
 dart run build_runner build --delete-conflicting-outputs
 ```
 
 ## Error Handling
 
-Menggunakan `Either<Failure, T>` dari **Dartz** untuk functional error handling:
+Uses `Either<Failure, T>` from **Dartz** for functional error handling:
 
 ```dart
 // Domain Layer — Abstract error types
@@ -504,7 +504,7 @@ class CacheFailure extends Failure { ... }
 await callUseCase(
   useCase.execute(params),
   onSuccess: (data) => /* handle success */,
-  onFailure: (failure) => /* custom error handler (opsional) */,
+  onFailure: (failure) => /* custom error handler (optional) */,
 );
 ```
 

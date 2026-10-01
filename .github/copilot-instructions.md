@@ -4,15 +4,15 @@ Flutter project: **Clean Architecture + GetX + Dio + Firebase + MQTT**
 
 ## Skills Library
 
-Panduan teknis ada di `.agents/skills/{folder}/SKILL.md`. Baca sebelum membuat kode.
+Technical guides are in `.agents/skills/{folder}/SKILL.md`. Read before creating code.
 
 ### Skill Index
 
-| Folder                   | Topik                                                                |
+| Folder                   | Topic                                                                |
 | ------------------------ | -------------------------------------------------------------------- |
-| `new-feature/`           | Step-by-step membuat fitur baru (12 langkah) — **baca pertama kali** |
+| `new-feature/`           | Step-by-step for creating a new feature (12 steps) — **read first** |
 | `project-structure/`     | Folder structure, naming convention                                  |
-| `clean-architecture/`    | Layer, dependency rule, Either pattern                               |
+| `clean-architecture/`    | Layers, dependency rule, Either pattern                               |
 | `entity/`                | Domain entity class (pure Dart)                                      |
 | `repository/`            | Abstract interface + RepositoryImpl                                  |
 | `usecase/`               | UseCase\<T, Params\>, NoParams                                       |
@@ -22,7 +22,7 @@ Panduan teknis ada di `.agents/skills/{folder}/SKILL.md`. Baca sebelum membuat k
 | `controller-reactive/`   | BaseController + .obs + Obx                                          |
 | `controller-builder/`    | BaseBuilderController + update([id]) + GetBuilder                    |
 | `controller-pagination/` | BasePaginationController\<T\> + appendData                           |
-| `screen/`                | GetView\<T\>, Obx vs GetBuilder di UI                                |
+| `screen/`                | GetView\<T\>, Obx vs GetBuilder in UI                                |
 | `routing/`               | routes.dart + navigation.dart                                        |
 | `environment/`           | .env → EnvironmentConfig → Domain → Endpoint                         |
 | `networking/`            | authClient, noAuthClient, refresh token                              |
@@ -45,42 +45,42 @@ Panduan teknis ada di `.agents/skills/{folder}/SKILL.md`. Baca sebelum membuat k
 
 ---
 
-## Aturan Kode — Jangan Dilanggar
+## Code Rules — Do Not Violate
 
 ```dart
-// ✅ BENAR: Endpoint dari Endpoint class
+// ✅ CORRECT: Endpoint from Endpoint class
 final resp = await _client.get(Endpoint.product.list);
 
-// ❌ SALAH: hardcode URL
+// ❌ WRONG: hardcoded URL
 final resp = await _client.get('https://api.example.com/products');
 ```
 
 ```dart
-// ✅ BENAR: gunakan callUseCase di controller
+// ✅ CORRECT: use callUseCase in controller
 await callUseCase(useCase.execute(params), onSuccess: (d) => items.assignAll(d));
 
-// ❌ SALAH: manual try/catch di controller
+// ❌ WRONG: manual try/catch in controller
 try {
   final result = await useCase.execute(params);
 } catch (e) { /* manual handling */ }
 ```
 
 ```dart
-// ✅ BENAR: Domain entity pure Dart
+// ✅ CORRECT: Domain entity is pure Dart
 class ProductEntity {
   final String id;
   ProductEntity({required this.id});
 }
 
-// ❌ SALAH: domain import Flutter/Dio
-import 'package:flutter/material.dart'; // TIDAK BOLEH di domain/
+// ❌ WRONG: domain imports Flutter/Dio
+import 'package:flutter/material.dart'; // NOT ALLOWED in domain/
 ```
 
 ```dart
-// ✅ BENAR: token di SecureStorage
+// ✅ CORRECT: token in SecureStorage
 await secureStorage.write(SecureStorageKey.accessToken, token);
 
-// ❌ SALAH: token di GetStorage (tidak terenkripsi)
+// ❌ WRONG: token in GetStorage (not encrypted)
 storage.write('accessToken', token);
 ```
 

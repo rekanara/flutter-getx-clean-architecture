@@ -10,36 +10,36 @@ import '../../infrastructure/platform/secure_storage/flutter_secure_storage_impl
 import '../../infrastructure/platform/secure_storage/secure_storage.dart';
 import '../../utils/helper/logger.dart';
 
-/// Status koneksi MQTT yang lebih readable.
+/// More readable MQTT connection status.
 enum MqttConnectionStatus { connected, connecting, disconnected, error }
 
-/// Callback saat menerima pesan dari suatu topic.
+/// Callback when receiving a message from a topic.
 typedef MqttMessageCallback = void Function(String topic, String payload);
 
-/// Service lengkap untuk mengelola koneksi, subscription, dan pesan MQTT.
+/// Complete service to manage MQTT connections, subscriptions, and messages.
 ///
-/// Fitur:
-/// - Connect / disconnect dengan auto-reconnect
-/// - Subscribe / unsubscribe per-topic secara terpisah
-/// - Menyimpan dan memulihkan daftar topic ke/dari SecureStorage
-/// - Callback per-topic (listener terpisah tiap topic)
+/// Features:
+/// - Connect / disconnect with auto-reconnect
+/// - Subscribe / unsubscribe per-topic separately
+/// - Persist and restore topic list to/from SecureStorage
+/// - Per-topic callbacks (separate listeners for each topic)
 /// - Global message listener
-/// - Publish pesan ke topic tertentu
+/// - Publish messages to specific topics
 class MqttService extends GetxController {
   MqttServerClient? _client;
   final SecureStorage _secureStorage;
 
-  /// Status koneksi (observable)
+  /// Connection status (observable)
   final Rx<MqttConnectionStatus> connectionStatus =
       MqttConnectionStatus.disconnected.obs;
 
-  /// Daftar topic yang sedang aktif berlangganan (observable)
+  /// List of actively subscribed topics (observable)
   final RxSet<String> subscribedTopics = <String>{}.obs;
 
-  /// Callbacks terpisah per topic
+  /// Separate callbacks per topic
   final Map<String, List<MqttMessageCallback>> _topicListeners = {};
 
-  /// Global listener — dipanggil untuk SEMUA pesan masuk
+  /// Global listener — called for ALL incoming messages
   final List<MqttMessageCallback> _globalListeners = [];
 
   /// Stream subscription internal
@@ -58,7 +58,7 @@ class MqttService extends GetxController {
   //  CONNECTION
   // ═══════════════════════════════════════════════════════════
 
-  /// Inisialisasi dan connect ke MQTT broker berdasarkan environment aktif.
+  /// Initialize and connect to MQTT broker based on active environment.
   Future<bool> connect({bool autoReconnect = true}) async {
     if (connectionStatus.value == MqttConnectionStatus.connecting) {
       LoggerHelper.w('MQTT: Already connecting...');
@@ -83,7 +83,7 @@ class MqttService extends GetxController {
       ..onUnsubscribed = _onUnsubscribed
       ..logging(on: false);
 
-    // Last Will & Testament (opsional)
+    // Last Will & Testament (optional)
     final connMessage = MqttConnectMessage()
         .withClientIdentifier(config.mqttClientId)
         .authenticateAs(config.mqttUsername, config.mqttPassword)
@@ -108,7 +108,7 @@ class MqttService extends GetxController {
       LoggerHelper.i('MQTT: Connected successfully');
       connectionStatus.value = MqttConnectionStatus.connected;
 
-      // Listen ke incoming messages
+      // Listen to incoming messages
       _listenMessages();
 
       // Restore topics from SecureStorage
@@ -125,7 +125,7 @@ class MqttService extends GetxController {
     }
   }
 
-  /// Disconnect dari MQTT broker.
+  /// Disconnect from MQTT broker.
   void disconnect() {
     _autoReconnect = false;
     _messageSubscription?.cancel();
@@ -140,7 +140,7 @@ class MqttService extends GetxController {
     subscribedTopics.clear();
   }
 
-  /// Apakah sedang terhubung
+  /// Check if connected
   bool get isConnected =>
       connectionStatus.value == MqttConnectionStatus.connected;
 
@@ -148,7 +148,7 @@ class MqttService extends GetxController {
   //  SUBSCRIBE / UNSUBSCRIBE
   // ═══════════════════════════════════════════════════════════
 
-  /// Subscribe ke satu topic tertentu.
+  /// Subscribe to a specific topic.
   /// [qos] default: At Least Once.
   void subscribe(String topic, {MqttQos qos = MqttQos.atLeastOnce}) {
     if (!isConnected) {
@@ -168,14 +168,14 @@ class MqttService extends GetxController {
     LoggerHelper.i('MQTT: Subscribed to "$topic"');
   }
 
-  /// Subscribe ke banyak topics sekaligus.
+  /// Subscribe to multiple topics at once.
   void subscribeMany(List<String> topics, {MqttQos qos = MqttQos.atLeastOnce}) {
     for (final topic in topics) {
       subscribe(topic, qos: qos);
     }
   }
 
-  /// Unsubscribe dari satu topic tertentu.
+  /// Unsubscribe from a specific topic.
   void unsubscribe(String topic) {
     if (!isConnected) {
       LoggerHelper.w('MQTT: Cannot unsubscribe — not connected');
@@ -195,7 +195,7 @@ class MqttService extends GetxController {
     LoggerHelper.i('MQTT: Unsubscribed from "$topic"');
   }
 
-  /// Unsubscribe dari semua topic.
+  /// Unsubscribe from all topics.
   void unsubscribeAll() {
     final topics = List<String>.from(subscribedTopics);
     for (final topic in topics) {
@@ -207,11 +207,11 @@ class MqttService extends GetxController {
   //  LISTENERS (per-topic & global)
   // ═══════════════════════════════════════════════════════════
 
-  /// Menambahkan listener khusus untuk satu topic.
+  /// Add a specific listener for a topic.
   ///
   /// ```dart
   /// mqttService.addTopicListener('chat/room1', (topic, payload) {
-  ///   print('Pesan baru: $payload');
+  ///   print('New message: $payload');
   /// });
   /// ```
   void addTopicListener(String topic, MqttMessageCallback callback) {
@@ -219,7 +219,7 @@ class MqttService extends GetxController {
     _topicListeners[topic]!.add(callback);
   }
 
-  /// Menghapus listener tertentu dari sebuah topic.
+  /// Remove a specific listener from a topic.
   void removeTopicListener(String topic, MqttMessageCallback callback) {
     _topicListeners[topic]?.remove(callback);
     if (_topicListeners[topic]?.isEmpty ?? false) {
@@ -227,17 +227,17 @@ class MqttService extends GetxController {
     }
   }
 
-  /// Menghapus semua listener dari sebuah topic.
+  /// Remove all listeners from a topic.
   void clearTopicListeners(String topic) {
     _topicListeners.remove(topic);
   }
 
-  /// Menambahkan global listener — dipanggil untuk semua pesan masuk.
+  /// Add a global listener — called for all incoming messages.
   void addGlobalListener(MqttMessageCallback callback) {
     _globalListeners.add(callback);
   }
 
-  /// Menghapus global listener.
+  /// Remove global listener.
   void removeGlobalListener(MqttMessageCallback callback) {
     _globalListeners.remove(callback);
   }
@@ -246,7 +246,7 @@ class MqttService extends GetxController {
   //  PUBLISH
   // ═══════════════════════════════════════════════════════════
 
-  /// Publish pesan ke topic tertentu.
+  /// Publish a message to a specific topic.
   ///
   /// ```dart
   /// mqttService.publish('chat/room1', '{"message": "Hello!"}');
@@ -274,7 +274,7 @@ class MqttService extends GetxController {
   //  PERSISTENCE (SecureStorage)
   // ═══════════════════════════════════════════════════════════
 
-  /// Simpan daftar topic aktif ke SecureStorage (JSON encoded).
+  /// Save list of active topics to SecureStorage (JSON encoded).
   Future<void> _persistTopics() async {
     final topicList = subscribedTopics.toList();
     await _secureStorage.write(
@@ -283,7 +283,7 @@ class MqttService extends GetxController {
     );
   }
 
-  /// Restore dan re-subscribe ke semua topic yang tersimpan di SecureStorage.
+  /// Restore and re-subscribe to all topics saved in SecureStorage.
   Future<void> restoreSubscriptions() async {
     final raw = await _secureStorage.read(SecureStorageKey.mqttTopic);
     if (raw == null || raw.isEmpty) return;
@@ -301,7 +301,7 @@ class MqttService extends GetxController {
     }
   }
 
-  /// Hapus semua topic dari SecureStorage.
+  /// Clear all topics from SecureStorage.
   Future<void> clearPersistedTopics() async {
     await _secureStorage.delete(SecureStorageKey.mqttTopic);
   }
@@ -310,7 +310,7 @@ class MqttService extends GetxController {
   //  INTERNAL HELPERS
   // ═══════════════════════════════════════════════════════════
 
-  /// Listen ke stream pesan masuk dan dispatch ke listeners.
+  /// Listen to the incoming message stream and dispatch to listeners.
   void _listenMessages() {
     _messageSubscription?.cancel();
 
@@ -325,13 +325,13 @@ class MqttService extends GetxController {
 
         LoggerHelper.d('MQTT ← [$topic] $payload');
 
-        // Dispatch ke global listeners
+        // Dispatch to global listeners
         for (final listener in _globalListeners) {
           listener(topic, payload);
         }
 
-        // Dispatch ke topic-specific listeners
-        // Cek exact match dan wildcard match
+        // Dispatch to topic-specific listeners
+        // Check for exact match and wildcard match
         for (final entry in _topicListeners.entries) {
           if (_topicMatches(entry.key, topic)) {
             for (final listener in entry.value) {

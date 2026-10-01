@@ -98,7 +98,7 @@ void main() {
       expect(controller.hasReachedMax, isTrue);
       expect(controller.isLoadMore.value, isFalse);
 
-      // Guard: setelah last page, loadNextPage tidak boleh fetch lagi.
+      // Guard: after last page, loadNextPage should not fetch again.
       await controller.loadNextPage();
       verifyNever(
         mockRepository.getContacts(
@@ -156,7 +156,7 @@ void main() {
 
       await controller.refreshData();
 
-      // assignAll (bukan addAll) — jumlah tetap, bukan duplikat.
+      // assignAll (not addAll) — exact count, no duplicates.
       expect(controller.items.length, 1);
       verify(
         mockRepository.getContacts(

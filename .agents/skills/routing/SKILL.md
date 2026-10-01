@@ -1,10 +1,14 @@
+---
+name: Routing & Navigation
+description: Adding routes, registering pages, and navigating with GetX
+---
 # Skill: Routing & Navigation
 
-Panduan menambah route baru, mendefinisikan halaman, dan melakukan navigasi dengan GetX.
+Guide to adding new routes, defining pages, and navigating with GetX.
 
 ---
 
-## Step 1: Tambah Route Constant
+## Step 1: Add Route Constant
 
 `lib/infrastructure/navigation/routes.dart`
 
@@ -13,12 +17,12 @@ class Routes {
   static const home = '/home';
   static const login = '/login';
   static const user = '/user';
-  static const product = '/product';          // ← tambahkan
-  static const productDetail = '/product/detail'; // ← tambahkan
+  static const product = '/product';          // ← add
+  static const productDetail = '/product/detail'; // ← add
 
-  // initialRoute ditentukan berdasarkan auth state
+  // initialRoute is determined based on auth state
   static Future<String> get initialRoute async {
-    // TODO: cek auth state
+    // TODO: check auth state
     return login;
   }
 }
@@ -26,7 +30,7 @@ class Routes {
 
 ---
 
-## Step 2: Daftarkan GetPage di Navigation
+## Step 2: Register GetPage in Navigation
 
 `lib/infrastructure/navigation/navigation.dart`
 
@@ -46,7 +50,7 @@ class Nav {
     GetPage(
       name: Routes.product,
       page: () => const ProductScreen(),
-      binding: ProductControllerBinding(), // ← binding wajib ada
+      binding: ProductControllerBinding(), // ← binding is required
     ),
     GetPage(
       name: Routes.productDetail,
@@ -59,31 +63,31 @@ class Nav {
 
 ---
 
-## Step 3: Navigasi dari Controller/Screen
+## Step 3: Navigating from Controller/Screen
 
 ```dart
-// Push (tambahkan ke stack)
+// Push (add to stack)
 Get.toNamed(Routes.product);
 
-// Push dengan arguments
+// Push with arguments
 Get.toNamed(
   Routes.productDetail,
   arguments: {'id': product.id, 'name': product.name},
 );
 
-// Replace screen saat ini (stack: A → B menjadi A → C)
+// Replace current screen (stack: A → B becomes A → C)
 Get.offNamed(Routes.home);
 
-// Clear semua stack dan replace (untuk post-login)
+// Clear all stack and replace (for post-login)
 Get.offAllNamed(Routes.home);
 
-// Kembali ke screen sebelumnya
+// Go back to previous screen
 Get.back();
 
-// Kembali dengan hasil
+// Go back with a result
 Get.back(result: 'deleted');
 
-// Cek apakah bisa back
+// Check if can go back
 if (Get.isRegistered<MyController>()) {
   Get.back();
 }
@@ -91,26 +95,26 @@ if (Get.isRegistered<MyController>()) {
 
 ---
 
-## Mengambil Arguments di Screen Tujuan
+## Retrieving Arguments in the Destination Screen
 
 ```dart
-// Di screen tujuan
+// In the destination screen
 class ProductDetailScreen extends GetView<ProductDetailController> {
   const ProductDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Ambil arguments yang dikirim
+    // Retrieve passed arguments
     final args = Get.arguments as Map<String, dynamic>?;
     final productId = args?['id'] as String? ?? '';
     
-    // Controller dapat diinisialisasi dengan ID ini
-    // (biasanya controller mengambil dari Get.arguments di onInit)
+    // The controller can be initialized with this ID
+    // (usually the controller retrieves from Get.arguments in onInit)
     return Scaffold(...);
   }
 }
 
-// Di controller — ambil arguments di onInit
+// In the controller — retrieve arguments in onInit
 class ProductDetailController extends BaseController {
   final GetProductByIdUseCase useCase;
   
@@ -133,7 +137,7 @@ GetPage(
   name: Routes.product,
   page: () => const ProductScreen(),
   binding: ProductControllerBinding(),
-  transition: Transition.rightToLeft,           // default GetX
+  transition: Transition.rightToLeft,           // GetX default
   transitionDuration: const Duration(milliseconds: 300),
 ),
 ```
@@ -142,32 +146,32 @@ Transition options: `rightToLeft`, `leftToRight`, `upToDown`, `downToUp`, `fade`
 
 ---
 
-## EnvironmentsBadge (Banner dev/staging)
+## EnvironmentsBadge (Dev/Staging banner)
 
-Sudah terintegrasi di `Nav.routes` via `EnvironmentsBadge` wrapper. Hanya muncul di non-prod environment, tidak perlu konfigurasi tambahan.
+Already integrated in `Nav.routes` via the `EnvironmentsBadge` wrapper. It only appears in non-prod environments; no extra configuration needed.
 
 ---
 
-## Navigasi Dialog
+## Dialog Navigation
 
 ```dart
-// Buka dialog biasa
+// Open a standard dialog
 DialogHelper.showDialog(
-  title: 'Konfirmasi',
-  message: 'Hapus item ini?',
+  title: 'Confirmation',
+  message: 'Delete this item?',
   onSubmit: () {
-    Get.back(); // tutup dialog
+    Get.back(); // close dialog
     controller.deleteItem(id);
   },
 );
 
-// Tutup dialog/bottomsheet dari controller
-Get.back(); // selalu bisa digunakan untuk pop apapun
+// Close dialog/bottomsheet from controller
+Get.back(); // can always be used to pop anything
 ```
 
 ---
 
-## Navigasi BottomSheet
+## BottomSheet Navigation
 
 ```dart
 Get.bottomSheet(
@@ -193,10 +197,10 @@ Get.bottomSheet(
 ## Checklist
 
 ```
-[ ] Route constant ditambahkan di Routes class (routes.dart)
-[ ] GetPage ditambahkan di Nav.routes (navigation.dart) dengan binding
-[ ] Binding class sudah dibuat
-[ ] Navigasi menggunakan Routes.xxx (tidak hardcode string '/product')
-[ ] Arguments menggunakan Map<String, dynamic> atau typed class
-[ ] Controller mengambil arguments di onInit() (bukan di build())
+[ ] Route constant added in Routes class (routes.dart)
+[ ] GetPage added in Nav.routes (navigation.dart) with binding
+[ ] Binding class has been created
+[ ] Navigation uses Routes.xxx (do not hardcode strings like '/product')
+[ ] Arguments use Map<String, dynamic> or typed class
+[ ] Controller retrieves arguments in onInit() (not in build())
 ```

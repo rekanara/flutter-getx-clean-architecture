@@ -1,12 +1,12 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'secure_storage.dart';
 
-/// Implementasi [SecureStorage] menggunakan FlutterSecureStorage.
+/// Implementation of [SecureStorage] using FlutterSecureStorage.
 ///
-/// Data disimpan di:
-/// - **iOS**: Keychain (accessibleWhenUnlockedThisDeviceOnly — tidak ikut
-///   iCloud backup, tidak accessible saat device locked, tidak ikut sync
-///   ke device lain. Cocok untuk token autentikasi.)
+/// Data is stored in:
+/// - **iOS**: Keychain (accessibleWhenUnlockedThisDeviceOnly — not included in
+///   iCloud backup, not accessible when device is locked, not synced
+///   to other devices. Suitable for authentication tokens.)
 /// - **Android**: EncryptedSharedPreferences (AES)
 class FlutterSecureStorageImpl implements SecureStorage {
   final FlutterSecureStorage _storage = const FlutterSecureStorage(
@@ -37,7 +37,7 @@ class FlutterSecureStorageImpl implements SecureStorage {
   }
 }
 
-/// Keys untuk data sensitif yang disimpan di SecureStorage.
+/// Keys for sensitive data stored in SecureStorage.
 class SecureStorageKey {
   static const String accessToken = 'secure_access_token';
   static const String refreshToken = 'secure_refresh_token';

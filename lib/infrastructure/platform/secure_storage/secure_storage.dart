@@ -1,10 +1,10 @@
-/// Abstract interface untuk secure/encrypted storage.
+/// Abstract interface for secure/encrypted storage.
 ///
-/// Digunakan khusus untuk menyimpan data sensitif seperti
-/// access token, refresh token, dan credentials lainnya.
+/// Used specifically for storing sensitive data such as
+/// access tokens, refresh tokens, and other credentials.
 ///
-/// Implementasi default menggunakan FlutterSecureStorage
-/// yang memanfaatkan Keychain (iOS) dan EncryptedSharedPreferences (Android).
+/// Default implementation uses FlutterSecureStorage
+/// which utilizes Keychain (iOS) and EncryptedSharedPreferences (Android).
 abstract class SecureStorage {
   Future<void> write(String key, String value);
   Future<String?> read(String key);

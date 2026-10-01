@@ -1,23 +1,25 @@
-# AGENTS.md — Instruksi untuk AI Agents
+# AGENTS.md — Instructions for AI Agents
 
 Flutter boilerplate **rekanara_getx** — Clean Architecture + GetX + Dio.
-CI berjalan di branch `master` (`.github/workflows/ci.yml`).
+CI runs on the `main` branch (`.github/workflows/ci.yml`): a `secret-guard` job (fails if
+`.env`, `google-services.json`, `GoogleService-Info.plist`, `key.properties`, or `*.jks`
+are tracked in git) + an `analyze-and-test` job.
 
-File instruksi paralel (CLAUDE.md, GEMINI.md, .cursorrules, .github/copilot-instructions.md)
-memiliki konten serupa — jika konvensi berubah, update semuanya agar tidak drift.
+Parallel instruction files (CLAUDE.md, GEMINI.md, .cursorrules, .github/copilot-instructions.md)
+have similar content — if conventions change, update all of them to avoid drift.
 
 ---
 
-## Skills — Baca Sebelum Mengerjakan Task
+## Skills — Read Before Working on a Task
 
-Panduan teknis ada di `.agents/skills/{folder}/SKILL.md`. Mapping task yang paling sering:
+Technical guides live in `.agents/skills/{folder}/SKILL.md`. Mapping for the most common tasks:
 
 | Task                                         | Skill                                                                                                              |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Fitur baru (end-to-end, 12 langkah)          | `new-feature` + `clean-architecture`                                                                               |
-| Struktur folder / naming                     | `project-structure`                                                                                                |
+| New feature (end-to-end, 12 steps)           | `new-feature` + `clean-architecture`                                                                               |
+| Folder structure / naming                    | `project-structure`                                                                                                |
 | Entity / Repository / UseCase / Model        | `entity` / `repository` / `usecase` / `model`                                                                      |
-| ApiService / Binding / Endpoint baru         | `api-service` / `binding` / `environment`                                                                          |
+| ApiService / Binding / new Endpoint          | `api-service` / `binding` / `environment`                                                                          |
 | Controller (reactive / builder / pagination) | `controller-reactive` / `controller-builder` / `controller-pagination`                                             |
 | Screen / Route                               | `screen` / `routing`                                                                                               |
 | HTTP / storage / state / UI components       | `networking` / `storage-get` / `storage-secure` / `state-management` / `components-atoms` / `components-molecules` |
@@ -28,61 +30,61 @@ Panduan teknis ada di `.agents/skills/{folder}/SKILL.md`. Mapping task yang pali
 ## Commands
 
 ```bash
-# Setup awal
+# Initial setup
 flutter pub get
-cp .env.example .env          # WAJIB sebelum flutter run (lihat Environment)
+cp .env.example .env          # REQUIRED before flutter run (see Environment)
 dart run build_runner build --delete-conflicting-outputs
 
-# Verifikasi sebelum commit — urutan sama dengan CI
-dart format .                  # CI menjalankan --set-exit-if-changed, format gate GAGAL jika ada diff
+# Verify before commit — same order as CI
+dart format .                  # CI runs --set-exit-if-changed, the format gate FAILS if there is a diff
 flutter analyze
 flutter test
 
-# Test tunggal
+# Single test
 flutter test test/domain/auth/usecases/login_usecase_test.dart
 
-# Generate ulang mocks setelah menambah/mengubah @GenerateMocks
+# Regenerate mocks after adding/changing @GenerateMocks
 dart run build_runner build --delete-conflicting-outputs
 
-# App icon (setelah ganti assets/icons/app_icon.png)
+# App icon (after replacing assets/icons/app_icon.png)
 dart run flutter_launcher_icons
 ```
 
-CI gates persis: `dart format --output=none --set-exit-if-changed .` → `flutter analyze` → `flutter test`. Semua harus lolos.
+Exact CI gates: `dart format --output=none --set-exit-if-changed .` → `flutter analyze` → `flutter test`. All must pass.
 
 ---
 
 ## Environment & Quirks
 
-- **`.env` wajib untuk run app** — dimuat di `lib/main.dart` via `dotenv.load()`; gitignored, template di `.env.example`. Unit test TIDAK butuh `.env` (pure mock, tidak touch dotenv).
-- **Pemilihan environment adalah runtime, bukan build flavor** — tidak ada `--flavor` / `dart-define`. `EnvironmentController.switchEnvironment()` (persist via GetStorage) memilih dev/staging/prod; semua value dari SATU file `.env` dengan suffix `_DEV` / `_STAGING` / `_PROD` (key prod tanpa suffix).
-- **File Firebase gitignored** — `android/app/src/google-services.json` dan `ios/Runner/GoogleService-Info.plist` harus di-provision manual, jangan commit.
-- **FVM opsional** — `.fvmrc` pinned `stable`; plain `flutter` / `dart` commands bekerja normal (CI pakai stable channel).
-- **Chucker (HTTP inspector) hanya tampil di debug mode** — jangan nonaktifkan `kDebugMode` guard-nya.
-- Endpoint URL menghasilkan crash jika env var kosong (`dotenv.env[...]!`) — jangan hapus key dari `.env`.
+- **`.env` is required to run/build the app** — declared as a Flutter asset in `pubspec.yaml` and loaded via `dotenv.load()` in `lib/main.dart`; gitignored, template in `.env.example`. Without `.env`, both `flutter run` and builds fail. Unit tests do NOT need `.env` (pure mocks, never touch dotenv).
+- **Environment selection is runtime, not build flavor** — no `--flavor` / `dart-define`. `EnvironmentController.switchEnvironment()` (persisted via GetStorage) picks dev/staging/prod; all values come from ONE `.env` file with `_DEV` / `_STAGING` / `_PROD` suffixes (prod keys have no suffix).
+- **Firebase files are gitignored** — `android/app/src/google-services.json` and `ios/Runner/GoogleService-Info.plist` must be provisioned manually; do not commit them.
+- **FVM is optional** — `.fvmrc` pins `stable`; plain `flutter` / `dart` commands work fine (CI uses the stable channel).
+- **Chucker (HTTP inspector) only appears in debug mode** — do not disable its `kDebugMode` guard.
+- Endpoint URLs crash if the env var is empty (`dotenv.env[...]!`) — do not remove keys from `.env`.
 
 ---
 
-## Arsitektur
+## Architecture
 
-### Dependency Rule (TIDAK BOLEH DILANGGAR)
+### Dependency Rule (MUST NOT BE VIOLATED)
 
 ```
-Domain  ← pure Dart, tidak import Flutter/Dio/GetX/storage
+Domain  ← pure Dart, no Flutter/Dio/GetX/storage imports
     ↑ implements
-Infrastructure ← import Domain
+Infrastructure ← imports Domain
     ↑ injected via Binding
-Presentation ← import Domain (usecases, entities), TIDAK import infrastructure detail
+Presentation ← imports Domain (usecases, entities), NO infrastructure detail imports
 ```
 
-### Urutan Implementasi Fitur Baru
+### Order for Implementing a New Feature
 
 ```
 Entity → Repository (abstract) → UseCase → Model → ApiService → RepositoryImpl
 → Endpoint (url.dart) → Binding → Controller → Screen → Route → Test
 ```
 
-### DI Injection Order (di Binding)
+### DI Injection Order (in the Binding)
 
 ```
 Storage → ApiService → Repository (abstract) → UseCase → Controller
@@ -90,7 +92,7 @@ Storage → ApiService → Repository (abstract) → UseCase → Controller
 
 ### Naming Convention
 
-| Tipe              | File                                | Class                        |
+| Type              | File                                | Class                        |
 | ----------------- | ----------------------------------- | ---------------------------- |
 | Entity            | `{feature}_entity.dart`             | `{Feature}Entity`            |
 | Repository / Impl | `{feature}_repository(_impl).dart`  | `{Feature}Repository(Impl)`  |
@@ -101,12 +103,12 @@ Storage → ApiService → Repository (abstract) → UseCase → Controller
 | Controller        | `{feature}.controller.dart`         | `{Feature}Controller`        |
 | Screen            | `{feature}.screen.dart`             | `{Feature}Screen`            |
 
-### File Konfigurasi Penting
+### Important Config Files
 
-| File                                                                          | Isi                                           |
+| File                                                                          | Content                                       |
 | ----------------------------------------------------------------------------- | --------------------------------------------- |
-| `lib/infrastructure/network/url.dart`                                         | `Endpoint.{service}.{action}` — semua URL API |
-| `lib/infrastructure/network/environments.dart`                                | `EnvironmentConfig`, switch env runtime       |
+| `lib/infrastructure/network/url.dart`                                         | `Endpoint.{service}.{action}` — all API URLs  |
+| `lib/infrastructure/network/environments.dart`                                | `EnvironmentConfig`, runtime env switch       |
 | `lib/infrastructure/platform/storage/get_storage_impl.dart`                   | `StorageValue` keys                           |
 | `lib/infrastructure/platform/secure_storage/flutter_secure_storage_impl.dart` | `SecureStorageKey` keys                       |
 | `lib/infrastructure/navigation/routes.dart` + `navigation.dart`               | Route constants + GetPage                     |
@@ -114,34 +116,34 @@ Storage → ApiService → Repository (abstract) → UseCase → Controller
 
 ---
 
-## Aturan Kode
+## Code Rules
 
 ### Controller
 
 - Default: `extends BaseController` (reactive, `.obs` + `Obx`)
 - Targeted update: `extends BaseBuilderController` (`update([ids])` + `GetBuilder`)
 - Pagination: `extends BasePaginationController<T>` + `PaginationListView<T>`
-- Selalu `callUseCase()` — tidak manual try/catch / loading toggle
-- `onInit()` → `super.onInit()` + fetch awal; `onClose()` → `super.onClose()` + hapus callback
+- Always use `callUseCase()` — no manual try/catch / loading toggles
+- `onInit()` → `super.onInit()` + initial fetch; `onClose()` → `super.onClose()` + remove callbacks
 
 ### HTTP
 
-- Endpoint publik → `DioClient.noAuthClient`; private → `DioClient.authClient(secureStorage)` (Bearer otomatis + refresh token retry)
-- URL selalu dari `Endpoint.{service}.{action}` — TIDAK hardcode
+- Public endpoints → `DioClient.noAuthClient`; private → `DioClient.authClient(secureStorage)` (automatic Bearer + refresh-token retry)
+- URLs always come from `Endpoint.{service}.{action}` — NO hardcoding
 
 ### Storage
 
-- Sensitif (token) → `SecureStorage`, key di `SecureStorageKey`; non-sensitif → `GetStorage`, key di `StorageValue`
+- Sensitive (tokens) → `SecureStorage`, keys in `SecureStorageKey`; non-sensitive → `GetStorage`, keys in `StorageValue`
 
 ### UI
 
-- Text → `CustomText(fontType: FontType.xxx)`; Button → `CustomButton()`; Image URL → `CustomCachedImage()` — bukan widget Material default
+- Text → `CustomText(fontType: FontType.xxx)`; Button → `CustomButton()`; Image URL → `CustomCachedImage()` — not default Material widgets
 
 ### Error
 
 - Repository catch: `return Left(ServerFailure(e.response?.data?['message'] ?? e.message))`
-- Controller: `callUseCase(onSuccess: ..., onFailure: ...)` — auto snackbar
+- Controller: `callUseCase(onSuccess: ..., onFailure: ...)` — automatic snackbar
 
-### Lint (analysis_options.yaml, di luar flutter_lints default)
+### Lint (analysis_options.yaml, beyond flutter_lints defaults)
 
-`avoid_print` (pakai `LoggerHelper`, `print()` gagal analyze), `unawaited_futures`, `cancel_subscriptions`, `close_sinks` — stream/sink di controller MQTT/FCM wajib di-cancel di `onClose()`.
+`avoid_print` (use `LoggerHelper`; `print()` fails analyze), `unawaited_futures`, `cancel_subscriptions`, `close_sinks` — streams/sinks in MQTT/FCM controllers must be cancelled in `onClose()`.

@@ -1,14 +1,18 @@
+---
+name: GetX State Management
+description: Choosing and using state management (Obx, GetBuilder)
+---
 # Skill: GetX State Management
 
-Panduan memilih dan menggunakan state management yang tepat: Obx, GetBuilder, atau keduanya.
+Guide to choosing and using the right state management: Obx, GetBuilder, or both.
 
 ---
 
-## Tiga Pattern Utama
+## Three Main Patterns
 
-### 1. Reactive State dengan Obx (paling umum)
+### 1. Reactive State with Obx (most common)
 
-Gunakan `.obs` di controller + `Obx(() => ...)` di UI.
+Use `.obs` in the controller + `Obx(() => ...)` in the UI.
 
 ```dart
 // Controller
@@ -28,9 +32,9 @@ Obx(() {
 })
 ```
 
-### 2. Manual State dengan GetBuilder
+### 2. Manual State with GetBuilder
 
-Gunakan plain Dart + `update([ids])` di controller + `GetBuilder<T>` di UI.
+Use plain Dart + `update([ids])` in the controller + `GetBuilder<T>` in the UI.
 
 ```dart
 // Controller
@@ -54,70 +58,70 @@ GetBuilder<SearchController>(
 )
 ```
 
-### 3. GetView\<T\> — Akses Controller di Screen
+### 3. GetView\<T\> — Accessing Controller in Screen
 
 ```dart
 class ProductScreen extends GetView<ProductController> {
-  // `controller` property otomatis tersedia
+  // `controller` property is automatically available
   // = Get.find<ProductController>()
 }
 ```
 
 ---
 
-## Perbandingan Lengkap
+## Full Comparison
 
 | | Obx + .obs | GetBuilder + update() |
 |---|---|---|
-| State type | Rx<T>, RxList, RxBool, dll | Plain Dart (bool, List, dll) |
-| Trigger UI | Otomatis saat nilai berubah | Manual `update([ids])` |
+| State type | Rx<T>, RxList, RxBool, etc. | Plain Dart (bool, List, etc.) |
+| Trigger UI | Automatic when value changes | Manual `update([ids])` |
 | Granularity | Per observable value | Per widget ID |
-| Boilerplate | Minimal | Sedikit lebih banyak |
-| Performance | Sangat baik (fine-grained) | Sangat baik (targeted) |
-| Gunakan | Default, state sering berubah | Filter, search, targeted update |
+| Boilerplate | Minimal | Slightly more |
+| Performance | Excellent (fine-grained) | Excellent (targeted) |
+| Best For | Default, state changes frequently | Filters, search, targeted update |
 
 ---
 
-## Rx Types Lengkap
+## Full Rx Types
 
 ```dart
-// Primitif
+// Primitives
 final isLoading = false.obs;          // RxBool
 final count = 0.obs;                  // RxInt
 final price = 0.0.obs;                // RxDouble
 final name = ''.obs;                  // RxString
 
-// Object — nullable
+// Objects — nullable
 final selected = Rxn<ProductEntity>(); // RxnNull (nullable)
-final user = Rx<UserEntity?>(null);    // alternatif nullable
+final user = Rx<UserEntity?>(null);    // alternative nullable
 
-// List
+// Lists
 final items = <ProductEntity>[].obs;  // RxList<ProductEntity>
 final tags = <String>[].obs;          // RxList<String>
 
-// Set
+// Sets
 final ids = <String>{}.obs;           // RxSet<String>
 
-// Map
+// Maps
 final config = <String, String>{}.obs; // RxMap<String, String>
 ```
 
 ---
 
-## Operasi RxList
+## RxList Operations
 
 ```dart
 final products = <ProductEntity>[].obs;
 
-products.assignAll(newList);          // replace semua
-products.add(product);                // tambah satu
-products.addAll([p1, p2]);            // tambah banyak
-products.remove(product);             // hapus by reference
-products.removeWhere((e) => e.id == id); // hapus by condition
-products.clear();                     // kosongkan
+products.assignAll(newList);          // replace all
+products.add(product);                // add one
+products.addAll([p1, p2]);            // add multiple
+products.remove(product);             // remove by reference
+products.removeWhere((e) => e.id == id); // remove by condition
+products.clear();                     // empty list
 products[0] = updatedProduct;         // update by index
 
-// Untuk read — gunakan langsung seperti List
+// For reading — use directly like a standard List
 products.length;
 products.isEmpty;
 products.where((e) => e.isActive).toList();
@@ -127,7 +131,7 @@ products[0];
 
 ---
 
-## debounce dan interval
+## debounce and interval
 
 ```dart
 class SearchController extends BaseController {
@@ -137,15 +141,15 @@ class SearchController extends BaseController {
   void onInit() {
     super.onInit();
 
-    // Debounce: delay 500ms setelah terakhir berubah
+    // Debounce: delay 500ms after the last change
     debounce(query, (_) => doSearch(), time: const Duration(milliseconds: 500));
 
-    // Interval: throttle, panggil setiap 1 detik meski terus berubah
+    // Interval: throttle, called every 1 second even if changing continuously
     // interval(query, (_) => doSearch(), time: const Duration(seconds: 1));
   }
 
   void onQueryChanged(String value) {
-    query.value = value; // debounce auto-trigger doSearch()
+    query.value = value; // debounce will auto-trigger doSearch()
   }
 
   Future<void> doSearch() async {
@@ -156,32 +160,32 @@ class SearchController extends BaseController {
 
 ---
 
-## ever dan once
+## ever and once
 
 ```dart
 @override
 void onInit() {
   super.onInit();
 
-  // ever: callback setiap kali nilai berubah
+  // ever: callback every time the value changes
   ever(isLoading, (loading) {
     if (loading) LoggerHelper.d('Loading started');
   });
 
-  // once: callback HANYA saat pertama kali berubah
+  // once: callback ONLY the first time it changes
   once(items, (_) => LoggerHelper.d('First load complete'));
 }
 ```
 
 ---
 
-## GetBuilder tanpa ID (update semua)
+## GetBuilder without ID (update all)
 
 ```dart
-// Controller: update() tanpa ID — rebuild semua GetBuilder<T>
+// Controller: update() without ID — rebuilds all GetBuilder<T>
 void refresh() {
   data = fetchNewData();
-  update(); // rebuild SEMUA GetBuilder<ThisController>
+  update(); // rebuilds ALL GetBuilder<ThisController>
 }
 
 // UI
@@ -190,11 +194,11 @@ GetBuilder<ThisController>(
 )
 ```
 
-## GetBuilder dengan ID (targeted)
+## GetBuilder with ID (targeted)
 
 ```dart
 // Controller
-update(['header', 'list']); // update dua widget berbeda
+update(['header', 'list']); // update two different widgets
 
 // UI
 GetBuilder<T>(id: 'header', builder: (c) => HeaderWidget()),
@@ -208,9 +212,9 @@ GetBuilder<T>(id: 'list', builder: (c) => ListWidget()),
 ```
 [ ] Default → BaseController + .obs + Obx
 [ ] Targeted update → BaseBuilderController + update([ids]) + GetBuilder
-[ ] Tidak mix .obs dan plain state di controller yang sama
-[ ] Obx: gunakan .value untuk primitif (isLoading.value, name.value)
-[ ] RxList: gunakan assignAll() bukan = [] (bukan reassign)
-[ ] GetView<T> di Screen untuk akses controller property
-[ ] debounce untuk search/filter dengan delay
+[ ] Do not mix .obs and plain state in the same controller
+[ ] Obx: use .value for primitives (isLoading.value, name.value)
+[ ] RxList: use assignAll() instead of = [] (no reassign)
+[ ] GetView<T> in Screen to access the controller property
+[ ] debounce for search/filter with delay
 ```

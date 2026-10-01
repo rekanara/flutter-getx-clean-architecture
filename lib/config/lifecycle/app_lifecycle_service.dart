@@ -6,28 +6,28 @@ import '../../utils/helper/logger.dart';
 
 /// Global App Lifecycle Observer.
 ///
-/// Mendaftarkan dirinya sebagai [WidgetsBindingObserver] untuk mendengarkan
-/// perubahan lifecycle app (resumed, paused, inactive, detached).
+/// Registers itself as [WidgetsBindingObserver] to listen for
+/// app lifecycle changes (resumed, paused, inactive, detached).
 ///
-/// Tanggung jawab utama:
-/// - **MQTT**: Disconnect saat app masuk background, reconnect saat resume
-/// - **Firebase**: Tetap berjalan di background (handled oleh Firebase SDK sendiri)
-/// - Menyediakan callback opsional untuk controller yang ingin react terhadap lifecycle
+/// Main responsibilities:
+/// - **MQTT**: Disconnect when app goes to background, reconnect on resume
+/// - **Firebase**: Keeps running in background (handled by Firebase SDK)
+/// - Provides optional callbacks for controllers reacting to lifecycle changes
 ///
-/// Cara pakai:
+/// Usage:
 /// ```dart
-/// // Di main.dart — sudah otomatis di-register
+/// // In main.dart — automatically registered
 /// Get.put(AppLifecycleService(), permanent: true);
 /// ```
 class AppLifecycleService extends GetxController with WidgetsBindingObserver {
-  /// Status lifecycle saat ini (observable)
+  /// Current lifecycle state (observable)
   final Rx<AppLifecycleState> currentState = AppLifecycleState.resumed.obs;
 
-  /// Callbacks yang akan dipanggil saat app kembali ke foreground (resumed).
-  /// Controller bisa mendaftarkan callback refresh data di sini.
+  /// Callbacks invoked when app returns to foreground (resumed).
+  /// Controllers can register data refresh callbacks here.
   final List<VoidCallback> _onResumeCallbacks = [];
 
-  /// Callbacks yang akan dipanggil saat app masuk ke background (paused).
+  /// Callbacks invoked when app goes to background (paused).
   final List<VoidCallback> _onPauseCallbacks = [];
 
   @override
@@ -72,44 +72,44 @@ class AppLifecycleService extends GetxController with WidgetsBindingObserver {
   //  LIFECYCLE HANDLERS
   // ═══════════════════════════════════════════════════════════
 
-  /// App kembali ke foreground
+  /// App returns to foreground
   void _onAppResumed() {
     LoggerHelper.i('AppLifecycle: ▶️ App Resumed');
 
     // ── Reconnect MQTT ──
     _reconnectMqtt();
 
-    // ── Notify semua registered callbacks ──
+    // ── Notify all registered callbacks ──
     for (final callback in _onResumeCallbacks) {
       callback();
     }
 
-    // Firebase tetap running — tidak perlu re-init
-    // FCM background handler sudah handle pesan saat di background
+    // Firebase keeps running — no re-init needed
+    // FCM background handler already handles background messages
   }
 
-  /// App masuk ke background
+  /// App goes to background
   void _onAppPaused() {
     LoggerHelper.i('AppLifecycle: ⏸️ App Paused');
 
-    // ── Disconnect MQTT untuk hemat baterai ──
+    // ── Disconnect MQTT to save battery ──
     _disconnectMqtt();
 
-    // ── Notify semua registered callbacks ──
+    // ── Notify all registered callbacks ──
     for (final callback in _onPauseCallbacks) {
       callback();
     }
 
-    // Firebase tetap running di background (SDK handle sendiri)
+    // Firebase keeps running in background (SDK handles it)
   }
 
-  /// App masih visible tapi tidak menerima input (dialog, split screen)
+  /// App is still visible but not receiving input (dialog, split screen)
   void _onAppInactive() {
     LoggerHelper.d('AppLifecycle: 💤 App Inactive');
-    // Biasanya tidak perlu action apa-apa
+    // Usually no action needed
   }
 
-  /// App di-terminate
+  /// App is terminated
   void _onAppDetached() {
     LoggerHelper.d('AppLifecycle: 🛑 App Detached');
     _disconnectMqtt();
@@ -127,7 +127,7 @@ class AppLifecycleService extends GetxController with WidgetsBindingObserver {
         mqtt.connect();
       }
     } catch (_) {
-      // MqttService belum di-register atau belum connect sebelumnya
+      // MqttService not registered or not connected yet
     }
   }
 
@@ -139,7 +139,7 @@ class AppLifecycleService extends GetxController with WidgetsBindingObserver {
         mqtt.disconnect();
       }
     } catch (_) {
-      // MqttService belum di-register
+      // MqttService not registered
     }
   }
 
@@ -147,8 +147,7 @@ class AppLifecycleService extends GetxController with WidgetsBindingObserver {
   //  CALLBACK REGISTRATION
   // ═══════════════════════════════════════════════════════════
 
-  /// Daftarkan callback yang dipanggil saat app kembali ke foreground.
-  ///
+  /// Register callback to be invoked when app returns to foreground.
   /// ```dart
   /// final lifecycle = Get.find<AppLifecycleService>();
   /// lifecycle.addOnResumeCallback(fetchBanners);
@@ -159,19 +158,19 @@ class AppLifecycleService extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  /// Hapus callback resume.
+  /// Remove resume callback.
   void removeOnResumeCallback(VoidCallback callback) {
     _onResumeCallbacks.remove(callback);
   }
 
-  /// Daftarkan callback yang dipanggil saat app masuk ke background.
+  /// Register callback to be invoked when app goes to background.
   void addOnPauseCallback(VoidCallback callback) {
     if (!_onPauseCallbacks.contains(callback)) {
       _onPauseCallbacks.add(callback);
     }
   }
 
-  /// Hapus callback pause.
+  /// Remove pause callback.
   void removeOnPauseCallback(VoidCallback callback) {
     _onPauseCallbacks.remove(callback);
   }

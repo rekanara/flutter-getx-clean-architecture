@@ -1,6 +1,10 @@
+---
+name: Local Notifications
+description: Local notifications, channels, notification types, tap handling
+---
 # Skill: Local Notifications
 
-Panduan menampilkan notifikasi lokal, channel, tipe notifikasi, dan handling tap.
+Guide to displaying local notifications, channels, notification types, and tap handling.
 
 ---
 
@@ -8,11 +12,11 @@ Panduan menampilkan notifikasi lokal, channel, tipe notifikasi, dan handling tap
 
 `lib/config/notifications/notifications.dart`
 
-- `NotificationsHelper` — init + tampilkan notifikasi
-- `ShowNotificationHelper` — facade berdasarkan `NotificationType`
-- `NotificationChannels` — definisi channel Android
-- `NotificationController` — handle tap payload + navigasi
-- `NotificationImageHelper` — download icon image ke temp
+- `NotificationsHelper` — init + display notifications
+- `ShowNotificationHelper` — facade based on `NotificationType`
+- `NotificationChannels` — Android channel definitions
+- `NotificationController` — handles tap payload + navigation
+- `NotificationImageHelper` — downloads icon image to temp storage
 
 ---
 
@@ -35,41 +39,41 @@ enum NotificationType {
 
 ---
 
-## Menampilkan Notifikasi
+## Displaying Notifications
 
-### Via ShowNotificationHelper (Rekomendasi)
+### Via ShowNotificationHelper (Recommended)
 
 ```dart
-// payload bertipe Map<String, String>?, BUKAN String hasil jsonEncode
+// payload is of type Map<String, String>?, NOT a jsonEncode string
 ShowNotificationHelper.showNotification(
   type: NotificationType.order,
-  title: 'Pesanan Baru',
-  body: 'Order #12345 sedang diproses',
+  title: 'New Order',
+  body: 'Order #12345 is being processed',
   payload: {'type': 'order', 'id': '12345'},
-  iconUrl: 'https://example.com/icon.png', // opsional — parameter bernama iconUrl, bukan imageUrl
+  iconUrl: 'https://example.com/icon.png', // optional — parameter named iconUrl, not imageUrl
 );
 
 // Chat notification
 ShowNotificationHelper.showNotification(
   type: NotificationType.chat,
-  title: 'Pesan dari Support',
-  body: 'Halo, ada yang bisa kami bantu?',
+  title: 'Message from Support',
+  body: 'Hello, how can we help you?',
   payload: {'type': 'chat', 'room_id': 'support_1'},
 );
 ```
 
-### Via NotificationsHelper langsung (detail lengkap)
+### Via NotificationsHelper directly (full detail)
 
 ```dart
-// Parameter sebenarnya: channelKey (bukan channel), isBigText+summary (bukan bigText),
-// payload Map<String,String>? (bukan jsonEncode string), largeIcon/bigPicture untuk gambar
+// Actual parameters: channelKey (not channel), isBigText+summary (not bigText),
+// payload Map<String,String>? (not jsonEncode string), largeIcon/bigPicture for images
 await NotificationsHelper.showNotification(
   id: 101,
   channelKey: NotificationChannels.adsChannelKey,
   groupKey: NotificationChannels.adsGroupKey,
-  title: 'Promo Flash Sale!',
-  body: 'Diskon 50% untuk semua produk',
-  summary: 'Dapatkan diskon 50% untuk semua produk pilihan dalam Flash Sale hari ini.',
+  title: 'Flash Sale Promo!',
+  body: '50% off all products',
+  summary: 'Get a 50% discount on all selected products in today\'s Flash Sale.',
   isBigText: true,
   payload: {'type': 'ads', 'promo_id': 'fs_001'},
 );
@@ -81,8 +85,8 @@ await NotificationsHelper.showNotification(
 
 ```dart
 // lib/config/notifications/notifications.dart
-// Getter bernama {name}ChannelKey / {name}GroupKey / {name}ChannelName / {name}ChannelDescription
-// — BUKAN konstanta bare seperti NotificationChannels.chat
+// Getters named {name}ChannelKey / {name}GroupKey / {name}ChannelName / {name}ChannelDescription
+// — NOT bare constants like NotificationChannels.chat
 class NotificationChannels {
   static String get chatChannelKey => "chat_channel";
   static String get chatGroupKey => "chat_group_key";
@@ -96,20 +100,20 @@ class NotificationChannels {
   static String get marketingGroupKey => "marketing_group_key";
   static String get generalChannelKey => "general_channel";
   static String get generalGroupKey => "general_group_key";
-  // + *ChannelName / *ChannelDescription untuk tiap channel
+  // + *ChannelName / *ChannelDescription for each channel
 }
 ```
 
-Semua channel importance: `Importance.max` (heads-up notification).
+All channels have importance: `Importance.max` (heads-up notifications).
 
 ---
 
-## Handling Tap (NotificationController)
+## Handling Taps (NotificationController)
 
-Sudah di-handle otomatis di `NotificationController` untuk **local notification** (bukan FCM). Routing yang benar-benar ada saat ini sangat minimal:
+Automatically handled in `NotificationController` for **local notifications** (not FCM). Routing that actually exists currently is very minimal:
 
 ```dart
-// lib/config/notifications/notifications.dart — implementasi nyata saat ini
+// lib/config/notifications/notifications.dart — current real implementation
 class NotificationController {
   static void onActionReceived(NotificationResponse response) =>
       _handlePayload(response.payload);
@@ -127,7 +131,7 @@ class NotificationController {
     Map<String, dynamic>? args;
     switch (type) {
       case 'order':
-        route = Routes.home; // TODO: belum ada Routes.orderDetail
+        route = Routes.home; // TODO: Routes.orderDetail doesn't exist yet
         args = {'ticket_id': payload['data']};
         break;
       default:
@@ -140,18 +144,18 @@ class NotificationController {
 }
 ```
 
-`Routes.orderDetail` dan `Routes.chat` **belum ada** di `routes.dart` (baru `home`/`login`/`user`) — tambahkan dulu sebelum bisa routing ke sana. Untuk tap dari **FCM** (bukan local notification), lihat `FirebaseMessagingService._handleNotificationTap` di `firebase_messaging_service.dart` — saat ini masih TODO/belum ada navigasi sama sekali.
+`Routes.orderDetail` and `Routes.chat` **do not exist yet** in `routes.dart` (only `home`/`login`/`user`) — add them first before routing there. For taps from **FCM** (not local notifications), see `FirebaseMessagingService._handleNotificationTap` in `firebase_messaging_service.dart` — it is currently a TODO/has no navigation logic at all.
 
-Untuk menambah routing baru, edit `NotificationController._handlePayload`.
+To add new routing, edit `NotificationController._handlePayload`.
 
 ---
 
 ## FCM → Local Notification
 
-FCM message otomatis di-convert ke local notification di `FirebaseMessagingService`:
+FCM messages are automatically converted to local notifications in `FirebaseMessagingService`:
 
 ```dart
-// Di firebaseMessagingBackgroundHandler (background) + onMessage (foreground)
+// In firebaseMessagingBackgroundHandler (background) + onMessage (foreground)
 void _processMessage(RemoteMessage message) {
   final type = message.data['type'];
   final notifType = _mapTypeToEnum(type); // 'order' → NotificationType.order
@@ -170,21 +174,21 @@ void _processMessage(RemoteMessage message) {
 
 ## NotificationImageHelper
 
-Download icon dari URL untuk notifikasi bergambar:
+Downloads an icon from a URL for image notifications:
 
 ```dart
-// Method bernama downloadToTemp, bukan downloadImage
+// Method named downloadToTemp, not downloadImage
 final imagePath = await NotificationImageHelper.downloadToTemp(imageUrl);
-// Disimpan di temp dir, dibersihkan setelah 7 hari
+// Saved to temp dir, cleaned up after 7 days
 ```
 
 ---
 
-## Request Permission
+## Requesting Permissions
 
 ```dart
-// Sebelum show notifikasi, pastikan permission sudah di-request
-// (Sudah dilakukan di main.dart via PermissionHandler)
+// Before showing notifications, make sure permissions have been requested
+// (Already done in main.dart via PermissionHandler)
 await PermissionHandler().requestNotificationPermission();
 ```
 
@@ -193,10 +197,10 @@ await PermissionHandler().requestNotificationPermission();
 ## Checklist
 
 ```
-[ ] Gunakan ShowNotificationHelper.showNotification() dengan type yang tepat
-[ ] Payload selalu jsonEncode Map dengan key 'type'
-[ ] type di payload sesuai NotificationType (order, chat, ticket, dll)
-[ ] Routing tap notifikasi di NotificationController
-[ ] Permission sudah di-request di main.dart
-[ ] FCM → local notification sudah otomatis via FirebaseMessagingService
+[ ] Use ShowNotificationHelper.showNotification() with the correct type
+[ ] Payload is always a jsonEncode Map with a 'type' key
+[ ] type in the payload matches a NotificationType (order, chat, ticket, etc.)
+[ ] Route notification taps in NotificationController
+[ ] Permissions requested in main.dart
+[ ] FCM → local notification is handled automatically via FirebaseMessagingService
 ```

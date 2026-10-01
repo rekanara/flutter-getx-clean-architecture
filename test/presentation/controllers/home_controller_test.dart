@@ -42,7 +42,7 @@ void main() {
     ];
 
     test('should have empty banners initially', () {
-      // Setup: stub usecase karena onInit akan memanggil fetchBanners
+      // Setup: stub usecase because onInit will call fetchBanners
       when(mockUseCase.execute(any)).thenAnswer((_) async => const Right([]));
 
       expect(controller.banners, isEmpty);

@@ -1,20 +1,24 @@
+---
+name: Screen (Presentation Layer)
+description: Building UI screens reactive to GetX controllers
+---
 # Skill: Screen (Presentation Layer)
 
-Screen adalah UI layer yang menampilkan state dari Controller. Extend `GetView<T>`.
+A Screen is the UI layer that displays the state from the Controller. Extend `GetView<T>`.
 
 ---
 
-## Aturan Screen
+## Screen Rules
 
-1. Selalu `extends GetView<ControllerType>` — memberikan akses `controller` property
-2. Gunakan `Obx(() => ...)` untuk widget yang reaktif terhadap `.obs` state
-3. Gunakan `GetBuilder<T>(id: ..., builder: ...)` jika controller pakai `BaseBuilderController`
-4. Lokasi: `lib/presentation/{feature}/{feature}.screen.dart`
-5. Widget spesifik fitur taruh di `lib/presentation/{feature}/widgets/`
+1. Always `extends GetView<ControllerType>` — gives access to the `controller` property.
+2. Use `Obx(() => ...)` for widgets that are reactive to `.obs` state.
+3. Use `GetBuilder<T>(id: ..., builder: ...)` if the controller uses `BaseBuilderController`.
+4. Location: `lib/presentation/{feature}/{feature}.screen.dart`
+5. Feature-specific widgets go in `lib/presentation/{feature}/widgets/`
 
 ---
 
-## Template Dasar (BaseController + Obx)
+## Basic Template (BaseController + Obx)
 
 ```dart
 // lib/presentation/product/product.screen.dart
@@ -37,7 +41,7 @@ class ProductScreen extends GetView<ProductController> {
         ),
       ),
       body: Obx(() {
-        // Satu Obx untuk semua state yang saling terkait
+        // One Obx for all related state
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -45,7 +49,7 @@ class ProductScreen extends GetView<ProductController> {
           return Center(child: Text(controller.errorMessage.value));
         }
         if (controller.products.isEmpty) {
-          return const Center(child: Text('Belum ada produk'));
+          return const Center(child: Text('No products available'));
         }
         return _buildProductList();
       }),
@@ -72,8 +76,8 @@ class ProductScreen extends GetView<ProductController> {
 
   void _showCreateDialog(BuildContext context) {
     DialogHelper.showDialog(
-      title: 'Tambah Produk',
-      message: 'Fitur ini akan segera tersedia',
+      title: 'Add Product',
+      message: 'This feature will be available soon',
       onSubmit: () {},
     );
   }
@@ -82,7 +86,7 @@ class ProductScreen extends GetView<ProductController> {
 
 ---
 
-## Template dengan BaseBuilderController + GetBuilder
+## Template with BaseBuilderController + GetBuilder
 
 ```dart
 class UserScreen extends GetView<UserController> {
@@ -138,39 +142,39 @@ class UserScreen extends GetView<UserController> {
 
 ---
 
-## Mengakses Controller
+## Accessing the Controller
 
 ```dart
-// Di GetView<T> — akses via `controller` property (auto-inject)
+// In GetView<T> — access via `controller` property (auto-injected)
 class ProductScreen extends GetView<ProductController> {
-  // controller property otomatis tersedia
-  // tidak perlu Get.find<ProductController>()
+  // controller property is automatically available
+  // no need for Get.find<ProductController>()
 }
 
-// Di widget biasa (StatelessWidget/StatefulWidget) yang bukan GetView
+// In standard widgets (StatelessWidget/StatefulWidget) that aren't GetView
 final controller = Get.find<ProductController>();
 ```
 
 ---
 
-## Pattern: Obx Granular
+## Pattern: Granular Obx
 
-Bagi `Obx` ke bagian yang lebih kecil agar tidak rebuild seluruh screen:
+Split `Obx` into smaller parts so the entire screen doesn't rebuild:
 
 ```dart
 @override
 Widget build(BuildContext context) {
   return Scaffold(
-    // AppBar tidak reaktif — tidak perlu Obx
+    // AppBar is not reactive — no Obx needed
     appBar: AppBar(title: const Text('Products')),
 
-    // Body reaktif terhadap isLoading dan products
+    // Body is reactive to isLoading and products
     body: Obx(() {
       if (controller.isLoading.value) return const CircularProgressIndicator();
       return _buildList();
     }),
 
-    // FAB hanya reaktif terhadap isCreating
+    // FAB is only reactive to isCreating
     floatingActionButton: Obx(() => FloatingActionButton(
       onPressed: controller.isCreating.value ? null : controller.showCreateForm,
       child: controller.isCreating.value
@@ -186,34 +190,34 @@ Widget build(BuildContext context) {
 
 ---
 
-## Navigation dari Screen
+## Navigation from Screen
 
 ```dart
-// Push ke screen baru
+// Push to a new screen
 Get.toNamed(Routes.productDetail, arguments: {'id': product.id});
 
-// Replace screen saat ini
+// Replace current screen
 Get.offNamed(Routes.home);
 
-// Clear semua stack dan ke screen baru
+// Clear all stack and go to a new screen
 Get.offAllNamed(Routes.login);
 
-// Kembali
+// Go back
 Get.back();
 
-// Kembali dengan result
+// Go back with a result
 Get.back(result: 'created');
 
-// Ambil arguments di screen tujuan
+// Retrieve arguments in destination screen
 final args = Get.arguments as Map<String, dynamic>;
 final id = args['id'] as String;
 ```
 
 ---
 
-## Widget Spesifik Fitur
+## Feature-Specific Widgets
 
-Widget yang hanya dipakai di screen ini diletakkan di sub-folder widgets:
+Widgets used only in this screen go in the widgets sub-folder:
 
 ```
 lib/presentation/product/
@@ -221,7 +225,7 @@ lib/presentation/product/
 ├── controllers/
 │   └── product.controller.dart
 └── widgets/
-    ├── product_card.dart       # reusable dalam fitur ini saja
+    ├── product_card.dart       # reusable only within this feature
     └── create_product_form.dart
 ```
 
@@ -231,9 +235,9 @@ lib/presentation/product/
 
 ```
 [ ] Class extends GetView<ControllerType>
-[ ] Tidak ada state di Screen (semua state di Controller)
-[ ] Reaktif: Obx untuk BaseController, GetBuilder untuk BaseBuilderController
-[ ] Navigasi menggunakan Routes.xxx (tidak hardcode string)
-[ ] Widget kompleks dipecah ke fungsi _build atau file terpisah di widgets/
-[ ] Import hanya komponen dari components/ atau domain entities (bukan infrastructure)
+[ ] No state in the Screen (all state is in the Controller)
+[ ] Reactive: Obx for BaseController, GetBuilder for BaseBuilderController
+[ ] Navigation uses Routes.xxx (no hardcoded strings)
+[ ] Complex widgets are split into _build functions or separate files in widgets/
+[ ] Import only components from components/ or domain entities (not infrastructure)
 ```

@@ -15,7 +15,7 @@ class PermissionHandler {
       _logger.i('Notification Permission Granted');
     } else {
       _logger.w('Notification Permission Denied');
-      // _showToast('Izin notifikasi diperlukan untuk menerima pemberitahuan penting.');
+      // _showToast('Notification permission is required to receive important notifications.');
     }
     // location permission optional
     bool isLocationGranted = await requestLocationPermission();
@@ -23,7 +23,7 @@ class PermissionHandler {
       _logger.i('Location Permission Granted');
     } else {
       _logger.w('Location Permission Denied');
-      // _showToast('Izin lokasi diperlukan untuk fitur berbasis lokasi.');
+      // _showToast('Location permission is required for location-based features.');
     }
 
     // camera permission optional
@@ -32,7 +32,7 @@ class PermissionHandler {
       _logger.i('Camera Permission Granted');
     } else {
       _logger.w('Camera Permission Denied');
-      // _showToast('Izin kamera diperlukan untuk mengambil foto atau video.');
+      // _showToast('Camera permission is required to take photos or videos.');
     }
   }
 
@@ -55,7 +55,7 @@ class PermissionHandler {
         } else {
           status = await permission.request();
           _logger.w('$permissionName Permission Denied');
-          // _showToast('Izin $permissionName ditolak. Beberapa fitur mungkin tidak berfungsi.');
+          // _showToast('$permissionName permission denied. Some features may not work.');
           return false;
         }
       } else if (status.isPermanentlyDenied) {
@@ -75,7 +75,7 @@ class PermissionHandler {
       }
     } catch (e) {
       _logger.e('Error when requesting $permissionName permission: $e');
-      // _showToast('Terjadi kesalahan saat meminta izin $permissionName.');
+      // _showToast('An error occurred while requesting $permissionName permission.');
     }
 
     return false;

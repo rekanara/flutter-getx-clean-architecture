@@ -7,9 +7,9 @@ import '../../components/molecules/custom_cached_image.dart';
 import '../../utils/config.dart';
 import 'controllers/user.controller.dart';
 
-/// Contoh screen menggunakan [GetBuilder] (manual update pattern).
+/// Example screen using [GetBuilder] (manual update pattern).
 ///
-/// Bandingkan dengan HomeScreen yang menggunakan [Obx] (reactive pattern).
+/// Compare with HomeScreen which uses [Obx] (reactive pattern).
 class UserScreen extends GetView<UserController> {
   const UserScreen({super.key});
 
@@ -35,13 +35,13 @@ class UserScreen extends GetView<UserController> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: CustomTextField(
-              hintText: 'Cari user...',
+              hintText: 'Search user...',
               prefixIcon: const Icon(Icons.search),
               onChanged: controller.onSearch,
             ),
           ),
 
-          // ── User List (GetBuilder — hanya rebuild bagian ini) ──
+          // ── User List (GetBuilder — only rebuild this part) ──
           Expanded(
             child: GetBuilder<UserController>(
               builder: (c) {
@@ -63,7 +63,7 @@ class UserScreen extends GetView<UserController> {
                         ),
                         const SizedBox(height: 8),
                         CustomText(
-                          text: 'User tidak ditemukan',
+                          text: 'User not found',
                           fontType: FontType.bodyMedium,
                           color: Colors.grey,
                         ),

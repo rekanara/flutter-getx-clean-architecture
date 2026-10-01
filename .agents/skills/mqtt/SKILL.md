@@ -1,6 +1,10 @@
+---
+name: MQTT Service
+description: Guide for MQTT real-time messaging
+---
 # Skill: MQTT Service
 
-Panduan penggunaan MQTT untuk real-time messaging: connect, subscribe, publish, dan listener.
+Guide to using MQTT for real-time messaging: connect, subscribe, publish, and listeners.
 
 ---
 
@@ -8,15 +12,15 @@ Panduan penggunaan MQTT untuk real-time messaging: connect, subscribe, publish, 
 
 `lib/config/mqtt/mqtt_service.dart`
 
-- GetxController permanent (singleton)
-- Auto-connect saat app start (di main.dart)
-- Auto-reconnect built-in
-- Topic subscriptions persisted ke SecureStorage
-- Wildcard support: `+` (single-level) dan `#` (multi-level)
+- Permanent GetxController (singleton)
+- Auto-connects on app start (in main.dart)
+- Built-in auto-reconnect
+- Topic subscriptions persisted to SecureStorage
+- Wildcard support: `+` (single-level) and `#` (multi-level)
 
 ---
 
-## Mengakses Service
+## Accessing the Service
 
 ```dart
 final mqtt = Get.find<MqttService>();
@@ -36,7 +40,7 @@ mqtt.connectionStatus.value // MqttConnectionStatus enum
 // MqttConnectionStatus.disconnected
 // MqttConnectionStatus.error
 
-// Di UI
+// In UI
 Obx(() => Icon(
   mqtt.connectionStatus.value == MqttConnectionStatus.connected
     ? Icons.wifi
@@ -49,29 +53,29 @@ Obx(() => Icon(
 ## Connect & Disconnect
 
 ```dart
-// Connect (biasanya sudah auto dari main.dart)
+// Connect (usually done automatically from main.dart)
 await mqtt.connect();
 
-// Disconnect (manual, misal saat logout)
+// Disconnect (manual, e.g., on logout)
 mqtt.disconnect();
 ```
 
 ---
 
-## Subscribe ke Topic
+## Subscribe to Topics
 
 ```dart
-// Subscribe satu topic
+// Subscribe to a single topic
 mqtt.subscribe('user/123/notifications');
 
-// Subscribe banyak topic sekaligus
+// Subscribe to multiple topics at once
 mqtt.subscribeMany([
   'user/123/notifications',
   'order/456/status',
   'company/general',
 ]);
 
-// Topic tersimpan otomatis ke SecureStorage dan di-restore saat reconnect
+// Topics are automatically saved to SecureStorage and restored upon reconnect
 
 // Unsubscribe
 mqtt.unsubscribe('user/123/notifications');
@@ -79,23 +83,23 @@ mqtt.unsubscribe('user/123/notifications');
 
 ---
 
-## Publish Pesan
+## Publish Messages
 
 ```dart
-// topic dan message adalah POSITIONAL parameter, bukan named
+// topic and message are POSITIONAL parameters, not named
 mqtt.publish(
   'order/123/status',
   '{"status": "delivered"}',
-  qos: MqttQos.atLeastOnce, // atau atMostOnce, exactlyOnce
+  qos: MqttQos.atLeastOnce, // or atMostOnce, exactlyOnce
   retain: false,
 );
 ```
 
 ---
 
-## Mendengarkan Pesan (Topic Listener)
+## Listening to Messages (Topic Listener)
 
-### Listener per Topic
+### Per-Topic Listener
 
 ```dart
 class OrderController extends BaseController {
@@ -105,10 +109,10 @@ class OrderController extends BaseController {
   void onInit() {
     super.onInit();
 
-    // Subscribe ke topic
+    // Subscribe to the topic
     _mqtt.subscribe('order/${orderId}/status');
 
-    // Tambah listener
+    // Add a listener
     _mqtt.addTopicListener('order/${orderId}/status', _onOrderStatusChanged);
   }
 
@@ -122,7 +126,7 @@ class OrderController extends BaseController {
 
   @override
   void onClose() {
-    // PENTING: hapus listener saat controller di-dispose
+    // IMPORTANT: remove the listener when the controller is disposed
     _mqtt.removeTopicListener('order/${orderId}/status', _onOrderStatusChanged);
     _mqtt.unsubscribe('order/${orderId}/status');
     super.onClose();
@@ -130,10 +134,10 @@ class OrderController extends BaseController {
 }
 ```
 
-### Listener Global (semua pesan)
+### Global Listener (All messages)
 
 ```dart
-// Mendapat semua pesan dari semua topic yang di-subscribe
+// Receive all messages from all subscribed topics
 _mqtt.addGlobalListener((topic, message) {
   LoggerHelper.d('MQTT message on $topic: $message');
 });
@@ -144,17 +148,17 @@ _mqtt.addGlobalListener((topic, message) {
 ## Wildcard Topics
 
 ```dart
-// + = satu level wildcard
-_mqtt.subscribe('order/+/status'); // cocok: order/123/status, order/abc/status
-                                   // tidak cocok: order/123/detail/status
+// + = single-level wildcard
+_mqtt.subscribe('order/+/status'); // matches: order/123/status, order/abc/status
+                                   // does not match: order/123/detail/status
 
-// # = multi-level wildcard (harus di akhir)
-_mqtt.subscribe('user/#');         // cocok: user/123, user/123/notif, user/123/order/detail
+// # = multi-level wildcard (must be at the end)
+_mqtt.subscribe('user/#');         // matches: user/123, user/123/notif, user/123/order/detail
 ```
 
 ---
 
-## Contoh Integrasi di Controller
+## Integration Example in Controller
 
 ```dart
 class ChatController extends BaseController {
@@ -194,7 +198,7 @@ class ChatController extends BaseController {
   void onClose() {
     _mqtt.removeTopicListener(_roomTopic, _onMessage);
     _mqtt.removeTopicListener(_presenceTopic, _onPresence);
-    // Tidak perlu unsubscribe — topic persists untuk session berikutnya
+    // No need to unsubscribe — topics persist for the next session
     super.onClose();
   }
 }
@@ -204,21 +208,21 @@ class ChatController extends BaseController {
 
 ## Topic Persistence
 
-Topic yang di-subscribe secara otomatis:
-1. Disimpan ke `SecureStorage` (`SecureStorageKey.mqttTopic`) sebagai JSON
-2. Di-restore saat reconnect (setelah app resume dari background)
-3. `AppLifecycleService` menangani disconnect (paused) dan reconnect (resumed)
+Subscribed topics are automatically:
+1. Saved to `SecureStorage` (`SecureStorageKey.mqttTopic`) as JSON
+2. Restored upon reconnect (after app resumes from background)
+3. `AppLifecycleService` handles disconnect (paused) and reconnect (resumed)
 
 ---
 
 ## Checklist
 
 ```
-[ ] Get.find<MqttService>() untuk akses service
-[ ] subscribe() sebelum addTopicListener()
-[ ] onClose(): removeTopicListener() untuk cegah memory leak
-[ ] Wildcard: + untuk single-level, # untuk multi-level
-[ ] publish() untuk kirim pesan
+[ ] Get.find<MqttService>() to access the service
+[ ] subscribe() before calling addTopicListener()
+[ ] onClose(): removeTopicListener() to prevent memory leaks
+[ ] Wildcards: + for single-level, # for multi-level
+[ ] publish() to send messages
 [ ] Connection status via mqtt.connectionStatus.value
-[ ] App lifecycle (connect/disconnect) sudah handled otomatis oleh AppLifecycleService
+[ ] App lifecycle (connect/disconnect) is handled automatically by AppLifecycleService
 ```

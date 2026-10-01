@@ -1,16 +1,20 @@
+---
+name: Controller Builder
+description: Alternative pattern using plain state and manual update() with GetBuilder
+---
 # Skill: Controller Builder (BaseBuilderController + GetBuilder)
 
-Pattern alternatif yang menggunakan state biasa (bukan .obs) dan manual `update()` untuk trigger rebuild widget tertentu.
+Alternative pattern that uses plain state (not `.obs`) and manual `update()` to trigger targeted widget rebuilds.
 
 ---
 
-## Kapan Digunakan
+## When to Use
 
-Gunakan `BaseBuilderController` ketika:
-- Perlu kontrol granular: update hanya sebagian widget (by ID)
-- State adalah plain Dart (`bool`, `String`, `List`) — tidak perlu `.obs`
-- Contoh nyata: filter/search list yang hanya update bagian list, bukan keseluruhan screen
-- Lebih efisien untuk kasus di mana update hanya terjadi di satu widget tertentu
+Use `BaseBuilderController` when:
+- Granular control is needed: update only a specific widget (by ID)
+- State is plain Dart (`bool`, `String`, `List`) — no need for `.obs`
+- Real example: filter/search list that only updates the list part, not the entire screen
+- More efficient for cases where updates only happen in a specific widget
 
 ---
 
@@ -27,14 +31,14 @@ abstract class BaseBuilderController extends GetxController {
     required Function(T) onSuccess,
     Function(Failure)? onFailure,
     bool showLoading = true,
-    Object? id,  // jika diisi, hanya widget dengan ID ini yang rebuild
+    Object? id,  // if provided, only widgets with this ID will rebuild
   });
 }
 ```
 
 ---
 
-## Template Controller
+## Controller Template
 
 ```dart
 // lib/presentation/user/controllers/user.controller.dart
@@ -42,11 +46,11 @@ import 'package:get/get.dart';
 import '../../core/base_builder_controller.dart';
 
 class UserController extends BaseBuilderController {
-  // Plain Dart (tidak .obs)
+  // Plain Dart (not .obs)
   List<Map<String, String>> users = [];
   int selectedIndex = -1;
 
-  // ID untuk update target (optional tapi recommended)
+  // ID for targeted updates (optional but recommended)
   static const listId = 'user_list';
   static const detailId = 'user_detail';
 
@@ -61,7 +65,7 @@ class UserController extends BaseBuilderController {
       {'name': 'Alice', 'role': 'Admin'},
       {'name': 'Bob', 'role': 'User'},
     ];
-    update([listId]); // update hanya widget list
+    update([listId]); // update only the list widget
   }
 
   void onSearch(String query) {
@@ -82,7 +86,7 @@ class UserController extends BaseBuilderController {
 
 ---
 
-## Contoh Nyata di Codebase
+## Real Example in Codebase
 
 ```dart
 // lib/presentation/user/controllers/user.controller.dart (actual)
@@ -119,7 +123,7 @@ class UserController extends BaseBuilderController {
 
 ---
 
-## Di UI: GetBuilder
+## In UI: GetBuilder
 
 ```dart
 // lib/presentation/user/user.screen.dart
@@ -134,12 +138,12 @@ class UserScreen extends GetView<UserController> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
           child: TextField(
-            onChanged: controller.onSearch, // update via update()
+            onChanged: controller.onSearch, // updates via update()
           ),
         ),
       ),
       body: GetBuilder<UserController>(
-        id: UserController.listId,  // hanya rebuild saat listId di-update
+        id: UserController.listId,  // only rebuilds when listId is updated
         builder: (c) {
           if (c.isLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -168,37 +172,37 @@ class UserScreen extends GetView<UserController> {
 
 ---
 
-## GetBuilder tanpa ID (rebuild semua)
+## GetBuilder without ID (rebuilds all)
 
 ```dart
 GetBuilder<UserController>(
   builder: (c) {
-    // Rebuild saat update() dipanggil tanpa ID
+    // Rebuilds when update() is called without an ID
     return Text(c.isLoading ? 'Loading...' : 'Done');
   },
 )
 ```
 
-## GetBuilder dengan ID
+## GetBuilder with ID
 
 ```dart
 GetBuilder<UserController>(
-  id: 'my_widget_id',  // hanya rebuild saat update(['my_widget_id']) dipanggil
+  id: 'my_widget_id',  // only rebuilds when update(['my_widget_id']) is called
   builder: (c) => ...,
 )
 ```
 
 ---
 
-## Perbandingan dengan BaseController
+## Comparison with BaseController
 
 | | BaseController + Obx | BaseBuilderController + GetBuilder |
 |---|---|---|
-| State | `.obs` (Rx types) | Plain Dart (bool, List, dll) |
-| Update | Otomatis | Manual `update([ids])` |
+| State | `.obs` (Rx types) | Plain Dart (bool, List, etc.) |
+| Update | Automatic | Manual `update([ids])` |
 | Granularity | Per observable | Per widget ID |
-| Kompleksitas | Lebih simpel | Lebih kontrol |
-| Gunakan saat | Default, state sering berubah | Filter/search, update targeted |
+| Complexity | Simpler | More control |
+| Use when | Default, state changes frequently | Filter/search, targeted updates |
 
 ---
 
@@ -206,9 +210,9 @@ GetBuilder<UserController>(
 
 ```
 [ ] Class extends BaseBuilderController
-[ ] State adalah plain Dart (TIDAK .obs)
-[ ] Setiap perubahan state panggil update() atau update([ids])
-[ ] Gunakan static const untuk widget IDs
-[ ] Di UI: GetBuilder<T>(id: T.listId, builder: ...)
-[ ] onInit() panggil super.onInit()
+[ ] State is plain Dart (NOT .obs)
+[ ] Every state change calls update() or update([ids])
+[ ] Use static const for widget IDs
+[ ] In UI: GetBuilder<T>(id: T.listId, builder: ...)
+[ ] onInit() calls super.onInit()
 ```

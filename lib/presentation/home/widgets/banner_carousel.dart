@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import '../../../components/molecules/custom_cached_image.dart';
 import '../../../domain/home/entities/banner_entity.dart';
 
-/// Widget carousel untuk menampilkan list banner dengan auto-slide.
+/// Carousel widget to display a list of banners with auto-slide.
 ///
-/// Fitur:
-/// - Auto-slide setiap 4 detik
-/// - Swipe manual kiri/kanan
-/// - Dot indicator animated
+/// Features:
+/// - Auto-slide every 4 seconds
+/// - Manual left/right swipe
+/// - Animated dot indicator
 /// - Cached network image
 class BannerCarousel extends StatefulWidget {
   final List<BannerEntity> banners;
@@ -29,7 +29,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
   @override
   void initState() {
     super.initState();
-    // Auto-slide setiap 4 detik
+    // Auto-slide every 4 seconds
     _autoSlideTimer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (!mounted || widget.banners.isEmpty) return;
       final nextPage = (_currentPage + 1) % widget.banners.length;

@@ -20,7 +20,7 @@ class HomeRepositoryImpl implements HomeRepository {
       if (response.statusCode == 200) {
         final data = response.data['data'] as List?;
         if (data != null) {
-          /// Menggunakan JsonParser — otomatis pakai Isolate jika data besar
+          /// Using JsonParser — automatically uses Isolate if data is large
           final banners = await JsonParser.parseList(
             jsonList: data,
             fromJson: BannerModel.fromJson,

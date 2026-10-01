@@ -43,9 +43,9 @@ void main() {
     test(
       'doLogin should never call the use case when formKey is unattached',
       () async {
-        // Tanpa widget test, formKey tidak pernah ter-attach ke Form widget
-        // manapun sehingga currentState null dan validate() memicu null-check
-        // error sebelum use case sempat dipanggil.
+        // Without widget test, formKey is never attached to any Form widget
+        // so currentState is null and validate() triggers a null-check
+        // error before the use case can be called.
         await expectLater(controller.doLogin(), throwsA(isA<TypeError>()));
 
         verifyZeroInteractions(mockAuthRepository);

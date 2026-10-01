@@ -7,7 +7,7 @@ import '../platform/storage/storage.dart';
 
 // ─── Environment Enum ────────────────────────────────────────
 
-/// Enum untuk tipe environment yang tersedia.
+/// Enum for available environment types.
 enum Environment {
   dev('dev', Colors.purple),
   staging('staging', Colors.orange),
@@ -23,8 +23,8 @@ enum Environment {
 
 // ─── Environment Config (typed) ──────────────────────────────
 
-/// Typed class untuk semua konfigurasi per-environment.
-/// Menggantikan Map&lt;String, String&gt; agar compile-time safe.
+/// Typed class for all per-environment configurations.
+/// Replaces `Map<String, String>` to be compile-time safe.
 class EnvironmentConfig {
   final Environment env;
   final String appName;
@@ -77,7 +77,7 @@ class EnvironmentConfig {
 
 // ─── Environment Controller ─────────────────────────────────
 
-/// Controller untuk mengelola environment aktif secara reaktif.
+/// Controller to manage the active environment reactively.
 class EnvironmentController extends GetxController {
   EnvironmentController({Storage? storage})
     : _storage = storage ?? GetStorageImpl();
@@ -95,19 +95,19 @@ class EnvironmentController extends GetxController {
     final storedEnvStr = _storage.read<String>(StorageValue.env);
 
     if (storedEnvStr == null || storedEnvStr.isEmpty) {
-      // Jika kosong, write ke storage berdasarkan currentEnv saat ini.
+      // If empty, write to storage based on current currentEnv.
       _storage.write(StorageValue.env, currentEnv.value.label);
     } else {
-      // Jika ada isi, update currentEnv berdasarkan nilai di storage.
+      // If not empty, update currentEnv based on the value in storage.
       final savedEnv = Environment.values.firstWhere(
         (e) => e.label == storedEnvStr,
-        orElse: () => Environment.dev, // Fallback jika string tidak cocok
+        orElse: () => Environment.dev, // Fallback if string does not match
       );
       currentEnv.value = savedEnv;
     }
   }
 
-  /// Switch environment secara runtime dan simpan state barunya ke storage.
+  /// Switch environment at runtime and save its new state to storage.
   void switchEnvironment(Environment env) {
     currentEnv.value = env;
     _storage.write(StorageValue.env, env.label);
@@ -116,18 +116,18 @@ class EnvironmentController extends GetxController {
 
 // ─── Config Environments ────────────────────────────────────
 
-/// Menyediakan konfigurasi environment berdasarkan environment aktif.
+/// Provides environment configurations based on the active environment.
 ///
-/// Semua value dibaca dari `.env` file dan di-cast ke [EnvironmentConfig].
+/// All values are read from the `.env` file and cast to [EnvironmentConfig].
 class ConfigEnvironments {
   static final EnvironmentController _controller = Get.put(
     EnvironmentController(),
   );
 
-  /// Environment yang sedang aktif.
+  /// The currently active environment.
   static Environment get current => _controller.currentEnv.value;
 
-  /// Mendapatkan konfigurasi untuk environment aktif.
+  /// Gets the configuration for the active environment.
   static EnvironmentConfig get config {
     return _configs.firstWhere((c) => c.env == current);
   }

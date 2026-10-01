@@ -5,20 +5,20 @@ import '../../config/error/global_error_handler.dart';
 import '../../domain/core/errors/failures.dart';
 import '../../utils/helper/snackbar.dart';
 
-/// Base controller yang menyediakan state management standar
-/// untuk loading, error, dan helper method [callUseCase].
+/// Base controller that provides standard state management
+/// for loading, errors, and [callUseCase] helper method.
 ///
-/// Extend controller ini di setiap presentation controller
-/// untuk menghilangkan boilerplate berulang.
+/// Extend this controller in every presentation controller
+/// to eliminate repetitive boilerplate.
 abstract class BaseController extends GetxController {
   final isLoading = false.obs;
   final errorMessage = ''.obs;
 
-  /// Helper untuk mengeksekusi UseCase dengan handling loading & error otomatis.
+  /// Helper to execute UseCase with automatic loading & error handling.
   ///
-  /// - [showLoading]: Jika true, otomatis set isLoading
-  /// - [onSuccess]: Callback saat berhasil (Right)
-  /// - [onFailure]: Custom error handler (opsional, default: show snackbar)
+  /// - [showLoading]: If true, automatically sets isLoading
+  /// - [onSuccess]: Callback when successful (Right)
+  /// - [onFailure]: Custom error handler (optional, default: show snackbar)
   Future<void> callUseCase<T>(
     Future<Either<Failure, T>> call, {
     required Function(T data) onSuccess,

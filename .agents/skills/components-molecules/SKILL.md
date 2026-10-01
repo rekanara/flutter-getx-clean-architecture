@@ -1,6 +1,10 @@
+---
+name: Molecule Components
+description: Reusable composite components like CustomCachedImage and PaginationListView
+---
 # Skill: Molecule Components
 
-Komponen level molekul: `CustomCachedImage` dan `PaginationListView<T>`.
+Molecule-level components: `CustomCachedImage` and `PaginationListView<T>`.
 
 ---
 
@@ -8,7 +12,7 @@ Komponen level molekul: `CustomCachedImage` dan `PaginationListView<T>`.
 
 `lib/components/molecules/custom_cached_image.dart`
 
-Widget untuk menampilkan gambar dari URL dengan cache, placeholder, dan error handling.
+Widget for displaying images from a URL with cache, placeholder, and error handling.
 
 ### Props
 
@@ -25,17 +29,17 @@ CustomCachedImage({
 })
 ```
 
-### Contoh Penggunaan
+### Usage Example
 
 ```dart
-// Gambar produk standar
+// Standard product image
 CustomCachedImage(
   imageUrl: product.imageUrl,
   width: 120,
   height: 120,
 ),
 
-// Banner full width
+// Full width banner
 CustomCachedImage(
   imageUrl: banner.bannerUrl,
   width: double.infinity,
@@ -44,17 +48,17 @@ CustomCachedImage(
   fit: BoxFit.fill,
 ),
 
-// Avatar bulat
+// Circular avatar
 ClipOval(
   child: CustomCachedImage(
     imageUrl: user.avatarUrl,
     width: 48,
     height: 48,
-    borderRadius: 0, // ClipOval sudah handle shape
+    borderRadius: 0, // ClipOval handles the shape
   ),
 ),
 
-// Dengan custom placeholder
+// With custom placeholder
 CustomCachedImage(
   imageUrl: product.imageUrl,
   width: 200,
@@ -65,7 +69,7 @@ CustomCachedImage(
   ),
 ),
 
-// Tanpa border radius
+// Without border radius
 CustomCachedImage(
   imageUrl: imageUrl,
   width: double.infinity,
@@ -81,7 +85,7 @@ CustomCachedImage(
 
 `lib/components/molecules/pagination_list_view.dart`
 
-Widget list yang terintegrasi dengan `BasePaginationController<T>`. Otomatis menangani loading, error, empty state, dan infinite scroll.
+A list widget integrated with `BasePaginationController<T>`. Automatically handles loading, error, empty state, and infinite scrolling.
 
 ### Props
 
@@ -90,7 +94,7 @@ PaginationListView<T>({
   required BasePaginationController<T> controller,
   required Widget Function(BuildContext, T, int) itemBuilder,
   Widget Function(BuildContext, int)? separatorBuilder,
-  String emptyMessage,           // default: 'Data tidak ditemukan'
+  String emptyMessage,           // default: 'Data not found'
   IconData emptyIcon,            // default: Icons.inbox_outlined
   Widget? loadingWidget,         // default: CircularProgressIndicator
   Widget? emptyWidget,           // custom empty state widget
@@ -100,16 +104,16 @@ PaginationListView<T>({
 })
 ```
 
-### State yang Ditampilkan Otomatis
+### Automatically Displayed States
 
-| Kondisi | UI |
+| Condition | UI |
 |---|---|
-| isLoading.value == true AND items.isEmpty | Loading indicator fullscreen |
+| isLoading.value == true AND items.isEmpty | Fullscreen loading indicator |
 | errorMessage != '' AND items.isEmpty | Error message + retry button |
 | items.isEmpty AND !isLoading | Empty state (icon + message) |
 | items.isNotEmpty | List + bottom load-more indicator |
 
-### Contoh Penggunaan
+### Usage Example
 
 ```dart
 // Minimal
@@ -123,14 +127,14 @@ PaginationListView<ProductEntity>(
   },
 ),
 
-// Dengan separator
+// With separator
 PaginationListView<ProductEntity>(
   controller: controller,
   itemBuilder: (context, product, index) {
     return ProductCard(product: product);
   },
   separatorBuilder: (context, index) => const Divider(),
-  emptyMessage: 'Belum ada produk',
+  emptyMessage: 'No products yet',
   emptyIcon: Icons.inventory_2_outlined,
 ),
 
@@ -143,10 +147,10 @@ PaginationListView<OrderEntity>(
     children: [
       Image.asset('assets/empty_orders.png', height: 160),
       const SizedBox(height: 16),
-      CustomText(text: 'Belum ada pesanan', fontType: FontType.titleMedium),
+      CustomText(text: 'No orders yet', fontType: FontType.titleMedium),
       const SizedBox(height: 8),
       CustomButton(
-        title: 'Mulai Belanja',
+        title: 'Start Shopping',
         onPressed: () => Get.toNamed(Routes.product),
         width: 180,
       ),
@@ -154,14 +158,14 @@ PaginationListView<OrderEntity>(
   ),
 ),
 
-// Dengan padding
+// With padding
 PaginationListView<NotificationEntity>(
   controller: controller,
   itemBuilder: (context, notif, index) => NotificationTile(notif: notif),
   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
 ),
 
-// Tanpa pull-to-refresh
+// Without pull-to-refresh
 PaginationListView<LogEntity>(
   controller: controller,
   itemBuilder: (context, log, index) => LogTile(log: log),
@@ -171,7 +175,7 @@ PaginationListView<LogEntity>(
 
 ---
 
-## Dipakai di Screen
+## Usage in Screen
 
 ```dart
 class ProductListScreen extends GetView<ProductListController> {
@@ -203,7 +207,7 @@ class ProductListScreen extends GetView<ProductListController> {
             ),
           );
         },
-        emptyMessage: 'Belum ada produk tersedia',
+        emptyMessage: 'No products available yet',
         emptyIcon: Icons.inventory_2_outlined,
       ),
     );
@@ -216,9 +220,9 @@ class ProductListScreen extends GetView<ProductListController> {
 ## Checklist
 
 ```
-[ ] Gambar dari URL → CustomCachedImage (bukan Image.network)
-[ ] List dengan pagination → PaginationListView<T> + BasePaginationController<T>
-[ ] Controller sudah override fetchPage() dan panggil appendData()
-[ ] emptyMessage dan emptyIcon dikustomisasi sesuai konteks
-[ ] Jika butuh custom empty state gunakan emptyWidget
+[ ] Image from URL → CustomCachedImage (not Image.network)
+[ ] List with pagination → PaginationListView<T> + BasePaginationController<T>
+[ ] Controller has overridden fetchPage() and calls appendData()
+[ ] emptyMessage and emptyIcon are customized according to context
+[ ] If a custom empty state is needed, use emptyWidget
 ```

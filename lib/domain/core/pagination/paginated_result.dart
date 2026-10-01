@@ -1,8 +1,8 @@
-/// Domain-safe wrapper untuk hasil paginated dari repository.
+/// Domain-safe wrapper for paginated results from repository.
 ///
-/// Beda dengan `ApiResponse`/`PaginationMeta` (infrastructure/dal/models) —
-/// class ini pure Dart tanpa dependency apapun, jadi aman dipakai lintas
-/// domain contract (`{feature}_repository.dart`, `{action}_{feature}_usecase.dart`).
+/// Unlike `ApiResponse`/`PaginationMeta` (infrastructure/dal/models) —
+/// this class is pure Dart without any dependencies, making it safe to use across
+/// domain contracts (`{feature}_repository.dart`, `{action}_{feature}_usecase.dart`).
 class PaginatedResult<T> {
   final List<T> items;
   final int currentPage;

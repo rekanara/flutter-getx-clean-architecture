@@ -1,13 +1,17 @@
+---
+name: Firebase
+description: Setup and usage for Firebase Core, FCM, and Remote Config
+---
 # Skill: Firebase (Core, FCM, Remote Config)
 
-Panduan menggunakan Firebase Core, Firebase Cloud Messaging (FCM), dan Remote Config.
+Guide to using Firebase Core, Firebase Cloud Messaging (FCM), and Remote Config.
 
 ---
 
-## Inisialisasi (sudah ada di main.dart)
+## Initialization (already in main.dart)
 
 ```dart
-// lib/main.dart — sudah diinisialisasi, tidak perlu setup ulang
+// lib/main.dart — already initialized, no setup needed
 await FirebaseService.init();
 final fcmService = Get.put(FirebaseMessagingService(), permanent: true);
 await fcmService.init();
@@ -21,11 +25,11 @@ await rcService.init();
 
 `lib/config/firebase/firebase_service.dart`
 
-Singleton init guard — aman dipanggil berkali-kali:
+Singleton init guard — safe to call multiple times:
 
 ```dart
 await FirebaseService.init();
-// Idempotent: jika sudah init, langsung return
+// Idempotent: if already initialized, returns immediately
 ```
 
 ---
@@ -34,7 +38,7 @@ await FirebaseService.init();
 
 `lib/config/firebase/firebase_messaging_service.dart`
 
-### Mengakses Service
+### Accessing the Service
 
 ```dart
 final fcmService = Get.find<FirebaseMessagingService>();
@@ -43,19 +47,19 @@ final fcmService = Get.find<FirebaseMessagingService>();
 ### FCM Token
 
 ```dart
-// fcmToken adalah RxString (observable), BUKAN Future — jangan di-await
+// fcmToken is an RxString (observable), NOT a Future — do not await
 final token = fcmService.fcmToken.value; // String
 
-// Reaktif di UI:
+// Reactive in UI:
 Obx(() => Text(fcmService.fcmToken.value));
 
-// Token auto-refresh — sudah ada listener di service
+// Auto-refresh token — listener is already in the service
 ```
 
 ### Topic Subscription
 
 ```dart
-// Subscribe ke topic (semua device dengan topic ini akan terima notif)
+// Subscribe to topic (all devices with this topic receive the notification)
 await fcmService.subscribeToTopic('promotions');
 await fcmService.subscribeToTopic('user_${userId}');
 
@@ -63,31 +67,31 @@ await fcmService.subscribeToTopic('user_${userId}');
 await fcmService.unsubscribeFromTopic('promotions');
 ```
 
-### Notifikasi Handler
+### Notification Handlers
 
-Notifikasi sudah di-handle otomatis di service:
-- **Foreground** (`onMessage`): tampilkan local notification
-- **Background tap** (`onMessageOpenedApp`): navigate ke screen terkait
-- **Cold start** (`getInitialMessage`): navigate saat app dibuka dari killed state
+Notifications are automatically handled in the service:
+- **Foreground** (`onMessage`): shows a local notification
+- **Background tap** (`onMessageOpenedApp`): navigates to the related screen
+- **Cold start** (`getInitialMessage`): navigates when app is opened from a killed state
 
-### Payload Format FCM
+### FCM Payload Format
 
 ```json
 {
   "notification": {
-    "title": "Pesanan Baru",
-    "body": "Order #12345 telah dibuat"
+    "title": "New Order",
+    "body": "Order #12345 has been created"
   },
   "data": {
     "type": "order",
     "id": "12345",
-    "message": "Pesanan Baru",
+    "message": "New Order",
     "image": "https://example.com/icon.png"
   }
 }
 ```
 
-Field `type` yang dikenali: `order`, `alert`, `system`, `chat`, `payment`, `ticket`, `ads`, `marketing`, `general`
+Recognized `type` fields: `order`, `alert`, `system`, `chat`, `payment`, `ticket`, `ads`, `marketing`, `general`
 
 ---
 
@@ -95,21 +99,21 @@ Field `type` yang dikenali: `order`, `alert`, `system`, `chat`, `payment`, `tick
 
 `lib/config/firebase/remote_config_service.dart`
 
-### Mengakses Service
+### Accessing the Service
 
 ```dart
 final remoteConfig = Get.find<RemoteConfigService>();
 ```
 
-### Default Keys (sudah ada)
+### Default Keys (already exist)
 
 ```dart
-// Observable — auto-update saat config berubah (real-time listener)
+// Observable — auto-update when config changes (real-time listener)
 remoteConfig.maintenanceMode.value    // bool
 remoteConfig.maintenanceMessage.value // String
 ```
 
-### Membaca Nilai
+### Reading Values
 
 ```dart
 // Generic getters
@@ -119,28 +123,28 @@ remoteConfig.getInt('max_items');            // int
 remoteConfig.getDouble('discount_rate');     // double
 ```
 
-### Menambah Key Baru
+### Adding a New Key
 
-Di Firebase Console:
+In the Firebase Console:
 1. Remote Config → Add parameter
 2. Key: `new_feature_enabled`, Value: `false` (default)
 
-Di `RemoteConfigService.init()`:
+In `RemoteConfigService.init()`:
 ```dart
-// Tambah default value
+// Add default value
 await _remoteConfig.setDefaults({
   'maintenance_mode': false,
   'maintenance_message': '',
-  'new_feature_enabled': false, // ← TAMBAHKAN
+  'new_feature_enabled': false, // ← ADD THIS
 });
 ```
 
-Di controller yang membutuhkan:
+In the required controller:
 ```dart
 final isNewFeatureEnabled = Get.find<RemoteConfigService>().getBool('new_feature_enabled');
 ```
 
-### Observable Remote Config di Controller
+### Observable Remote Config in a Controller
 
 ```dart
 class HomeController extends BaseController {
@@ -148,7 +152,7 @@ class HomeController extends BaseController {
   void onInit() {
     super.onInit();
     
-    // Reactive terhadap maintenance mode
+    // Reactive to maintenance mode
     final config = Get.find<RemoteConfigService>();
     ever(config.maintenanceMode, (isMaintenance) {
       if (isMaintenance) {
@@ -165,10 +169,10 @@ class HomeController extends BaseController {
 
 `lib/config/firebase/firebase_options.dart`
 
-Firebase config membaca dari `Domain.firebaseXxx` yang sudah environment-aware:
+Firebase config reads from `Domain.firebaseXxx` which is environment-aware:
 
 ```dart
-// TIDAK perlu ubah — otomatis pakai env saat ini
+// NO NEED to change — automatically uses current env
 static FirebaseOptions get currentPlatform => FirebaseOptions(
   apiKey: Domain.firebaseApiKey,
   projectId: Domain.firebaseProjectId,
@@ -181,12 +185,12 @@ static FirebaseOptions get currentPlatform => FirebaseOptions(
 ## Checklist
 
 ```
-[ ] Firebase sudah init di main.dart (FirebaseService.init())
-[ ] FCM sudah init di main.dart (FirebaseMessagingService().init())
-[ ] Remote Config sudah init di main.dart (RemoteConfigService().init())
-[ ] Untuk baca FCM token: Get.find<FirebaseMessagingService>()
+[ ] Firebase initialized in main.dart (FirebaseService.init())
+[ ] FCM initialized in main.dart (FirebaseMessagingService().init())
+[ ] Remote Config initialized in main.dart (RemoteConfigService().init())
+[ ] To read FCM token: Get.find<FirebaseMessagingService>()
 [ ] Topic subscription: fcmService.subscribeToTopic(topic)
 [ ] Remote Config value: Get.find<RemoteConfigService>().getBool(key)
-[ ] Default value untuk key baru di RemoteConfigService.init()
-[ ] Firebase config otomatis env-aware via Domain.firebaseXxx
+[ ] Default values for new keys in RemoteConfigService.init()
+[ ] Firebase config is automatically env-aware via Domain.firebaseXxx
 ```
