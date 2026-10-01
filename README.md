@@ -1,5 +1,10 @@
 # rekanara getx
 
+![CI](https://github.com/zidanfath/flutter-getx-clean-architecture/workflows/CI/badge.svg)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Flutter](https://img.shields.io/badge/Flutter-3.47.5-blue.svg)
+![Style](https://img.shields.io/badge/style-flutter_lints-blue.svg)
+
 Flutter project boilerplate using **Clean Architecture** with **GetX** as state management, dependency injection, and routing.
 
 ## Tech Stack
