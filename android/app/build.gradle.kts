@@ -31,6 +31,31 @@ android {
         versionName = flutter.versionName
     }
 
+    // ── Native flavors: dev / staging / prod ─────────────────────
+    // Each flavor installs as a SEPARATE app (applicationIdSuffix),
+    // so dev, staging and prod can live side-by-side on one device.
+    // App name comes from src/<flavor>/res/values/strings.xml.
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Rekanara Dev")
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-stg"
+            resValue("string", "app_name", "Rekanara Stg")
+        }
+        create("prod") {
+            dimension = "environment"
+            // No suffix: the Play Store / production app id.
+            resValue("string", "app_name", "Rekanara")
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

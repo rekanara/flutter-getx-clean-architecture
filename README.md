@@ -265,6 +265,41 @@ Supports 3 reactive environments integrated with `GetStorage` to persist the env
 
 Configurations are managed using a strongly-typed `EnvironmentConfig` class to ensure compile-time safety and prevent typos.
 
+### Native Flavors (Dev / Staging / Prod — separate apps)
+
+Android builds are split into **3 native flavors** that install as **side-by-side apps** (independent icons, names, and package IDs):
+
+| Flavor    | Package ID                 | App Name       | Icon                          |
+| --------- | -------------------------- | -------------- | ----------------------------- |
+| `dev`     | `com.rekanara.getx.dev`    | Rekanara Dev   | Purple corner badge           |
+| `staging` | `com.rekanara.getx.staging`| Rekanara Stg   | Orange corner badge           |
+| `prod`    | `com.rekanara.getx`        | Rekanara       | Clean (no badge)              |
+
+**Environment locking policy** (`lib/config/flavor/flavor_service.dart`):
+
+| Flavor    | Runtime env switcher                          |
+| --------- | --------------------------------------------- |
+| `dev`     | ✅ May switch dev ↔ staging (never prod)      |
+| `staging` | 🔒 Locked to staging                          |
+| `prod`    | 🔒 Locked to prod, badge & switcher hidden    |
+
+```bash
+# Run / build a specific flavor (--flavor is REQUIRED for Android)
+fvm flutter run --flavor dev
+fvm flutter build apk --release --flavor staging
+fvm flutter build apk --release --flavor prod
+
+# Regenerate flavor icons after changing source icons
+python3 tool/make_flavor_icons.py
+fvm dart run flutter_launcher_icons -f flutter_launcher_icons-dev.yaml
+fvm dart run flutter_launcher_icons -f flutter_launcher_icons-staging.yaml
+fvm dart run flutter_launcher_icons   # prod/default
+```
+
+VS Code: use the launch configurations `rekanara dev` / `rekanara staging` / `rekanara prod` in `.vscode/launch.json`.
+
+> **Firebase:** place `google-services.json` per flavor in `android/app/src/<flavor>/` (dev & staging may be committed; prod comes from the `GOOGLE_SERVICES_JSON_PROD` CI secret).
+
 #### URL Endpoints
 
 API endpoints and URLs are statically defined to make function calls easier without manually typing strings:

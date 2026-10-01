@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 
+import '../../config/flavor/flavor_service.dart';
 import '../platform/storage/get_storage_impl.dart';
 import '../platform/storage/storage.dart';
 
@@ -92,6 +93,14 @@ class EnvironmentController extends GetxController {
   }
 
   void _initEnvFromStorage() {
+    // Flavor lock: a native flavor (staging/prod) always wins over storage.
+    final locked = FlavorService.lockedEnvironment;
+    if (locked != null) {
+      currentEnv.value = locked;
+      _storage.write(StorageValue.env, locked.label);
+      return;
+    }
+
     final storedEnvStr = _storage.read<String>(StorageValue.env);
 
     if (storedEnvStr == null || storedEnvStr.isEmpty) {
@@ -103,12 +112,19 @@ class EnvironmentController extends GetxController {
         (e) => e.label == storedEnvStr,
         orElse: () => Environment.dev, // Fallback if string does not match
       );
-      currentEnv.value = savedEnv;
+      // Never allow a stored env outside the flavor's allowed set.
+      currentEnv.value = FlavorService.allowedEnvironments.contains(savedEnv)
+          ? savedEnv
+          : Environment.dev;
     }
   }
 
   /// Switch environment at runtime and save its new state to storage.
+  ///
+  /// Silently ignored when the current flavor does not allow the target
+  /// environment (e.g. dev flavor attempting to switch to prod).
   void switchEnvironment(Environment env) {
+    if (!FlavorService.allowedEnvironments.contains(env)) return;
     currentEnv.value = env;
     _storage.write(StorageValue.env, env.label);
   }

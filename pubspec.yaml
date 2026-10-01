@@ -58,6 +58,7 @@ dependencies:
   firebase_remote_config: ^6.1.4
   shimmer: ^4.0.0
   connectivity_plus: ^7.3.1
+  meta: ^1.19.0
 
 dev_dependencies:
   flutter_test:
@@ -116,8 +117,12 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 flutter_launcher_icons:
   ios: true
-  android: true
+  android: "ic_launcher"
   image_path: "assets/icons/app_icon.png"
   remove_alpha_ios: true
 
-# dart run flutter_launcher_icons
+# Flavor icons live in separate config files:
+#   flutter_launcher_icons-dev.yaml
+#   flutter_launcher_icons-staging.yaml
+# Run: dart run flutter_launcher_icons -f flutter_launcher_icons-dev.yaml
+# (prod uses the default config above)

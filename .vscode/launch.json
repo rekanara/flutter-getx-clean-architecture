@@ -1,0 +1,31 @@
+{
+    // Native flavors: always pass --flavor (required since flavors were added,
+    // plain `flutter run` without --flavor fails on Android).
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "rekanara dev",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "toolArgs": ["--flavor", "dev"],
+            "flutterMode": "debug"
+        },
+        {
+            "name": "rekanara staging",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "toolArgs": ["--flavor", "staging"],
+            "flutterMode": "debug"
+        },
+        {
+            "name": "rekanara prod",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "toolArgs": ["--flavor", "prod"],
+            "flutterMode": "release"
+        }
+    ]
+}
