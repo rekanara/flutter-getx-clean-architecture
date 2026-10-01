@@ -459,17 +459,23 @@ cp .env.example .env
 
 - Replace `assets/icons/app_icon.png` with your app icon, then run `dart run flutter_launcher_icons`.
 
-### Compatible with `get_cli`
+### Compatible with `mason` (Clean Architecture Generator)
 
-This project supports generating new modules using [get_cli](https://pub.dev/packages/get_cli):
+We provide a custom `mason` brick to automatically generate all the 6 boilerplate files required for a new Clean Architecture feature (`Entity`, `Repository`, `UseCase`, `Model`, `Controller`, `Screen`, `Binding`).
 
 ```bash
-# Install get_cli
-dart pub global activate get_cli
+# 1. Install mason_cli globally (if you haven't)
+dart pub global activate mason_cli
 
-# Generate new module
-get create page:module_name
+# 2. Add the local brick to mason (run once in project root)
+mason add clean_feature --path ./bricks/clean_feature
+
+# 3. Generate a new feature (e.g. payment)
+mason make clean_feature
+# It will prompt: "What is the feature name?" -> type: payment
 ```
+
+After generating, simply register your new route in `routes.dart` and `navigation.dart`.
 
 ## Adding a New Feature
 
