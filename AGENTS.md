@@ -59,7 +59,7 @@ Exact CI gates: `dart format --output=none --set-exit-if-changed .` → `flutter
 - **`.env` is required to run/build the app** — declared as a Flutter asset in `pubspec.yaml` and loaded via `dotenv.load()` in `lib/main.dart`; gitignored, template in `.env.example`. Without `.env`, both `flutter run` and builds fail. Unit tests do NOT need `.env` (pure mocks, never touch dotenv).
 - **Environment selection is runtime, not build flavor** — no `--flavor` / `dart-define`. `EnvironmentController.switchEnvironment()` (persisted via GetStorage) picks dev/staging/prod; all values come from ONE `.env` file with `_DEV` / `_STAGING` / `_PROD` suffixes (prod keys have no suffix).
 - **Firebase files are gitignored** — `android/app/src/google-services.json` and `ios/Runner/GoogleService-Info.plist` must be provisioned manually; do not commit them.
-- **FVM is optional** — `.fvmrc` pins `stable`; plain `flutter` / `dart` commands work fine (CI uses the stable channel).
+- **FVM is optional** — `.fvmrc` pins `3.47.5`; plain `flutter` / `dart` commands work fine (CI uses the stable channel).
 - **Chucker (HTTP inspector) only appears in debug mode** — do not disable its `kDebugMode` guard.
 - Endpoint URLs crash if the env var is empty (`dotenv.env[...]!`) — do not remove keys from `.env`.
 

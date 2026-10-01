@@ -378,7 +378,7 @@ All errors are logged via `LoggerHelper.e()`.
 
 ### Prerequisites
 
-- Flutter SDK `^3.11.0`
+- Flutter SDK `^3.13.0` (pinned `3.47.5` via `.fvmrc`)
 - [FVM](https://fvm.app/) (recommended, using the `stable` channel)
 
 ### Setup
