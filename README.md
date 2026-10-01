@@ -1,4 +1,4 @@
-# rekanara getx
+# flutter getx clean architecture
 
 ![CI](https://github.com/zidanfath/flutter-getx-clean-architecture/workflows/CI/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
@@ -233,11 +233,11 @@ class LoginControllerBinding extends Bindings {
 
 This project provides 3 main HTTP request utilities:
 
-| Client                                | Description                                                                                                     |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `DioClient.noAuthClient`              | For requests without a token (login, register)                                                                  |
-| `DioClient.authClient(secureStorage)` | Automatically injects the `Bearer` token + refresh token interceptor                                            |
-| `DioClient.download()`                | Special utility to simplify file downloads to a local directory (supports both auth and noAuth requests).       |
+| Client                                | Description                                                                                               |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `DioClient.noAuthClient`              | For requests without a token (login, register)                                                            |
+| `DioClient.authClient(secureStorage)` | Automatically injects the `Bearer` token + refresh token interceptor                                      |
+| `DioClient.download()`                | Special utility to simplify file downloads to a local directory (supports both auth and noAuth requests). |
 
 ### Refresh Token Flow
 
@@ -257,11 +257,11 @@ Hit /auth/refresh endpoint
 
 Supports 3 reactive environments integrated with `GetStorage` to persist the environment preference across app restarts:
 
-| Environment           | Description   |
-| --------------------- | ------------- |
-| `Environment.dev`     | Development   |
-| `Environment.staging` | Staging / QA  |
-| `Environment.prod`    | Production    |
+| Environment           | Description  |
+| --------------------- | ------------ |
+| `Environment.dev`     | Development  |
+| `Environment.staging` | Staging / QA |
+| `Environment.prod`    | Production   |
 
 Configurations are managed using a strongly-typed `EnvironmentConfig` class to ensure compile-time safety and prevent typos.
 
@@ -279,12 +279,12 @@ final response = await dio.post(Endpoint.sso.login, data: data);
 
 ## Storage Strategy
 
-| Data             | Storage                     | Reason        |
-| ---------------- | --------------------------- | ------------- |
-| Access Token     | `SecureStorage` (encrypted) | Sensitive data|
-| Refresh Token    | `SecureStorage` (encrypted) | Sensitive data|
-| Theme preference | `GetStorage`                | Non-sensitive |
-| App version      | `GetStorage`                | Non-sensitive |
+| Data             | Storage                     | Reason         |
+| ---------------- | --------------------------- | -------------- |
+| Access Token     | `SecureStorage` (encrypted) | Sensitive data |
+| Refresh Token    | `SecureStorage` (encrypted) | Sensitive data |
+| Theme preference | `GetStorage`                | Non-sensitive  |
+| App version      | `GetStorage`                | Non-sensitive  |
 
 ## Base Classes
 
