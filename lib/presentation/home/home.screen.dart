@@ -7,6 +7,8 @@ import 'package:rekanara_getx/infrastructure/navigation/routes.dart';
 import 'package:rekanara_getx/utils/config.dart';
 import 'package:rekanara_getx/components/molecules/custom_cached_image.dart';
 
+import 'package:rekanara_getx/infrastructure/locales/localization_service.dart';
+
 import 'package:chucker_flutter/chucker_flutter.dart';
 
 import '../../utils/helper/dialog.dart';
@@ -50,11 +52,40 @@ class HomeScreen extends GetView<HomeController> {
                 ),
                 tileColor: Colors.grey[200],
                 leading: const Icon(Icons.login),
-                title: CustomText(text: 'Login', fontType: FontType.bodyLarge),
+                title: CustomText(
+                  text: 'login'.tr,
+                  fontType: FontType.bodyLarge,
+                ),
                 trailing: CustomButton(
-                  title: 'Login',
+                  title: 'login'.tr,
                   onPressed: () {
                     Get.toNamed(Routes.login);
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              /// Language Change
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                tileColor: Colors.grey[200],
+                leading: const Icon(Icons.language),
+                title: CustomText(
+                  text: 'change_language'.tr,
+                  fontType: FontType.bodyLarge,
+                ),
+                trailing: CustomButton(
+                  title: Get.locale?.languageCode == 'id'
+                      ? 'English'
+                      : 'Indonesia',
+                  onPressed: () {
+                    final newLang = Get.locale?.languageCode == 'id'
+                        ? 'en'
+                        : 'id';
+                    Get.find<LocalizationService>().changeLocale(newLang);
                   },
                 ),
               ),

@@ -13,8 +13,11 @@ import 'config/lifecycle/app_lifecycle_service.dart';
 import 'config/mqtt/mqtt_service.dart';
 import 'config/network/network_observer_service.dart';
 import 'config/notifications/notifications.dart';
+import 'infrastructure/locales/app_translations.dart';
+import 'infrastructure/locales/localization_service.dart';
 import 'infrastructure/navigation/navigation.dart';
 import 'infrastructure/navigation/routes.dart';
+import 'infrastructure/platform/storage/get_storage_impl.dart';
 import 'infrastructure/theme/theme.dart';
 import 'utils/helper/logger.dart';
 
@@ -51,6 +54,11 @@ Future<void> _initializeApp() async {
 
     /// Initialize Get Storage
     await GetStorage.init();
+    final storage = GetStorageImpl();
+    Get.put(storage, permanent: true);
+
+    /// Initialize Localization
+    Get.put(LocalizationService(storage), permanent: true);
 
     /// Initialize Firebase Core
     await FirebaseService.init();
@@ -94,6 +102,9 @@ class Main extends StatelessWidget {
       theme: RkTheme.light,
       darkTheme: RkTheme.dark,
       themeMode: ThemeMode.system,
+      translations: AppTranslations(),
+      locale: Get.find<LocalizationService>().activeLocale,
+      fallbackLocale: LocalizationService.fallbackLocale,
       builder: (context, child) =>
           EnvironmentsBadge(child: child ?? const SizedBox()),
       initialRoute: initialRoute,

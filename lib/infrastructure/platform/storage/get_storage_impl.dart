@@ -31,6 +31,7 @@ class StorageValue {
   // APP
   static const String appVersion = 'app_version';
   static const String appBuildNumber = 'app_build_number';
+  static const String languageCode = 'language_code';
 
   // ENV
   static const String env = 'env';
