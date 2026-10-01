@@ -283,6 +283,8 @@ Android builds are split into **3 native flavors** that install as **side-by-sid
 | `staging` | 🔒 Locked to staging                          |
 | `prod`    | 🔒 Locked to prod, badge & switcher hidden    |
 
+> Full documentation: [docs/flavors.md](docs/flavors.md) — file list, Firebase per-flavor setup, CI matrix, troubleshooting, iOS roadmap.
+
 ```bash
 # Run / build a specific flavor (--flavor is REQUIRED for Android)
 fvm flutter run --flavor dev
