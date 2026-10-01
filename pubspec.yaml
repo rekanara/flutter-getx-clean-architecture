@@ -57,6 +57,7 @@ dependencies:
   firebase_messaging: ^16.1.1
   firebase_remote_config: ^6.1.4
   shimmer: ^4.0.0
+  connectivity_plus: ^7.3.1
 
 dev_dependencies:
   flutter_test:

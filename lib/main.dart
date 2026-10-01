@@ -11,6 +11,7 @@ import 'config/firebase/firebase_messaging_service.dart';
 import 'config/firebase/remote_config_service.dart';
 import 'config/lifecycle/app_lifecycle_service.dart';
 import 'config/mqtt/mqtt_service.dart';
+import 'config/network/network_observer_service.dart';
 import 'config/notifications/notifications.dart';
 import 'infrastructure/navigation/navigation.dart';
 import 'infrastructure/navigation/routes.dart';
@@ -69,6 +70,9 @@ Future<void> _initializeApp() async {
 
     /// Initialize App Lifecycle Observer (MQTT reconnect, refresh hooks)
     Get.put(AppLifecycleService(), permanent: true);
+
+    /// Initialize Network Observer (Global Offline/Online Snackbar)
+    await Get.putAsync(() => NetworkObserverService().init(), permanent: true);
   } catch (e, stack) {
     LoggerHelper.e('Initialization Error', e, stack);
     rethrow;
