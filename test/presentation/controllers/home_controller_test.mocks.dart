@@ -50,31 +50,22 @@ class MockGetBannersUseCase extends _i1.Mock implements _i4.GetBannersUseCase {
   }
 
   @override
-  _i2.HomeRepository get repository =>
-      (super.noSuchMethod(
-            Invocation.getter(#repository),
-            returnValue: _FakeHomeRepository_0(
-              this,
-              Invocation.getter(#repository),
-            ),
-          )
-          as _i2.HomeRepository);
+  _i2.HomeRepository get repository => (super.noSuchMethod(
+    Invocation.getter(#repository),
+    returnValue: _FakeHomeRepository_0(this, Invocation.getter(#repository)),
+  ) as _i2.HomeRepository);
 
   @override
   _i5.Future<_i3.Either<_i6.Failure, List<_i7.BannerEntity>>> execute(
     _i8.NoParams? params,
-  ) =>
-      (super.noSuchMethod(
+  ) => (super.noSuchMethod(
+    Invocation.method(#execute, [params]),
+    returnValue:
+        _i5.Future<_i3.Either<_i6.Failure, List<_i7.BannerEntity>>>.value(
+          _FakeEither_1<_i6.Failure, List<_i7.BannerEntity>>(
+            this,
             Invocation.method(#execute, [params]),
-            returnValue:
-                _i5.Future<
-                  _i3.Either<_i6.Failure, List<_i7.BannerEntity>>
-                >.value(
-                  _FakeEither_1<_i6.Failure, List<_i7.BannerEntity>>(
-                    this,
-                    Invocation.method(#execute, [params]),
-                  ),
-                ),
-          )
-          as _i5.Future<_i3.Either<_i6.Failure, List<_i7.BannerEntity>>>);
+          ),
+        ),
+  ) as _i5.Future<_i3.Either<_i6.Failure, List<_i7.BannerEntity>>>);
 }

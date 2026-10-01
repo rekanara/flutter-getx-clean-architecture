@@ -43,16 +43,13 @@ class MockHomeRepository extends _i1.Mock implements _i3.HomeRepository {
   @override
   _i4.Future<_i2.Either<_i5.Failure, List<_i6.BannerEntity>>> getBanners() =>
       (super.noSuchMethod(
-            Invocation.method(#getBanners, []),
-            returnValue:
-                _i4.Future<
-                  _i2.Either<_i5.Failure, List<_i6.BannerEntity>>
-                >.value(
-                  _FakeEither_0<_i5.Failure, List<_i6.BannerEntity>>(
-                    this,
-                    Invocation.method(#getBanners, []),
-                  ),
-                ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, List<_i6.BannerEntity>>>);
+        Invocation.method(#getBanners, []),
+        returnValue:
+            _i4.Future<_i2.Either<_i5.Failure, List<_i6.BannerEntity>>>.value(
+              _FakeEither_0<_i5.Failure, List<_i6.BannerEntity>>(
+                this,
+                Invocation.method(#getBanners, []),
+              ),
+            ),
+      ) as _i4.Future<_i2.Either<_i5.Failure, List<_i6.BannerEntity>>>);
 }

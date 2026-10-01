@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' hide Response, MultipartFile, FormData;
 import 'package:get_storage/get_storage.dart';
+
 import '../platform/secure_storage/flutter_secure_storage_impl.dart';
 import '../platform/secure_storage/secure_storage.dart';
 import '../navigation/routes.dart';

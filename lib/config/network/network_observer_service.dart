@@ -1,8 +1,8 @@
 import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../utils/helper/snackbar.dart';
 
 class NetworkObserverService extends GetxService {
   final Connectivity _connectivity = Connectivity();
@@ -12,24 +12,28 @@ class NetworkObserverService extends GetxService {
 
   Future<NetworkObserverService> init() async {
     // Listen to network changes
-    _subscription = _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-    
+    _subscription = _connectivity.onConnectivityChanged.listen(
+      _updateConnectionStatus,
+    );
+
     // Check initial status
     final initialStatus = await _connectivity.checkConnectivity();
     _updateConnectionStatus(initialStatus);
-    
+
     return this;
   }
 
   void _updateConnectionStatus(List<ConnectivityResult> results) {
-    final isOffline = results.contains(ConnectivityResult.none) || results.isEmpty;
+    final isOffline =
+        results.contains(ConnectivityResult.none) || results.isEmpty;
 
     if (isOffline) {
       if (!_isFirstCheck || _wasOffline == false) {
         // Show persistent offline snackbar
         if (!Get.isSnackbarOpen) {
           Get.rawSnackbar(
-            message: 'No Internet Connection. Please check your network settings.',
+            message:
+                'No Internet Connection. Please check your network settings.',
             isDismissible: false,
             duration: const Duration(days: 1), // Keeps it open
             backgroundColor: Colors.red[800]!,
@@ -45,7 +49,7 @@ class NetworkObserverService extends GetxService {
         if (Get.isSnackbarOpen) {
           Get.closeAllSnackbars();
         }
-        
+
         // Show a brief back-online message
         Get.rawSnackbar(
           message: 'Back online!',
@@ -57,7 +61,7 @@ class NetworkObserverService extends GetxService {
       }
       _wasOffline = false;
     }
-    
+
     _isFirstCheck = false;
   }
 

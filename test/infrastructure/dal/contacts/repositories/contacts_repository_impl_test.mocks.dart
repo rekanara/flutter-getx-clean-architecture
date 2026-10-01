@@ -44,13 +44,12 @@ class MockContactsApiService extends _i1.Mock
   @override
   _i4.Future<_i2.Response<dynamic>> getContacts(_i5.PaginationFilter? filter) =>
       (super.noSuchMethod(
+        Invocation.method(#getContacts, [filter]),
+        returnValue: _i4.Future<_i2.Response<dynamic>>.value(
+          _FakeResponse_0<dynamic>(
+            this,
             Invocation.method(#getContacts, [filter]),
-            returnValue: _i4.Future<_i2.Response<dynamic>>.value(
-              _FakeResponse_0<dynamic>(
-                this,
-                Invocation.method(#getContacts, [filter]),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.Response<dynamic>>);
+          ),
+        ),
+      ) as _i4.Future<_i2.Response<dynamic>>);
 }

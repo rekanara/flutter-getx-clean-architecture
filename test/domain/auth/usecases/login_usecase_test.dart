@@ -36,9 +36,8 @@ void main() {
   group('LoginUseCase', () {
     test('should return UserEntity when login is successful', () async {
       // Arrange
-      when(
-        mockAuthRepository.login(any, any),
-      ).thenAnswer((_) async => Right(tUser));
+      when(mockAuthRepository.login(any, any))
+          .thenAnswer((_) async => Right(tUser));
 
       // Act
       final result = await loginUseCase.execute(tParams);
@@ -51,9 +50,8 @@ void main() {
 
     test('should return ServerFailure when login fails', () async {
       // Arrange
-      when(
-        mockAuthRepository.login(any, any),
-      ).thenAnswer((_) async => Left(ServerFailure('Invalid credentials')));
+      when(mockAuthRepository.login(any, any))
+          .thenAnswer((_) async => Left(ServerFailure('Invalid credentials')));
 
       // Act
       final result = await loginUseCase.execute(tParams);

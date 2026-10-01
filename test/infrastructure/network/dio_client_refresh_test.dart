@@ -169,12 +169,10 @@ void main() {
     test(
       '401 triggers refresh, persists new tokens, then retries successfully',
       () async {
-        when(
-          secureStorage.read(SecureStorageKey.accessToken),
-        ).thenAnswer((_) async => 'expired-access');
-        when(
-          secureStorage.read(SecureStorageKey.refreshToken),
-        ).thenAnswer((_) async => 'valid-refresh');
+        when(secureStorage.read(SecureStorageKey.accessToken))
+            .thenAnswer((_) async => 'expired-access');
+        when(secureStorage.read(SecureStorageKey.refreshToken))
+            .thenAnswer((_) async => 'valid-refresh');
         when(secureStorage.write(any, any)).thenAnswer((_) async {});
 
         final authDio = DioClient.authClient(secureStorage);
@@ -187,9 +185,8 @@ void main() {
           capturedRefreshBody,
           containsPair('refresh_token', 'valid-refresh'),
         );
-        verify(
-          secureStorage.write(SecureStorageKey.accessToken, 'new-access'),
-        ).called(1);
+        verify(secureStorage.write(SecureStorageKey.accessToken, 'new-access'))
+            .called(1);
         verify(
           secureStorage.write(SecureStorageKey.refreshToken, 'new-refresh'),
         ).called(1);
@@ -199,12 +196,10 @@ void main() {
     test(
       'parallel 401s only trigger a single refresh (single-flight)',
       () async {
-        when(
-          secureStorage.read(SecureStorageKey.accessToken),
-        ).thenAnswer((_) async => 'expired-access');
-        when(
-          secureStorage.read(SecureStorageKey.refreshToken),
-        ).thenAnswer((_) async => 'valid-refresh');
+        when(secureStorage.read(SecureStorageKey.accessToken))
+            .thenAnswer((_) async => 'expired-access');
+        when(secureStorage.read(SecureStorageKey.refreshToken))
+            .thenAnswer((_) async => 'valid-refresh');
         when(secureStorage.write(any, any)).thenAnswer((_) async {});
 
         final authDio = DioClient.authClient(secureStorage);
@@ -215,9 +210,8 @@ void main() {
 
         expect(results.map((r) => r.statusCode), everyElement(200));
         expect(refreshCalls, 1);
-        verify(
-          secureStorage.write(SecureStorageKey.accessToken, 'new-access'),
-        ).called(1);
+        verify(secureStorage.write(SecureStorageKey.accessToken, 'new-access'))
+            .called(1);
       },
     );
   });

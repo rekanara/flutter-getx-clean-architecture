@@ -48,32 +48,28 @@ class MockContactsRepository extends _i1.Mock
   _i4.Future<_i2.Either<_i5.Failure, _i6.PaginatedResult<_i7.ContactEntity>>>
   getContacts({required int? page, required int? limit, String? search}) =>
       (super.noSuchMethod(
-            Invocation.method(#getContacts, [], {
-              #page: page,
-              #limit: limit,
-              #search: search,
-            }),
-            returnValue:
-                _i4.Future<
-                  _i2.Either<
-                    _i5.Failure,
-                    _i6.PaginatedResult<_i7.ContactEntity>
-                  >
-                >.value(
-                  _FakeEither_0<
-                    _i5.Failure,
-                    _i6.PaginatedResult<_i7.ContactEntity>
-                  >(
-                    this,
-                    Invocation.method(#getContacts, [], {
-                      #page: page,
-                      #limit: limit,
-                      #search: search,
-                    }),
-                  ),
-                ),
-          )
-          as _i4.Future<
-            _i2.Either<_i5.Failure, _i6.PaginatedResult<_i7.ContactEntity>>
-          >);
+        Invocation.method(#getContacts, [], {
+          #page: page,
+          #limit: limit,
+          #search: search,
+        }),
+        returnValue:
+            _i4.Future<
+              _i2.Either<_i5.Failure, _i6.PaginatedResult<_i7.ContactEntity>>
+            >.value(
+              _FakeEither_0<
+                _i5.Failure,
+                _i6.PaginatedResult<_i7.ContactEntity>
+              >(
+                this,
+                Invocation.method(#getContacts, [], {
+                  #page: page,
+                  #limit: limit,
+                  #search: search,
+                }),
+              ),
+            ),
+      ) as _i4.Future<
+        _i2.Either<_i5.Failure, _i6.PaginatedResult<_i7.ContactEntity>>
+      >);
 }

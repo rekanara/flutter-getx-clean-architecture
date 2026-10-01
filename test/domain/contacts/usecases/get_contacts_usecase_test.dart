@@ -41,9 +41,8 @@ void main() {
           lastPage: 3,
           total: 30,
         );
-        when(
-          mockRepository.getContacts(page: 1, limit: 15, search: null),
-        ).thenAnswer((_) async => Right(tResult));
+        when(mockRepository.getContacts(page: 1, limit: 15, search: null))
+            .thenAnswer((_) async => Right(tResult));
 
         // Act
         final result = await useCase.execute(
@@ -52,27 +51,25 @@ void main() {
 
         // Assert
         expect(result, Right(tResult));
-        verify(
-          mockRepository.getContacts(page: 1, limit: 15, search: null),
-        ).called(1);
+        verify(mockRepository.getContacts(page: 1, limit: 15, search: null))
+            .called(1);
         verifyNoMoreInteractions(mockRepository);
       },
     );
 
     test('should forward search param to repository', () async {
       // Arrange
-      when(
-        mockRepository.getContacts(page: 1, limit: 15, search: 'jane'),
-      ).thenAnswer(
-        (_) async => Right(
-          PaginatedResult(
-            items: tContacts,
-            currentPage: 1,
-            lastPage: 1,
-            total: 1,
-          ),
-        ),
-      );
+      when(mockRepository.getContacts(page: 1, limit: 15, search: 'jane'))
+          .thenAnswer(
+            (_) async => Right(
+              PaginatedResult(
+                items: tContacts,
+                currentPage: 1,
+                lastPage: 1,
+                total: 1,
+              ),
+            ),
+          );
 
       // Act
       await useCase.execute(
@@ -80,17 +77,15 @@ void main() {
       );
 
       // Assert
-      verify(
-        mockRepository.getContacts(page: 1, limit: 15, search: 'jane'),
-      ).called(1);
+      verify(mockRepository.getContacts(page: 1, limit: 15, search: 'jane'))
+          .called(1);
     });
 
     test('should return ServerFailure when repository call fails', () async {
       // Arrange
       final failure = ServerFailure('Network Error');
-      when(
-        mockRepository.getContacts(page: 1, limit: 15, search: null),
-      ).thenAnswer((_) async => Left(failure));
+      when(mockRepository.getContacts(page: 1, limit: 15, search: null))
+          .thenAnswer((_) async => Left(failure));
 
       // Act
       final result = await useCase.execute(

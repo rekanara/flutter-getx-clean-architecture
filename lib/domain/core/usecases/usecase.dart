@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+
 import '../errors/failures.dart';
 
 /// Base class for all UseCases.

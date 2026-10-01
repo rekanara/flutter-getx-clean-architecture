@@ -402,7 +402,10 @@ flutter pub get
 # 4. Generate mock files for testing
 dart run build_runner build --delete-conflicting-outputs
 
-# 5. Run the application
+# 5. Install Git Hooks (Husky)
+dart run husky install
+
+# 6. Run the application
 flutter run
 
 # 6. Generate app icon (optional)

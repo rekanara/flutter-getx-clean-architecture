@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "⏳ Running pre-commit checks..."
+
+FLUTTER_CMD="flutter"
+DART_CMD="dart"
+if command -v fvm >/dev/null 2>&1; then
+  FLUTTER_CMD="fvm flutter"
+  DART_CMD="fvm dart"
+fi
+
+# Check formatting
+$DART_CMD format --output=none --set-exit-if-changed lib test || {
+  echo "❌ Code is not formatted. Please run 'dart format lib test' and stage the changes."
+  exit 1
+}
+
+# Run analyzer
+$FLUTTER_CMD analyze || {
+  echo "❌ Code has analysis errors. Please fix them before committing."
+  exit 1
+}
+
+echo "✅ Pre-commit checks passed!"

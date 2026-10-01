@@ -33,33 +33,27 @@ class MockStorage extends _i1.Mock implements _i2.Storage {
   }
 
   @override
-  _i3.Future<void> write(String? key, dynamic value) =>
-      (super.noSuchMethod(
-            Invocation.method(#write, [key, value]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+  _i3.Future<void> write(String? key, dynamic value) => (super.noSuchMethod(
+    Invocation.method(#write, [key, value]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   T? read<T>(String? key) =>
       (super.noSuchMethod(Invocation.method(#read, [key])) as T?);
 
   @override
-  _i3.Future<void> delete(String? key) =>
-      (super.noSuchMethod(
-            Invocation.method(#delete, [key]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+  _i3.Future<void> delete(String? key) => (super.noSuchMethod(
+    Invocation.method(#delete, [key]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> clear() =>
-      (super.noSuchMethod(
-            Invocation.method(#clear, []),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+  _i3.Future<void> clear() => (super.noSuchMethod(
+    Invocation.method(#clear, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 }

@@ -17,6 +17,7 @@ import 'infrastructure/navigation/navigation.dart';
 import 'infrastructure/navigation/routes.dart';
 import 'infrastructure/theme/theme.dart';
 import 'utils/helper/logger.dart';
+
 import 'package:chucker_flutter/chucker_flutter.dart';
 
 void main() {

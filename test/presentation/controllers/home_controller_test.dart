@@ -63,9 +63,8 @@ void main() {
 
     test('fetchBanners should set errorMessage on failure', () async {
       // Arrange
-      when(
-        mockUseCase.execute(any),
-      ).thenAnswer((_) async => Left(ServerFailure('Server Error')));
+      when(mockUseCase.execute(any))
+          .thenAnswer((_) async => Left(ServerFailure('Server Error')));
 
       // Act
       await controller.fetchBanners();

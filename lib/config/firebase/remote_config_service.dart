@@ -46,8 +46,7 @@ class RemoteConfigService extends GetxController {
       // Set defaults
       await _remoteConfig.setDefaults({
         _keyMaintenanceMode: false,
-        _keyMaintenanceMessage:
-            'The application is currently in maintenance. Please try again later.',
+        _keyMaintenanceMessage: 'The application is currently in maintenance. Please try again later.',
       });
 
       // Configure

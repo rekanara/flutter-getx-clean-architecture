@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "⏳ Running tests before push..."
+
+FLUTTER_CMD="flutter"
+if command -v fvm >/dev/null 2>&1; then
+  FLUTTER_CMD="fvm flutter"
+fi
+
+$FLUTTER_CMD test || {
+  echo "❌ Tests failed. Please fix them before pushing."
+  exit 1
+}
+
+echo "✅ All tests passed!"

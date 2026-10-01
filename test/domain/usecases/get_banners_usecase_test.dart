@@ -39,9 +39,8 @@ void main() {
       'should return list of banners when repository call is successful',
       () async {
         // Arrange
-        when(
-          mockRepository.getBanners(),
-        ).thenAnswer((_) async => Right(tBanners));
+        when(mockRepository.getBanners())
+            .thenAnswer((_) async => Right(tBanners));
 
         // Act
         final result = await useCase.execute(NoParams());
@@ -68,9 +67,8 @@ void main() {
 
     test('should return empty list when repository returns empty', () async {
       // Arrange
-      when(
-        mockRepository.getBanners(),
-      ).thenAnswer((_) async => const Right([]));
+      when(mockRepository.getBanners())
+          .thenAnswer((_) async => const Right([]));
 
       // Act
       final result = await useCase.execute(NoParams());
