@@ -8,7 +8,10 @@ import '../../infrastructure/network/environments.dart';
 /// - Android: `flutter run --flavor dev` / Gradle `productFlavors`
 ///   (Flutter passes `--dart-define=app.flavor=<flavor>` automatically
 ///   for flavors registered in build.gradle.kts).
-/// - iOS: matching Xcode scheme (see docs/flavors.md for iOS plan).
+/// - iOS: matching Xcode scheme (`dev`/`staging`/`prod`) with build
+///   configurations `Debug-<flavor>`/`Release-<flavor>`/`Profile-<flavor>`.
+///   Flutter passes `--dart-define=app.flavor=<flavor>` automatically
+///   when the scheme name matches the flavor.
 ///
 /// When no flavor is provided (e.g. plain `dart test`), the app falls
 /// back to [AppFlavor.dev] so tooling keeps working.

@@ -500,16 +500,68 @@ Flavor-lock test coverage (`environments_controller_test.dart`):
 
 ---
 
-## iOS Roadmap (not implemented yet)
+## iOS Flavors
 
-iOS has no native "flavor" — the approach is **Schemes + Build Configurations**:
+iOS has no native "flavor" concept — the equivalent is **Schemes + Build Configurations**.
 
-1. 6 build configurations: `Debug-dev/Release-dev`, `Debug-staging/Release-staging`,
-   `Debug-prod/Release-prod`.
-2. 3 xcconfig files per flavor (`ios/Flavors/{dev,staging,prod}.xcconfig`) containing
-   `PRODUCT_BUNDLE_IDENTIFIER`, `APP_DISPLAY_NAME`, `ASSETCATALOG_COMPILER_APPICON_NAME`.
-3. 3 Xcode schemes: `dev`, `staging`, `prod` (Flutter `--flavor` maps to the scheme automatically).
-4. `GoogleService-Info.plist` per flavor + a build phase script that copies it per configuration.
-5. Reuse the same `FlavorService` pattern (no Dart code changes needed).
+### Setup (already configured)
 
-Concept reference: Flutter docs "Flavor assets and flavors on iOS".
+The project ships with 9 build configurations in `Runner.xcodeproj`:
+
+| Configuration | Bundle ID | Display Name |
+| ------------- | --------- | ----------- |
+| `Debug-dev` / `Release-dev` / `Profile-dev` | `com.rekanara.getx.dev` | Rekanara Dev |
+| `Debug-staging` / `Release-staging` / `Profile-staging` | `com.rekanara.getx.staging` | Rekanara Stg |
+| `Debug-prod` / `Release-prod` / `Profile-prod` | `com.rekanara.getx` | Rekanara |
+
+3 Xcode schemes (`dev`, `staging`, `prod`) map to these configurations. Flutter's
+`--flavor` flag selects the scheme automatically.
+
+`Info.plist` uses `$(APP_DISPLAY_NAME)` for `CFBundleDisplayName`, so each flavor
+gets a distinct app name on the home screen — dev/staging/prod can sit side-by-side
+on one device (same as Android `applicationIdSuffix`).
+
+### Firebase per Flavor (iOS)
+
+Place `GoogleService-Info.plist` inside the flavor folders:
+
+| Flavor | Path | Git |
+| ------ | ---- | --- |
+| dev | `ios/Runner/flavors/dev/GoogleService-Info.plist` | Committable (public client ID) |
+| staging | `ios/Runner/flavors/staging/GoogleService-Info.plist` | Committable (public client ID) |
+| prod | `ios/Runner/flavors/prod/GoogleService-Info.plist` | Gitignored (provision via CI secret) |
+
+A build phase script named **"Copy GoogleService-Info.plist"** reads
+`$CONFIGURATION` (e.g. `Debug-dev`), extracts the flavor suffix, and copies the
+matching plist into the app bundle automatically. No manual file swapping needed.
+
+For CI, inject the prod plist via a base64 secret (`GOOGLE_SERVICE_INFO_PLIST_PROD`)
+decoded into `ios/Runner/flavors/prod/GoogleService-Info.plist` before `flutter build ipa`.
+
+### Running iOS Flavors
+
+```bash
+# Debug
+fvm flutter run --flavor dev -t lib/main.dart
+fvm flutter run --flavor staging -t lib/main.dart
+fvm flutter run --flavor prod -t lib/main.dart
+
+# Release IPA
+fvm flutter build ipa --flavor dev --release
+fvm flutter build ipa --flavor staging --release
+fvm flutter build ipa --flavor prod --release
+```
+
+### Manual Setup Reference
+
+If you need to recreate the iOS flavor setup in a fresh project, a reference script
+is documented in `docs/flavors.md` history (commit `3f5e901`). The key steps:
+
+1. Use the `xcodeproj` Ruby gem to duplicate `Debug`/`Release`/`Profile` configs
+   into `Debug-{flavor}`/`Release-{flavor}`/`Profile-{flavor}` for each flavor.
+2. Set `PRODUCT_BUNDLE_IDENTIFIER` and `APP_DISPLAY_NAME` per configuration.
+3. Change `Info.plist` `CFBundleDisplayName` to `$(APP_DISPLAY_NAME)`.
+4. Create one `.xcscheme` per flavor pointing at the flavor-specific configurations.
+5. Add a "Copy GoogleService-Info.plist" shell script build phase.
+
+Concept reference: Flutter docs "Build flavors and flavors on iOS".

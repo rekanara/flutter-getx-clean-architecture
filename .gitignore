@@ -50,6 +50,7 @@ app.*.map.json
 android/app/src/google-services.json
 android/app/src/prod/google-services.json
 ios/Runner/GoogleService-Info.plist
+ios/Runner/flavors/prod/GoogleService-Info.plist
 
 # Android release signing (never commit)
 android/key.properties

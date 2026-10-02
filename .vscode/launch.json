@@ -8,7 +8,7 @@
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "toolArgs": ["--flavor", "dev"],
+            "toolArgs": ["--flavor", "dev", "--dart-define", "app.flavor=dev"],
             "flutterMode": "debug"
         },
         {
@@ -16,7 +16,7 @@
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "toolArgs": ["--flavor", "staging"],
+            "toolArgs": ["--flavor", "staging", "--dart-define", "app.flavor=staging"],
             "flutterMode": "debug"
         },
         {
@@ -24,7 +24,7 @@
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "toolArgs": ["--flavor", "prod"],
+            "toolArgs": ["--flavor", "prod", "--dart-define", "app.flavor=prod"],
             "flutterMode": "release"
         }
     ]

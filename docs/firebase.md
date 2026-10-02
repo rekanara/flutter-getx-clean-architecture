@@ -146,7 +146,7 @@ The service automatically listens to `onConfigUpdated` — if there's an update 
    flutterfire configure
    ```
 2. Ensure `google-services.json` (Android, **per flavor** — see `docs/flavors.md`) and
-   `GoogleService-Info.plist` (iOS) are present
+   `GoogleService-Info.plist` (iOS, **per flavor** — see `docs/flavors.md`) are present
 3. Set environment variables in `.env` if necessary
 
 ---
@@ -164,8 +164,8 @@ There are TWO sources of Firebase configuration — both are per-env:
 
 Because env switching runs at runtime, Dart-side options are always consistent with the active env.
 Native files only contain ONE set of configs per build — Android solves this with **native flavors**
-(one `google-services.json` per flavor under `android/app/src/<flavor>/`); iOS will use
-schemes + xcconfig (see [Roadmap iOS](flavors.md#roadmap-ios-belum-diimplementasi)).
+(one `google-services.json` per flavor under `android/app/src/<flavor>/`); iOS uses
+schemes + per-flavor build configurations (see [iOS Flavors](flavors.md#ios-flavors)).
 
 ### Local Provisioning
 
@@ -174,7 +174,9 @@ schemes + xcconfig (see [Roadmap iOS](flavors.md#roadmap-ios-belum-diimplementas
 #   Android (dev)     → google-services.json → android/app/src/dev/
 #   Android (staging) → google-services.json → android/app/src/staging/
 #   Android (prod)    → google-services.json → android/app/src/prod/
-#   iOS               → GoogleService-Info.plist → ios/Runner/
+#   iOS (dev)         → GoogleService-Info.plist → ios/Runner/flavors/dev/
+#   iOS (staging)     → GoogleService-Info.plist → ios/Runner/flavors/staging/
+#   iOS (prod)        → GoogleService-Info.plist → ios/Runner/flavors/prod/
 ```
 
 The prod file (and the legacy non-flavor location `android/app/src/google-services.json`)
@@ -201,8 +203,16 @@ base64 -i android/app/src/prod/google-services.json | pbcopy
     echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/src/prod/google-services.json
 ```
 
-For iOS, store `GoogleService-Info.plist` the same way (e.g. `FIREBASE_IOS_PLIST_PROD`)
-and decode to `ios/Runner/` once iOS flavors are implemented.
+For iOS, store `GoogleService-Info.plist` the same way (e.g. `GOOGLE_SERVICE_INFO_PLIST_PROD`)
+and decode to `ios/Runner/flavors/prod/GoogleService-Info.plist` before building the prod IPA:
+
+```bash
+# Store once (locally) — paste into GitHub secret GOOGLE_SERVICE_INFO_PLIST_PROD:
+base64 -i ios/Runner/flavors/prod/GoogleService-Info.plist | pbcopy
+```
+
+A build phase script ("Copy GoogleService-Info.plist") automatically copies the correct
+per-flavor plist into the app bundle at build time based on the active configuration.
 
 ### Security
 

@@ -283,7 +283,7 @@ Android builds are split into **3 native flavors** that install as **side-by-sid
 | `staging` | 🔒 Locked to staging                          |
 | `prod`    | 🔒 Locked to prod, badge & switcher hidden    |
 
-> Full documentation: [docs/flavors.md](docs/flavors.md) — file list, Firebase per-flavor setup, CI matrix, troubleshooting, iOS roadmap.
+> Full documentation: [docs/flavors.md](docs/flavors.md) — file list, Firebase per-flavor setup, CI matrix, troubleshooting, iOS flavors.
 
 ```bash
 # Run / build a specific flavor (--flavor is REQUIRED for Android)
@@ -481,9 +481,9 @@ mv android/app/src/main/kotlin/com/zidanfath/codebase/MainActivity.kt \
 ### 4. Firebase
 
 - Create a new Firebase project matching your new `applicationId`/Bundle ID.
-- Download `google-services.json` (Android) → place in `android/app/src/`.
-- Download `GoogleService-Info.plist` (iOS) → place in `ios/Runner/`.
-- Both files are already in `.gitignore` — **do not commit**, provision manually/via CI in each environment.
+- Download `google-services.json` (Android) → place in `android/app/src/` (**per flavor** — `src/dev/`, `src/staging/`, `src/prod/`).
+- Download `GoogleService-Info.plist` (iOS) → place in `ios/Runner/flavors/{dev,staging,prod}/`.
+- Prod files are already in `.gitignore` — **do not commit**, provision manually/via CI in each environment. Dev/staging may be committed (public client IDs).
 
 ### 5. Environment Variables
 

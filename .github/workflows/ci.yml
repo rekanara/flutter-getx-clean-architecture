@@ -18,7 +18,7 @@ jobs:
           # .env, prod Firebase config, and signing keys must never be tracked.
           # dev/staging google-services.json live under android/app/src/<flavor>/
           # and MAY be tracked (they are not secrets) — prod stays a CI secret.
-          FORBIDDEN="$(git ls-files | grep -E '^(\.env$|android/app/google-services\.json$|android/app/src/prod/google-services\.json$|ios/Runner/GoogleService-Info\.plist$|android/key\.properties$|.*\.(jks|keystore)$)' || true)"
+          FORBIDDEN="$(git ls-files | grep -E '^(\.env$|android/app/google-services\.json$|android/app/src/prod/google-services\.json$|ios/Runner/GoogleService-Info\.plist$|ios/Runner/flavors/prod/GoogleService-Info\.plist$|android/key\.properties$|.*\.(jks|keystore)$)' || true)"
           if [ -n "$FORBIDDEN" ]; then
             echo "::error::Forbidden file(s) tracked in git: ${FORBIDDEN}"
             echo "Provision these locally or via CI secrets — see docs/firebase.md"
