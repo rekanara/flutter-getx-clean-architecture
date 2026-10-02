@@ -427,8 +427,8 @@ Plist format; example structure (for when iOS flavors are implemented):
 </plist>
 ```
 
-> When iOS flavors are implemented, this file will live per-scheme
-> (e.g. `ios/Flavors/<flavor>/GoogleService-Info.plist`) following the Android pattern.
+> This file lives per-scheme at `ios/Runner/flavors/<flavor>/GoogleService-Info.plist`
+> (see [iOS Flavors](#ios-flavors) for the per-flavor folder layout and CI secret).
 
 ---
 
@@ -443,25 +443,31 @@ Forbidden patterns (regex), updated:
 android/app/google-services.json          ← legacy location, still forbidden
 android/app/src/prod/google-services.json ← prod config must not be tracked
 ios/Runner/GoogleService-Info.plist
+ios/Runner/flavors/prod/GoogleService-Info.plist ← prod iOS config via CI secret
 android/key.properties
 *.jks / *.keystore
 ```
 
-`src/{dev,staging}/google-services.json` is **intentionally not** on the forbidden list.
+`src/{dev,staging}/google-services.json` and `ios/Runner/flavors/{dev,staging}/GoogleService-Info.plist` are **intentionally not** on the forbidden list (public client IDs — safe to commit).
 
 ### `release.yml` — build matrix
 
-Triggered by `v*` tags → **3 parallel jobs** (dev, staging, prod) → one GitHub Release containing:
+Triggered by `v*` tags → **6 parallel jobs** (3 APK on `ubuntu-latest`, 3 IPA on `macos-latest`) → one GitHub Release containing:
 
 ```
 rekanara-<version>-dev.apk
 rekanara-<version>-staging.apk
 rekanara-<version>-prod.apk
+rekanara-<version>-ios-dev.ipa
+rekanara-<version>-ios-staging.ipa
+rekanara-<version>-ios-prod.ipa
 ```
 
 - `fail-fast: false` → one flavor failing does not cancel the others.
-- The prod flavor decodes `GOOGLE_SERVICES_JSON_PROD` first.
-- APKs are renamed per flavor + tag version before upload.
+- Android: prod flavor decodes `GOOGLE_SERVICES_JSON_PROD` before building the APK.
+- iOS: prod flavor decodes `GOOGLE_SERVICE_INFO_PLIST_PROD` before building the IPA.
+- APKs/IPAs are renamed per flavor + tag version before upload.
+- IPAs are built unsigned (`--no-codesign`) and packaged via `Payload/` zip. To ship a signed `.ipa`, provision Apple signing secrets and switch to `flutter build ipa --export-options-plist`.
 
 ---
 

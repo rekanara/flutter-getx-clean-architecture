@@ -1,4 +1,4 @@
-name: Build and Release APK
+name: Build and Release APK & IPA
 
 on:
   push:
@@ -86,3 +86,67 @@ jobs:
         with:
           generate_release_notes: true
           files: dist/rekanara-*.apk
+
+  release-ios:
+    name: Build IPA (${{ matrix.flavor }})
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        flavor: [dev, staging, prod]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Create .env file for build
+        run: cp .env.example .env
+
+      # ── Firebase config per flavor (iOS) ──────────────────────
+      # dev/staging plists are committed (not secrets). prod comes
+      # from the GOOGLE_SERVICE_INFO_PLIST_PROD repository secret.
+      - name: Decode prod GoogleService-Info.plist
+        if: matrix.flavor == 'prod'
+        env:
+          GOOGLE_SERVICE_INFO_PLIST_PROD: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_PROD }}
+        run: |
+          if [ -z "$GOOGLE_SERVICE_INFO_PLIST_PROD" ]; then
+            echo "::warning::GOOGLE_SERVICE_INFO_PLIST_PROD not set — building prod flavor without Firebase config"
+          else
+            echo "$GOOGLE_SERVICE_INFO_PLIST_PROD" | base64 --decode > ios/Runner/flavors/prod/GoogleService-Info.plist
+          fi
+
+      # Build unsigned iOS app (no Apple certificates required).
+      # To produce a signed .ipa, provision signing certs/secrets and
+      # switch to: flutter build ipa --release --flavor <flavor> \
+      #   --export-options-plist=ios/ExportOptions.plist
+      - name: Build iOS app (release, flavor ${{ matrix.flavor }}, no codesign)
+        run: flutter build ios --release --flavor ${{ matrix.flavor }} --no-codesign
+
+      - name: Package unsigned IPA per flavor
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p Payload dist
+          cp -R build/ios/iphoneos/Runner.app Payload/Runner.app
+          zip -qr "rekanara-${VERSION}-ios-${{ matrix.flavor }}.ipa" Payload
+          mv "rekanara-${VERSION}-ios-${{ matrix.flavor }}.ipa" dist/
+          ls -la dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dist/rekanara-*-ios-*.ipa
